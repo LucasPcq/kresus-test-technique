@@ -30,5 +30,17 @@
   },
   "files": {
     "ignore": ["node_modules", "dist", ".turbo", ".next", "routeTree.gen.ts"]
-  }
+  },
+  "overrides": [
+    {
+      "include": ["**/*.vue"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    }
+  ]
 }
