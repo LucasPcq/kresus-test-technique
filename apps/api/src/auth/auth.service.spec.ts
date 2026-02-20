@@ -4,14 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 
-vi.mock("bcrypt", () => ({
-	default: {
-		hash: vi.fn().mockResolvedValue("hashed_password"),
-		compare: vi.fn(),
-	},
+vi.mock("../common/utils/bcrypt.utils", () => ({
+	hashPassword: vi.fn().mockResolvedValue("hashed_password"),
+	comparePassword: vi.fn(),
 }));
 
-import bcrypt from "bcrypt";
+import { comparePassword, hashPassword } from "../common/utils/bcrypt.utils";
 
 const mockUserService = {
 	findByEmail: vi.fn(),
@@ -40,10 +38,11 @@ describe("AuthService", () => {
 
 			const result = await service.register({ email: "test@example.com", password: "password123" });
 
-			expect(mockUserService.findByEmail).toHaveBeenCalledWith({ email: "test@example.com" });
-			expect(bcrypt.hash).toHaveBeenCalledWith("password123", 10);
+			expect(mockUserService.findByEmail).toHaveBeenCalledWith("test@example.com");
+			expect(hashPassword).toHaveBeenCalledWith("password123");
 			expect(mockUserService.create).toHaveBeenCalledWith({
-				data: { email: "test@example.com", password: "hashed_password" },
+				email: "test@example.com",
+				password: "hashed_password",
 			});
 			expect(result).toEqual({ access_token: "jwt_token" });
 		});
@@ -66,7 +65,7 @@ describe("AuthService", () => {
 				email: "test@example.com",
 				password: "hashed_password",
 			});
-			vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+			vi.mocked(comparePassword).mockResolvedValue(true as never);
 
 			const result = await service.login({ email: "test@example.com", password: "password123" });
 
@@ -87,7 +86,7 @@ describe("AuthService", () => {
 				email: "test@example.com",
 				password: "hashed_password",
 			});
-			vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
+			vi.mocked(comparePassword).mockResolvedValue(false as never);
 
 			await expect(
 				service.login({ email: "test@example.com", password: "wrong_password" }),

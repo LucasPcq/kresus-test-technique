@@ -22,7 +22,7 @@ describe("UserRepository", () => {
 			const user = { id: "1", email: "test@example.com", password: "hash" };
 			mockPrisma.user.findUnique.mockResolvedValue(user);
 
-			const result = await repository.findByEmail({ email: "test@example.com" });
+			const result = await repository.findByEmail("test@example.com");
 
 			expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
 				where: { email: "test@example.com" },
@@ -33,7 +33,7 @@ describe("UserRepository", () => {
 		it("returns null when user is not found", async () => {
 			mockPrisma.user.findUnique.mockResolvedValue(null);
 
-			const result = await repository.findByEmail({ email: "missing@example.com" });
+			const result = await repository.findByEmail("missing@example.com");
 
 			expect(result).toBeNull();
 		});
@@ -45,7 +45,7 @@ describe("UserRepository", () => {
 			const created = { id: "2", ...data, createdAt: new Date(), updatedAt: new Date() };
 			mockPrisma.user.create.mockResolvedValue(created);
 
-			const result = await repository.create({ data });
+			const result = await repository.create(data);
 
 			expect(mockPrisma.user.create).toHaveBeenCalledWith({ data });
 			expect(result).toEqual(created);

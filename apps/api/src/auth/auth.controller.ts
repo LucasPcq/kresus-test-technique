@@ -8,20 +8,10 @@ import {
 	ApiTags,
 	ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { loginSchema, registerSchema } from "@kresus/contract";
-import { z } from "zod";
+import { authTokenResponseSchema, loginSchema, registerSchema } from "@kresus/contract";
 import { AuthService } from "./auth.service";
 import { Public } from "./public.decorator";
-
-const toSwaggerSchema = (schema: z.ZodType) =>
-	JSON.parse(JSON.stringify(z.toJSONSchema(schema)));
-
-const tokenResponseSchema = {
-	properties: {
-		access_token: { type: "string" },
-	},
-	required: ["access_token"],
-};
+import { toSwaggerSchema } from "../common/utils/swagger.utils";
 
 @ApiTags("auth")
 @Controller("auth")
@@ -31,7 +21,7 @@ export class AuthController {
 	@Public()
 	@Post("register")
 	@ApiBody({ schema: toSwaggerSchema(registerSchema) })
-	@ApiCreatedResponse({ description: "Compte créé", schema: tokenResponseSchema })
+	@ApiCreatedResponse({ description: "Compte créé", schema: toSwaggerSchema(authTokenResponseSchema) })
 	@ApiBadRequestResponse({ description: "Données invalides" })
 	@ApiConflictResponse({ description: "Email déjà utilisé" })
 	register(@Body() body: unknown) {
@@ -43,7 +33,7 @@ export class AuthController {
 	@Post("login")
 	@HttpCode(HttpStatus.OK)
 	@ApiBody({ schema: toSwaggerSchema(loginSchema) })
-	@ApiOkResponse({ description: "Connexion réussie", schema: tokenResponseSchema })
+	@ApiOkResponse({ description: "Connexion réussie", schema: toSwaggerSchema(authTokenResponseSchema) })
 	@ApiBadRequestResponse({ description: "Données invalides" })
 	@ApiUnauthorizedResponse({ description: "Identifiants incorrects" })
 	login(@Body() body: unknown) {
