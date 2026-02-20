@@ -12,7 +12,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
-      "@kresus/contract": fileURLToPath(new URL("../../packages/contract/src/index.ts", import.meta.url)),
+      "@kresus/contract": fileURLToPath(
+        new URL("../../packages/contract/src/index.ts", import.meta.url),
+      ),
     },
   },
 });
