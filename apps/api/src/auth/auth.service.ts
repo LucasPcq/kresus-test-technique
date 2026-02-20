@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { AuthTokenResponse, JwtPayload } from "@kresus/contract";
+import { AuthResult, JwtPayload } from "@kresus/contract";
 import { UserService } from "../user/user.service";
 import { comparePassword, hashPassword } from "../common/utils/bcrypt.utils";
 
@@ -14,7 +14,7 @@ export class AuthService {
   async register({
     email,
     password,
-  }: { email: string; password: string }): Promise<AuthTokenResponse> {
+  }: { email: string; password: string }): Promise<AuthResult> {
     const existing = await this.userService.findByEmail(email);
 
     if (existing) throw new ConflictException("Email already in use");
@@ -24,13 +24,16 @@ export class AuthService {
 
     const payload: JwtPayload = { sub: user.id, email: user.email };
 
-    return { access_token: this.jwtService.sign(payload) };
+    return {
+      token: this.jwtService.sign(payload),
+      user: { id: user.id, email: user.email },
+    };
   }
 
   async login({
     email,
     password,
-  }: { email: string; password: string }): Promise<AuthTokenResponse> {
+  }: { email: string; password: string }): Promise<AuthResult> {
     const user = await this.userService.findByEmail(email);
 
     if (!user) throw new UnauthorizedException("Invalid credentials");
@@ -41,6 +44,9 @@ export class AuthService {
 
     const payload: JwtPayload = { sub: user.id, email: user.email };
 
-    return { access_token: this.jwtService.sign(payload) };
+    return {
+      token: this.jwtService.sign(payload),
+      user: { id: user.id, email: user.email },
+    };
   }
 }

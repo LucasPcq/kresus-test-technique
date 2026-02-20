@@ -32,7 +32,7 @@ describe("AuthService", () => {
 	});
 
 	describe("register", () => {
-		it("creates a user and returns an access token", async () => {
+		it("creates a user and returns token and user info", async () => {
 			mockUserService.findByEmail.mockResolvedValue(null);
 			mockUserService.create.mockResolvedValue({ id: "1", email: "test@example.com" });
 
@@ -44,7 +44,10 @@ describe("AuthService", () => {
 				email: "test@example.com",
 				password: "hashed_password",
 			});
-			expect(result).toEqual({ access_token: "jwt_token" });
+			expect(result).toEqual({
+				token: "jwt_token",
+				user: { id: "1", email: "test@example.com" },
+			});
 		});
 
 		it("throws ConflictException when email is already taken", async () => {
@@ -59,7 +62,7 @@ describe("AuthService", () => {
 	});
 
 	describe("login", () => {
-		it("returns an access token when credentials are valid", async () => {
+		it("returns token and user info when credentials are valid", async () => {
 			mockUserService.findByEmail.mockResolvedValue({
 				id: "1",
 				email: "test@example.com",
@@ -69,7 +72,10 @@ describe("AuthService", () => {
 
 			const result = await service.login({ email: "test@example.com", password: "password123" });
 
-			expect(result).toEqual({ access_token: "jwt_token" });
+			expect(result).toEqual({
+				token: "jwt_token",
+				user: { id: "1", email: "test@example.com" },
+			});
 		});
 
 		it("throws UnauthorizedException when user is not found", async () => {
