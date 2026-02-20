@@ -7,10 +7,15 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "noUncheckedIndexedAccess": true,
-    "moduleDetection": "force",
-    "forceConsistentCasingInFileNames": true
+    "moduleDetection": "auto",
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
-  "exclude": ["node_modules", "dist"]
+  "files": [],
+  "references": [{ "path": "apps/api" }, { "path": "apps/web" }, { "path": "packages/contract" }]
 }
