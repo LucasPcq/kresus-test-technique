@@ -7,15 +7,15 @@ import { Request } from "express";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-	constructor(configService: ConfigService) {
-		super({
-			jwtFromRequest: (req: Request) => req.cookies?.access_token ?? null,
-			ignoreExpiration: false,
-			secretOrKey: configService.getOrThrow<string>("JWT_SECRET"),
-		});
-	}
+  constructor(configService: ConfigService) {
+    super({
+      jwtFromRequest: (req: Request) => req.cookies?.access_token ?? null,
+      ignoreExpiration: false,
+      secretOrKey: configService.getOrThrow<string>("JWT_SECRET"),
+    });
+  }
 
-	validate(payload: JwtPayload): JwtPayload {
-		return payload;
-	}
+  validate(payload: JwtPayload): JwtPayload {
+    return payload;
+  }
 }
