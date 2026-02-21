@@ -1,15 +1,11 @@
+import cookieParser from "cookie-parser";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
-
-import cookieParser from "cookie-parser";
-
-import { env, validateEnv } from "./config/env";
-
 import { AppModule } from "./app.module";
-
 import { ZodExceptionFilter } from "./common/filters/zod-exception.filter";
+import { env, validateEnv } from "./config/env";
 
 async function bootstrap() {
   validateEnv();
