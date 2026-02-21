@@ -32,7 +32,7 @@ export function buildWrapper(component: Component) {
   };
 }
 
-export async function fillAndSubmit(
+export async function fillAndSubmitAuthForm(
   wrapper: VueWrapper,
   { email, password }: { email: string; password: string },
 ) {
