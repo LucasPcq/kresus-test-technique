@@ -34,9 +34,54 @@ export type CreateTaskDto = z.infer<typeof createTaskSchema>;
 
 const PAGE_SIZES = [10, 25, 50] as const;
 
+const SORT_FIELDS = ["createdAt", "executionDate", "priority"] as const;
+const sortRegex = new RegExp(`^-?(${SORT_FIELDS.join("|")})$`);
+
+const singleOperator = <T extends z.ZodRawShape>(shape: T) =>
+  z
+    .object(shape)
+    .refine((obj) => Object.values(obj).filter((v) => v !== undefined).length <= 1, {
+      message: "Only one operator allowed per filter field",
+    })
+    .optional();
+
+const priorityFilterSchema = singleOperator({
+  eq: z.enum(priorityValues).optional(),
+  neq: z.enum(priorityValues).optional(),
+});
+
+const executionDateFilterSchema = singleOperator({
+  eq: z.coerce.date().optional(),
+  neq: z.coerce.date().optional(),
+  gt: z.coerce.date().optional(),
+  gte: z.coerce.date().optional(),
+  lt: z.coerce.date().optional(),
+  lte: z.coerce.date().optional(),
+  between: z.tuple([z.coerce.date(), z.coerce.date()]).optional(),
+});
+
+const titleFilterSchema = singleOperator({
+  eq: z.string().optional(),
+  neq: z.string().optional(),
+  contains: z.string().optional(),
+  notContains: z.string().optional(),
+  startsWith: z.string().optional(),
+});
+
+const taskFilterSchema = z
+  .object({
+    completed: z.coerce.boolean().optional(),
+    priority: priorityFilterSchema,
+    executionDate: executionDateFilterSchema,
+    title: titleFilterSchema,
+  })
+  .optional();
+
 export const taskQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.literal(PAGE_SIZES).default(PAGE_SIZES[0]),
+  sort: z.string().regex(sortRegex).default("-createdAt").optional(),
+  filter: taskFilterSchema,
 });
 
 export type TaskQueryDto = z.infer<typeof taskQuerySchema>;

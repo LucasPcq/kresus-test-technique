@@ -13,16 +13,21 @@ export class TaskRepository {
     });
   }
 
-  findByUserId(userId: string, { skip, take }: { skip: number; take: number }) {
-    return this.prisma.task.findMany({
-      where: { userId },
-      skip,
-      take,
-      orderBy: { createdAt: "desc" },
-    });
+  findMany({
+    where,
+    skip,
+    take,
+    orderBy,
+  }: {
+    where: Prisma.TaskWhereInput;
+    skip: number;
+    take: number;
+    orderBy: Prisma.TaskOrderByWithRelationInput;
+  }) {
+    return this.prisma.task.findMany({ where, skip, take, orderBy });
   }
 
-  countByUserId(userId: string) {
-    return this.prisma.task.count({ where: { userId } });
+  count(where: Prisma.TaskWhereInput) {
+    return this.prisma.task.count({ where });
   }
 }

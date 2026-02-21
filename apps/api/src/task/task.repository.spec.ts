@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { PrismaService } from "../prisma/prisma.service";
 import { TaskRepository } from "./task.repository";
 
@@ -43,30 +44,33 @@ describe("TaskRepository", () => {
     });
   });
 
-  describe("findByUserId", () => {
-    it("should return tasks ordered by createdAt desc when given userId and pagination", async () => {
+  describe("findMany", () => {
+    it("should pass where, skip, take and orderBy to prisma when called", async () => {
       const tasks = [{ id: "task-1" }];
+      const where = { userId: "user-1", priority: { equals: "HIGH" } };
+      const orderBy = { createdAt: "desc" as const };
       mockPrisma.task.findMany.mockResolvedValue(tasks);
 
-      const result = await repository.findByUserId("user-1", { skip: 0, take: 10 });
+      const result = await repository.findMany({ where, skip: 0, take: 10, orderBy });
 
       expect(mockPrisma.task.findMany).toHaveBeenCalledWith({
-        where: { userId: "user-1" },
+        where,
         skip: 0,
         take: 10,
-        orderBy: { createdAt: "desc" },
+        orderBy,
       });
       expect(result).toEqual(tasks);
     });
   });
 
-  describe("countByUserId", () => {
-    it("should return task count when given userId", async () => {
+  describe("count", () => {
+    it("should pass where to prisma.task.count when called", async () => {
+      const where = { userId: "user-1" };
       mockPrisma.task.count.mockResolvedValue(5);
 
-      const result = await repository.countByUserId("user-1");
+      const result = await repository.count(where);
 
-      expect(mockPrisma.task.count).toHaveBeenCalledWith({ where: { userId: "user-1" } });
+      expect(mockPrisma.task.count).toHaveBeenCalledWith({ where });
       expect(result).toBe(5);
     });
   });

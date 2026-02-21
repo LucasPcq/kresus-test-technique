@@ -47,5 +47,20 @@ describe("TaskController", () => {
       expect(mockTaskService.findAll).toHaveBeenCalledWith(query, "user-1");
       expect(result).toEqual(paginated);
     });
+
+    it("should pass filters to taskService.findAll when filters provided", async () => {
+      const query = {
+        page: 1,
+        pageSize: 10 as const,
+        sort: "-priority",
+        filter: { completed: true, priority: { eq: "HIGH" as const } },
+      };
+      const user = { sub: "user-1", email: "test@example.com" };
+      mockTaskService.findAll.mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 });
+
+      await controller.findAll(query, user);
+
+      expect(mockTaskService.findAll).toHaveBeenCalledWith(query, "user-1");
+    });
   });
 });
