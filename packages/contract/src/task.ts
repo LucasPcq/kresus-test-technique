@@ -70,7 +70,7 @@ const titleFilterSchema = singleOperator({
 
 const taskFilterSchema = z
   .object({
-    completed: z.coerce.boolean().optional(),
+    completed: z.coerce.number().pipe(z.literal([0, 1])).transform(Boolean).optional(),
     priority: priorityFilterSchema,
     executionDate: executionDateFilterSchema,
     title: titleFilterSchema,
@@ -79,7 +79,7 @@ const taskFilterSchema = z
 
 export const taskQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.literal(PAGE_SIZES).default(PAGE_SIZES[0]),
+  pageSize: z.coerce.number().pipe(z.literal(PAGE_SIZES)).default(PAGE_SIZES[0]),
   sort: z.string().regex(sortRegex).default("-createdAt").optional(),
   filter: taskFilterSchema,
 });
