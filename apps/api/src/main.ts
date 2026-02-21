@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import { AppModule } from "./app.module";
 import { ZodExceptionFilter } from "./common/filters/zod-exception.filter";
-import { validateEnv } from "./config/env";
+import { env, validateEnv } from "./config/env";
 
 async function bootstrap() {
   validateEnv();
@@ -32,7 +32,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(env.PORT ?? 3000);
 }
 
 bootstrap();

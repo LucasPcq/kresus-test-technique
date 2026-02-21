@@ -20,3 +20,5 @@ export function validateEnv(): Env {
   }
   return result.data;
 }
+
+export const env = validateEnv();
