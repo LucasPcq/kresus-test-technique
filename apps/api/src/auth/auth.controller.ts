@@ -1,18 +1,38 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { ConfigService } from "@nestjs/config";
-import type { Response } from "express";
-import ms from "ms";
-import { authUserResponseSchema, loginSchema, registerSchema } from "@kresus/contract";
+import { AuthGuard } from "@nestjs/passport";
+
+import type { Request, Response } from "express";
+
+import {
+  type AuthUserResponse,
+  type JwtPayload,
+  authUserResponseSchema,
+  loginSchema,
+  registerSchema,
+} from "@kresus/contract";
+
 import { AuthService } from "./auth.service";
+import { CookieService } from "./cookie.service";
 import { Public } from "./public.decorator";
 import { toSwaggerSchema } from "../common/utils/swagger.utils";
 
@@ -21,7 +41,7 @@ import { toSwaggerSchema } from "../common/utils/swagger.utils";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
+    private readonly cookieService: CookieService,
   ) {}
 
   @Public()
@@ -35,8 +55,8 @@ export class AuthController {
   @ApiConflictResponse({ description: "Email déjà utilisé" })
   async register(@Body() body: unknown, @Res({ passthrough: true }) res: Response) {
     const dto = registerSchema.parse(body);
-    const { token, user } = await this.authService.register(dto);
-    this.setAuthCookie(res, token);
+    const { token, refreshToken, user } = await this.authService.register(dto);
+    this.cookieService.setTokens(res, { token, refreshToken });
     return user;
   }
 
@@ -52,18 +72,37 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: "Identifiants incorrects" })
   async login(@Body() body: unknown, @Res({ passthrough: true }) res: Response) {
     const dto = loginSchema.parse(body);
-    const { token, user } = await this.authService.login(dto);
-    this.setAuthCookie(res, token);
+    const { token, refreshToken, user } = await this.authService.login(dto);
+    this.cookieService.setTokens(res, { token, refreshToken });
     return user;
   }
 
-  private setAuthCookie(res: Response, token: string) {
-    res.cookie("access_token", token, {
-      httpOnly: true,
-      secure: this.configService.get("NODE_ENV") === "production",
-      sameSite: "strict",
-      maxAge: ms(this.configService.getOrThrow<string>("JWT_EXPIRES_IN") as ms.StringValue),
-      path: "/",
-    });
+  @Get("me")
+  @ApiOkResponse({
+    description: "Utilisateur courant",
+    schema: toSwaggerSchema(authUserResponseSchema),
+  })
+  @ApiUnauthorizedResponse({ description: "Non authentifié" })
+  me(@Req() req: Request): AuthUserResponse {
+    const payload = req.user as JwtPayload;
+    return { id: payload.sub, email: payload.email };
+  }
+
+  @Post("logout")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: "Déconnexion réussie" })
+  logout(@Res({ passthrough: true }) res: Response): void {
+    this.cookieService.clearTokens(res);
+  }
+
+  @Public()
+  @Post("refresh")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard("jwt-refresh"))
+  @ApiNoContentResponse({ description: "Tokens rafraîchis" })
+  @ApiUnauthorizedResponse({ description: "Refresh token invalide" })
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+    const result = await this.authService.refresh(req.user as JwtPayload);
+    this.cookieService.setTokens(res, { token: result.token, refreshToken: result.refreshToken });
   }
 }

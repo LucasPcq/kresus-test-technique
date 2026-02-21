@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ConfigService } from "@nestjs/config";
-import type { Response } from "express";
+import type { Request, Response } from "express";
+
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
+import { CookieService } from "./cookie.service";
 
 const mockAuthService = {
   register: vi.fn(),
   login: vi.fn(),
+  refresh: vi.fn(),
 };
 
-const mockConfigService = {
-  get: vi.fn().mockReturnValue(undefined),
-  getOrThrow: vi.fn().mockReturnValue("7d"),
+const mockCookieService = {
+  setTokens: vi.fn(),
+  clearTokens: vi.fn(),
 };
 
-const mockRes = {
-  cookie: vi.fn(),
-} as unknown as Response;
+const mockRes = {} as Response;
 
 describe("AuthController", () => {
   let controller: AuthController;
@@ -25,14 +25,18 @@ describe("AuthController", () => {
     vi.clearAllMocks();
     controller = new AuthController(
       mockAuthService as unknown as AuthService,
-      mockConfigService as unknown as ConfigService,
+      mockCookieService as unknown as CookieService,
     );
   });
 
   describe("register", () => {
-    it("sets cookie and returns user info", async () => {
+    it("sets tokens and returns user info", async () => {
       const user = { id: "1", email: "test@example.com" };
-      mockAuthService.register.mockResolvedValue({ token: "jwt_token", user });
+      mockAuthService.register.mockResolvedValue({
+        token: "jwt_token",
+        refreshToken: "refresh_token",
+        user,
+      });
 
       const result = await controller.register(
         { email: "test@example.com", password: "password123" },
@@ -43,11 +47,10 @@ describe("AuthController", () => {
         email: "test@example.com",
         password: "password123",
       });
-      expect(mockRes.cookie).toHaveBeenCalledWith(
-        "access_token",
-        "jwt_token",
-        expect.objectContaining({ httpOnly: true }),
-      );
+      expect(mockCookieService.setTokens).toHaveBeenCalledWith(mockRes, {
+        token: "jwt_token",
+        refreshToken: "refresh_token",
+      });
       expect(result).toEqual(user);
     });
 
@@ -59,9 +62,13 @@ describe("AuthController", () => {
   });
 
   describe("login", () => {
-    it("sets cookie and returns user info", async () => {
+    it("sets tokens and returns user info", async () => {
       const user = { id: "1", email: "test@example.com" };
-      mockAuthService.login.mockResolvedValue({ token: "jwt_token", user });
+      mockAuthService.login.mockResolvedValue({
+        token: "jwt_token",
+        refreshToken: "refresh_token",
+        user,
+      });
 
       const result = await controller.login(
         { email: "test@example.com", password: "password123" },
@@ -72,11 +79,10 @@ describe("AuthController", () => {
         email: "test@example.com",
         password: "password123",
       });
-      expect(mockRes.cookie).toHaveBeenCalledWith(
-        "access_token",
-        "jwt_token",
-        expect.objectContaining({ httpOnly: true }),
-      );
+      expect(mockCookieService.setTokens).toHaveBeenCalledWith(mockRes, {
+        token: "jwt_token",
+        refreshToken: "refresh_token",
+      });
       expect(result).toEqual(user);
     });
 
@@ -84,6 +90,40 @@ describe("AuthController", () => {
       await expect(
         controller.login({ email: "not-an-email", password: "" }, mockRes),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("me", () => {
+    it("returns user info from JWT payload", () => {
+      const req = { user: { sub: "1", email: "test@example.com" } } as unknown as Request;
+      expect(controller.me(req)).toEqual({ id: "1", email: "test@example.com" });
+    });
+  });
+
+  describe("logout", () => {
+    it("clears all auth cookies", () => {
+      controller.logout(mockRes);
+      expect(mockCookieService.clearTokens).toHaveBeenCalledWith(mockRes);
+    });
+  });
+
+  describe("refresh", () => {
+    it("sets new tokens from refresh token payload", async () => {
+      const payload = { sub: "1", email: "test@example.com" };
+      mockAuthService.refresh.mockResolvedValue({
+        token: "new_jwt",
+        refreshToken: "new_refresh",
+        user: { id: "1", email: "test@example.com" },
+      });
+
+      const req = { user: payload } as unknown as Request;
+      await controller.refresh(req, mockRes);
+
+      expect(mockAuthService.refresh).toHaveBeenCalledWith(payload);
+      expect(mockCookieService.setTokens).toHaveBeenCalledWith(mockRes, {
+        token: "new_jwt",
+        refreshToken: "new_refresh",
+      });
     });
   });
 });
