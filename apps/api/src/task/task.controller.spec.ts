@@ -5,6 +5,7 @@ import { TaskService } from "./task.service";
 
 const mockTaskService = {
   create: vi.fn(),
+  findAll: vi.fn(),
 };
 
 describe("TaskController", () => {
@@ -16,7 +17,7 @@ describe("TaskController", () => {
   });
 
   describe("create", () => {
-    it("delegates to taskService.create with dto and userId", async () => {
+    it("should delegate to taskService.create when called with dto and user", async () => {
       const dto = {
         title: "My task",
         content: "Some content",
@@ -31,6 +32,20 @@ describe("TaskController", () => {
 
       expect(mockTaskService.create).toHaveBeenCalledWith(dto, "user-1");
       expect(result).toEqual(created);
+    });
+  });
+
+  describe("findAll", () => {
+    it("should delegate to taskService.findAll when called with query and user", async () => {
+      const query = { page: 1, pageSize: 10 as const };
+      const user = { sub: "user-1", email: "test@example.com" };
+      const paginated = { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
+      mockTaskService.findAll.mockResolvedValue(paginated);
+
+      const result = await controller.findAll(query, user);
+
+      expect(mockTaskService.findAll).toHaveBeenCalledWith(query, "user-1");
+      expect(result).toEqual(paginated);
     });
   });
 });

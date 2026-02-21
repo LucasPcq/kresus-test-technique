@@ -31,3 +31,34 @@ export const createTaskSchema = taskBaseSchema.extend({
 });
 
 export type CreateTaskDto = z.infer<typeof createTaskSchema>;
+
+const PAGE_SIZES = [10, 25, 50] as const;
+
+export const taskQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.literal(PAGE_SIZES).default(PAGE_SIZES[0]),
+});
+
+export type TaskQueryDto = z.infer<typeof taskQuerySchema>;
+
+export const taskResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  priority: z.enum(priorityValues),
+  executionDate: z.coerce.date().nullable(),
+  completedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  userId: z.string(),
+});
+
+export type TaskResponse = z.infer<typeof taskResponseSchema>;
+
+export type PaginatedResponse<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};

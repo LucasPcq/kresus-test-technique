@@ -1,7 +1,21 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from "@nestjs/common";
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 
-import { type CreateTaskDto, type JwtPayload, createTaskSchema, createTaskSwaggerSchema } from "@kresus/contract";
+import {
+  type CreateTaskDto,
+  type JwtPayload,
+  type TaskQueryDto,
+  createTaskSchema,
+  createTaskSwaggerSchema,
+  taskQuerySchema,
+} from "@kresus/contract";
 
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
@@ -13,6 +27,16 @@ import { TaskService } from "./task.service";
 @Controller("tasks")
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
+
+  @Get()
+  @ApiOkResponse({ description: "Liste paginée des tâches" })
+  @ApiUnauthorizedResponse({ description: "Non authentifié" })
+  findAll(
+    @Query(new ZodValidationPipe(taskQuerySchema)) query: TaskQueryDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.taskService.findAll(query, user.sub);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

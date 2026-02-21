@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CreateTaskDto } from "@kresus/contract";
+import { CreateTaskDto, PaginatedResponse, TaskQueryDto, TaskResponse } from "@kresus/contract";
 
 import { TaskRepository } from "./task.repository";
 
@@ -13,5 +13,22 @@ export class TaskService {
       completedAt: completed ? new Date() : null,
       userId,
     });
+  }
+
+  async findAll({ page, pageSize }: TaskQueryDto, userId: string): Promise<PaginatedResponse<TaskResponse>> {
+    const skip = (page - 1) * pageSize;
+
+    const [items, total] = await Promise.all([
+      this.taskRepository.findByUserId(userId, { skip, take: pageSize }),
+      this.taskRepository.countByUserId(userId),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 }
