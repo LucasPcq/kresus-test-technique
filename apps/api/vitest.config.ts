@@ -7,6 +7,6 @@ export default defineConfig({
     globals: true,
     root: "./",
   },
-  // @ts-expect-error unplugin-swc targets Vite <7, types are incompatible but runtime works
+  // @ts-ignore unplugin-swc targets Vite <7, types are incompatible but runtime works
   plugins: [swc.vite()],
 });
