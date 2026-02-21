@@ -8,7 +8,7 @@ export const PRIORITY = {
 
 export type Priority = (typeof PRIORITY)[keyof typeof PRIORITY];
 
-const priorityValues = Object.values(PRIORITY);
+export const priorityValues = Object.values(PRIORITY);
 
 const taskBaseSchema = z.object({
   title: z.string().min(1).max(50),
@@ -35,7 +35,7 @@ export type CreateTaskDto = z.infer<typeof createTaskSchema>;
 export const PAGE_SIZES = [10, 25, 50] as const;
 
 export const SORT_FIELDS = ["createdAt", "executionDate", "priority"] as const;
-const sortRegex = new RegExp(`^-?(${SORT_FIELDS.join("|")})$`);
+export const sortRegex = new RegExp(`^-?(${SORT_FIELDS.join("|")})$`);
 
 const singleOperator = <T extends z.ZodRawShape>(shape: T) =>
   z
@@ -70,17 +70,21 @@ const titleFilterSchema = singleOperator({
 
 const taskFilterSchema = z
   .object({
-    completed: z.coerce.number().pipe(z.literal([0, 1])).transform(Boolean).optional(),
     priority: priorityFilterSchema,
     executionDate: executionDateFilterSchema,
     title: titleFilterSchema,
+    completed: z.coerce
+      .number()
+      .pipe(z.literal([0, 1]))
+      .transform(Boolean)
+      .optional(),
   })
   .optional();
 
 export const taskQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().pipe(z.literal(PAGE_SIZES)).default(PAGE_SIZES[0]),
-  sort: z.string().regex(sortRegex).default("-createdAt").optional(),
+  sort: z.string().regex(sortRegex).default("-createdAt"),
   filter: taskFilterSchema,
 });
 
