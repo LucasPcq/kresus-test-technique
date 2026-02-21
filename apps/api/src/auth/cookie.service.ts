@@ -27,9 +27,7 @@ export class CookieService {
       httpOnly: true,
       secure: isProduction,
       sameSite: "strict",
-      maxAge: ms(
-        this.configService.getOrThrow<string>("JWT_REFRESH_EXPIRES_IN") as ms.StringValue,
-      ),
+      maxAge: ms(this.configService.getOrThrow<string>("JWT_REFRESH_EXPIRES_IN") as ms.StringValue),
       path: "/",
     });
 

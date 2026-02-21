@@ -53,7 +53,6 @@ describe("AuthController", () => {
       });
       expect(result).toEqual(user);
     });
-
   });
 
   describe("login", () => {
@@ -80,7 +79,6 @@ describe("AuthController", () => {
       });
       expect(result).toEqual(user);
     });
-
   });
 
   describe("me", () => {
