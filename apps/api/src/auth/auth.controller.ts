@@ -26,14 +26,19 @@ import type { Request, Response } from "express";
 import {
   type AuthUserResponse,
   type JwtPayload,
+  type LoginDto,
+  type RegisterDto,
   authUserResponseSchema,
   loginSchema,
   registerSchema,
 } from "@kresus/contract";
 
+import { Public } from "./public.decorator";
+
 import { AuthService } from "./auth.service";
 import { CookieService } from "./cookie.service";
-import { Public } from "./public.decorator";
+
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
 import { toSwaggerSchema } from "../common/utils/swagger.utils";
 
 @ApiTags("auth")
@@ -53,8 +58,10 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: "Données invalides" })
   @ApiConflictResponse({ description: "Email déjà utilisé" })
-  async register(@Body() body: unknown, @Res({ passthrough: true }) res: Response) {
-    const dto = registerSchema.parse(body);
+  async register(
+    @Body(new ZodValidationPipe(registerSchema)) dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { token, refreshToken, user } = await this.authService.register(dto);
     this.cookieService.setTokens(res, { token, refreshToken });
     return user;
@@ -70,8 +77,10 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: "Données invalides" })
   @ApiUnauthorizedResponse({ description: "Identifiants incorrects" })
-  async login(@Body() body: unknown, @Res({ passthrough: true }) res: Response) {
-    const dto = loginSchema.parse(body);
+  async login(
+    @Body(new ZodValidationPipe(loginSchema)) dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { token, refreshToken, user } = await this.authService.login(dto);
     this.cookieService.setTokens(res, { token, refreshToken });
     return user;

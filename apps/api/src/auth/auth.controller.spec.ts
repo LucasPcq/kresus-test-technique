@@ -54,11 +54,6 @@ describe("AuthController", () => {
       expect(result).toEqual(user);
     });
 
-    it("throws ZodError when body is invalid", async () => {
-      await expect(
-        controller.register({ email: "not-an-email", password: "short" }, mockRes),
-      ).rejects.toThrow();
-    });
   });
 
   describe("login", () => {
@@ -86,11 +81,6 @@ describe("AuthController", () => {
       expect(result).toEqual(user);
     });
 
-    it("throws ZodError when body is invalid", async () => {
-      await expect(
-        controller.login({ email: "not-an-email", password: "" }, mockRes),
-      ).rejects.toThrow();
-    });
   });
 
   describe("me", () => {

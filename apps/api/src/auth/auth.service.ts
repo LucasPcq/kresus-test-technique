@@ -2,7 +2,7 @@ import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/co
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 
-import { AuthResult, JwtPayload } from "@kresus/contract";
+import { AuthResult, JwtPayload, type LoginDto, type RegisterDto } from "@kresus/contract";
 
 import { UserService } from "../user/user.service";
 import { comparePassword, hashPassword } from "../common/utils/bcrypt.utils";
@@ -15,7 +15,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register({ email, password }: { email: string; password: string }): Promise<AuthResult> {
+  async register({ email, password }: RegisterDto): Promise<AuthResult> {
     const existing = await this.userService.findByEmail(email);
 
     if (existing) throw new ConflictException("Email already in use");
@@ -29,7 +29,7 @@ export class AuthService {
     return { token, refreshToken, user: { id: user.id, email: user.email } };
   }
 
-  async login({ email, password }: { email: string; password: string }): Promise<AuthResult> {
+  async login({ email, password }: LoginDto): Promise<AuthResult> {
     const user = await this.userService.findByEmail(email);
 
     if (!user) throw new UnauthorizedException("Invalid credentials");
@@ -44,13 +44,12 @@ export class AuthService {
     return { token, refreshToken, user: { id: user.id, email: user.email } };
   }
 
-  async refresh(payload: JwtPayload): Promise<AuthResult> {
-    const { token, refreshToken } = this.generateTokens({ sub: payload.sub, email: payload.email });
-    return { token, refreshToken, user: { id: payload.sub, email: payload.email } };
+  async refresh({ sub, email }: JwtPayload): Promise<AuthResult> {
+    const { token, refreshToken } = this.generateTokens({ sub, email });
+    return { token, refreshToken, user: { id: sub, email } };
   }
 
-  private generateTokens(payload: JwtPayload): { token: string; refreshToken: string } {
-    const tokenPayload = payload;
+  private generateTokens(tokenPayload: JwtPayload): Pick<AuthResult, "token" | "refreshToken"> {
     const refreshExpiresIn = this.configService.getOrThrow<string>("JWT_REFRESH_EXPIRES_IN");
     return {
       token: this.jwtService.sign(tokenPayload),
