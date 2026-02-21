@@ -13,3 +13,18 @@ export const register = (dto: RegisterDto): Promise<AuthUserResponse> =>
     method: "POST",
     body: JSON.stringify(dto),
   });
+
+export const getMe = (): Promise<AuthUserResponse> =>
+  apiClient.request<AuthUserResponse>("/auth/me");
+
+export const logout = (): Promise<void> =>
+  apiClient.request<void>("/auth/logout", { method: "POST" });
+
+export const refresh = async (): Promise<boolean> => {
+  try {
+    await apiClient.request<void>("/auth/refresh", { method: "POST" });
+    return true;
+  } catch {
+    return false;
+  }
+};

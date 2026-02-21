@@ -11,8 +11,9 @@ export const authUserResponseSchema = z.object({
 
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type LoginDto = z.infer<typeof loginSchema>;
+
 export type AuthUserResponse = z.infer<typeof authUserResponseSchema>;
-export type AuthResult = { token: string; user: AuthUserResponse };
+export type AuthResult = { token: string; refreshToken: string; user: AuthUserResponse };
 
 export type JwtPayload = {
   sub: string;

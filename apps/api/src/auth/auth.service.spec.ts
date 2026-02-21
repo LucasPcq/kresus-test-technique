@@ -1,6 +1,7 @@
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ConfigService } from "@nestjs/config";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 
@@ -20,6 +21,10 @@ const mockJwtService = {
   sign: vi.fn().mockReturnValue("jwt_token"),
 };
 
+const mockConfigService = {
+  getOrThrow: vi.fn().mockReturnValue("15m"),
+};
+
 describe("AuthService", () => {
   let service: AuthService;
 
@@ -28,6 +33,7 @@ describe("AuthService", () => {
     service = new AuthService(
       mockUserService as unknown as UserService,
       mockJwtService as unknown as JwtService,
+      mockConfigService as unknown as ConfigService,
     );
   });
 
@@ -46,6 +52,7 @@ describe("AuthService", () => {
       });
       expect(result).toEqual({
         token: "jwt_token",
+        refreshToken: "jwt_token",
         user: { id: "1", email: "test@example.com" },
       });
     });
@@ -74,6 +81,7 @@ describe("AuthService", () => {
 
       expect(result).toEqual({
         token: "jwt_token",
+        refreshToken: "jwt_token",
         user: { id: "1", email: "test@example.com" },
       });
     });
