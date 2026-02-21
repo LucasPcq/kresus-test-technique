@@ -1,5 +1,7 @@
 import { env } from "../config/env";
 
+import { refresh } from "@/modules/auth/api/auth.api";
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -9,16 +11,45 @@ export class ApiError extends Error {
   }
 }
 
-const request = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
-  const response = await fetch(`${env.VITE_API_URL}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...options.headers },
-    ...options,
-  });
+const createApiClient = () => {
+  let refreshPromise: Promise<boolean> | null = null;
 
-  if (!response.ok) throw new ApiError(response.status, await response.json());
+  const doRequest = async <T>(path: string, options: RequestInit): Promise<T> => {
+    const response = await fetch(`${env.VITE_API_URL}${path}`, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...options.headers },
+      ...options,
+    });
 
-  return response.json() as Promise<T>;
+    if (!response.ok) {
+      throw new ApiError(response.status, await response.json());
+    }
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    return response.json() as Promise<T>;
+  };
+
+  const request = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+    try {
+      return await doRequest<T>(path, options);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        if (!refreshPromise) {
+          refreshPromise = refresh().finally(() => {
+            refreshPromise = null;
+          });
+        }
+        const refreshed = await refreshPromise;
+        if (refreshed) return doRequest<T>(path, options);
+      }
+      throw error;
+    }
+  };
+
+  return { request };
 };
 
-export const apiClient = { request };
+export const apiClient = createApiClient();
