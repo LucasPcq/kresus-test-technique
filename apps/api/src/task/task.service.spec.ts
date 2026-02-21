@@ -193,7 +193,10 @@ describe("TaskService", () => {
       it("should filter by executionDate between when between provided", async () => {
         const from = new Date("2026-03-01");
         const to = new Date("2026-06-01");
-        await service.findAll({ ...baseQuery, filter: { executionDate: { between: [from, to] } } }, userId);
+        await service.findAll(
+          { ...baseQuery, filter: { executionDate: { between: [from, to] } } },
+          userId,
+        );
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
           expect.objectContaining({ where: { userId, executionDate: { gte: from, lte: to } } }),
@@ -204,7 +207,9 @@ describe("TaskService", () => {
         await service.findAll({ ...baseQuery, filter: { title: { contains: "rapport" } } }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
-          expect.objectContaining({ where: { userId, title: { contains: "rapport", mode: "insensitive" } } }),
+          expect.objectContaining({
+            where: { userId, title: { contains: "rapport", mode: "insensitive" } },
+          }),
         );
       });
 
@@ -212,7 +217,9 @@ describe("TaskService", () => {
         await service.findAll({ ...baseQuery, filter: { title: { startsWith: "rap" } } }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
-          expect.objectContaining({ where: { userId, title: { startsWith: "rap", mode: "insensitive" } } }),
+          expect.objectContaining({
+            where: { userId, title: { startsWith: "rap", mode: "insensitive" } },
+          }),
         );
       });
 
@@ -220,15 +227,22 @@ describe("TaskService", () => {
         await service.findAll({ ...baseQuery, filter: { title: { neq: "old task" } } }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
-          expect.objectContaining({ where: { userId, title: { not: "old task", mode: "insensitive" } } }),
+          expect.objectContaining({
+            where: { userId, title: { not: "old task", mode: "insensitive" } },
+          }),
         );
       });
 
       it("should filter by title notContains case-insensitive when notContains provided", async () => {
-        await service.findAll({ ...baseQuery, filter: { title: { notContains: "draft" } } }, userId);
+        await service.findAll(
+          { ...baseQuery, filter: { title: { notContains: "draft" } } },
+          userId,
+        );
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
-          expect.objectContaining({ where: { userId, title: { not: { contains: "draft" }, mode: "insensitive" } } }),
+          expect.objectContaining({
+            where: { userId, title: { not: { contains: "draft" }, mode: "insensitive" } },
+          }),
         );
       });
     });

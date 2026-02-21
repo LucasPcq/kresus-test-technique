@@ -56,7 +56,13 @@ describe("TaskController", () => {
         filter: { completed: true, priority: { eq: "HIGH" as const } },
       };
       const user = { sub: "user-1", email: "test@example.com" };
-      mockTaskService.findAll.mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 });
+      mockTaskService.findAll.mockResolvedValue({
+        items: [],
+        total: 0,
+        page: 1,
+        pageSize: 10,
+        totalPages: 0,
+      });
 
       await controller.findAll(query, user);
 

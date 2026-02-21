@@ -38,7 +38,10 @@ const createApiClient = () => {
     return response.json() as Promise<T>;
   };
 
-  const request = async <T>(path: string, { autoRefreshToken = true, params, ...fetchOptions }: RequestOptions = {}): Promise<T> => {
+  const request = async <T>(
+    path: string,
+    { autoRefreshToken = true, params, ...fetchOptions }: RequestOptions = {},
+  ): Promise<T> => {
     const url = params ? `${path}?${qs.stringify(params, { encode: false })}` : path;
     try {
       return await doRequest<T>(url, fetchOptions);
