@@ -5,7 +5,7 @@ import { delay, http, HttpResponse } from "msw";
 
 import { server } from "@/test/server";
 import { apiUrl, mockAuthUser } from "@/test/handlers";
-import { buildWrapper, fillAndSubmit } from "@/test/mount";
+import { buildWrapper, fillAndSubmitAuthForm } from "@/test/mount";
 
 import { useAuthStore } from "../store/auth.store";
 
@@ -23,6 +23,13 @@ describe("RegisterView", () => {
       expect(wrapper.find("input[type='email']").exists()).toBe(true);
       expect(wrapper.find("input[type='password']").exists()).toBe(true);
       expect(wrapper.find("button[type='submit']").text()).toBe("S'inscrire");
+    });
+
+    it("should disable the submit button when the form is empty", () => {
+      const { wrapper } = buildWrapper(RegisterView);
+      const button = wrapper.find("button[type='submit']").element as HTMLButtonElement;
+
+      expect(button.disabled).toBe(true);
     });
 
     it("should render a link to the login page", () => {
@@ -43,14 +50,14 @@ describe("RegisterView", () => {
 
     it("should not call the API when the email is invalid", async () => {
       const { wrapper } = buildWrapper(RegisterView);
-      await fillAndSubmit(wrapper, { email: "pas-un-email", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, { email: "pas-un-email", password: "password123" });
 
       expect(useAuthStore().isAuthenticated).toBe(false);
     });
 
     it("should not call the API when the password is shorter than 8 characters", async () => {
       const { wrapper } = buildWrapper(RegisterView);
-      await fillAndSubmit(wrapper, { email: "new@example.com", password: "court" });
+      await fillAndSubmitAuthForm(wrapper, { email: "new@example.com", password: "court" });
 
       expect(useAuthStore().isAuthenticated).toBe(false);
     });
@@ -79,7 +86,7 @@ describe("RegisterView", () => {
 
     it("should redirect to / and update the store when registration succeeds", async () => {
       const { wrapper, router } = buildWrapper(RegisterView);
-      await fillAndSubmit(wrapper, { email: "new@example.com", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, { email: "new@example.com", password: "password123" });
 
       await vi.waitFor(() => expect(useAuthStore().user).toEqual(mockAuthUser));
       expect(router.currentRoute.value.path).toBe("/");
@@ -93,7 +100,10 @@ describe("RegisterView", () => {
       );
 
       const { wrapper } = buildWrapper(RegisterView);
-      await fillAndSubmit(wrapper, { email: "existing@example.com", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, {
+        email: "existing@example.com",
+        password: "password123",
+      });
 
       await vi.waitFor(() => expect(wrapper.text()).toContain("Cet email est déjà utilisé"));
     });
@@ -106,7 +116,7 @@ describe("RegisterView", () => {
       );
 
       const { wrapper } = buildWrapper(RegisterView);
-      await fillAndSubmit(wrapper, { email: "new@example.com", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, { email: "new@example.com", password: "password123" });
 
       await vi.waitFor(() => expect(wrapper.text()).toContain("Une erreur est survenue"));
     });

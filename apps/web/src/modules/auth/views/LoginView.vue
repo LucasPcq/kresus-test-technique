@@ -17,7 +17,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const { handleSubmit } = useForm({ validationSchema: toTypedSchema(loginSchema) });
+const { handleSubmit, meta } = useForm({ validationSchema: toTypedSchema(loginSchema) });
 const { mutate, isPending, error } = useLogin();
 
 const errorMessage = computed(() => {
@@ -64,7 +64,7 @@ const onSubmit = handleSubmit((values) => {
 
           <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
 
-          <Button type="submit" class="w-full" :disabled="isPending">
+          <Button type="submit" class="w-full" :disabled="!meta.valid || !meta.dirty || isPending">
             {{ isPending ? "Connexion..." : "Se connecter" }}
           </Button>
         </form>

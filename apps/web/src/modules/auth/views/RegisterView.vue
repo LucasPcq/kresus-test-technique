@@ -17,7 +17,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const { handleSubmit } = useForm({ validationSchema: toTypedSchema(registerSchema) });
+const { handleSubmit, meta } = useForm({ validationSchema: toTypedSchema(registerSchema) });
 const { mutate, isPending, error } = useRegister();
 
 const errorMessage = computed(() => {
@@ -64,7 +64,7 @@ const onSubmit = handleSubmit((values) => {
 
           <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
 
-          <Button type="submit" class="w-full" :disabled="isPending">
+          <Button type="submit" class="w-full" :disabled="!meta.valid || !meta.dirty || isPending">
             {{ isPending ? "Inscription..." : "S'inscrire" }}
           </Button>
         </form>

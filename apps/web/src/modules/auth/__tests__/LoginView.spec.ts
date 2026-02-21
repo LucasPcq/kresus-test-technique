@@ -5,7 +5,7 @@ import { delay, http, HttpResponse } from "msw";
 
 import { server } from "@/test/server";
 import { apiUrl, mockAuthUser } from "@/test/handlers";
-import { buildWrapper, fillAndSubmit } from "@/test/mount";
+import { buildWrapper, fillAndSubmitAuthForm } from "@/test/mount";
 
 import { useAuthStore } from "../store/auth.store";
 
@@ -23,6 +23,13 @@ describe("LoginView", () => {
       expect(wrapper.find("input[type='email']").exists()).toBe(true);
       expect(wrapper.find("input[type='password']").exists()).toBe(true);
       expect(wrapper.find("button[type='submit']").text()).toBe("Se connecter");
+    });
+
+    it("should disable the submit button when the form is empty", () => {
+      const { wrapper } = buildWrapper(LoginView);
+      const button = wrapper.find("button[type='submit']").element as HTMLButtonElement;
+
+      expect(button.disabled).toBe(true);
     });
 
     it("should render a link to the registration page", () => {
@@ -43,7 +50,7 @@ describe("LoginView", () => {
 
     it("should not call the API when the email is invalid", async () => {
       const { wrapper } = buildWrapper(LoginView);
-      await fillAndSubmit(wrapper, { email: "pas-un-email", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, { email: "pas-un-email", password: "password123" });
 
       expect(useAuthStore().isAuthenticated).toBe(false);
     });
@@ -72,7 +79,7 @@ describe("LoginView", () => {
 
     it("should redirect to / and update the store when login succeeds", async () => {
       const { wrapper, router } = buildWrapper(LoginView);
-      await fillAndSubmit(wrapper, { email: "test@example.com", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, { email: "test@example.com", password: "password123" });
 
       await vi.waitFor(() => expect(useAuthStore().user).toEqual(mockAuthUser));
       expect(router.currentRoute.value.path).toBe("/");
@@ -86,7 +93,7 @@ describe("LoginView", () => {
       );
 
       const { wrapper } = buildWrapper(LoginView);
-      await fillAndSubmit(wrapper, { email: "test@example.com", password: "wrong" });
+      await fillAndSubmitAuthForm(wrapper, { email: "test@example.com", password: "wrong" });
 
       await vi.waitFor(() => expect(wrapper.text()).toContain("Identifiants incorrects"));
     });
@@ -99,7 +106,7 @@ describe("LoginView", () => {
       );
 
       const { wrapper } = buildWrapper(LoginView);
-      await fillAndSubmit(wrapper, { email: "test@example.com", password: "password123" });
+      await fillAndSubmitAuthForm(wrapper, { email: "test@example.com", password: "password123" });
 
       await vi.waitFor(() => expect(wrapper.text()).toContain("Une erreur est survenue"));
     });
