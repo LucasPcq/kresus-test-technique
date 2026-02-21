@@ -38,21 +38,21 @@ describe("RegisterView", () => {
       await wrapper.find("form").trigger("submit");
       await flushPromises();
 
-      expect(useAuthStore().user).toBeNull();
+      expect(useAuthStore().isAuthenticated).toBe(false);
     });
 
     it("should not call the API when the email is invalid", async () => {
       const { wrapper } = buildWrapper(RegisterView);
       await fillAndSubmit(wrapper, { email: "pas-un-email", password: "password123" });
 
-      expect(useAuthStore().user).toBeNull();
+      expect(useAuthStore().isAuthenticated).toBe(false);
     });
 
     it("should not call the API when the password is shorter than 8 characters", async () => {
       const { wrapper } = buildWrapper(RegisterView);
       await fillAndSubmit(wrapper, { email: "new@example.com", password: "court" });
 
-      expect(useAuthStore().user).toBeNull();
+      expect(useAuthStore().isAuthenticated).toBe(false);
     });
   });
 
