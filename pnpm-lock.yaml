@@ -130,6 +130,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@internationalized/date':
+        specifier: ^3.11.0
+        version: 3.11.0
       '@kresus/contract':
         specifier: workspace:^
         version: link:../../packages/contract
