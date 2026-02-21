@@ -11,6 +11,8 @@ export class ApiError extends Error {
   }
 }
 
+type RequestOptions = RequestInit & { autoRefreshToken?: boolean };
+
 const createApiClient = () => {
   let refreshPromise: Promise<boolean> | null = null;
 
@@ -32,18 +34,18 @@ const createApiClient = () => {
     return response.json() as Promise<T>;
   };
 
-  const request = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+  const request = async <T>(path: string, { autoRefreshToken = true, ...fetchOptions }: RequestOptions = {}): Promise<T> => {
     try {
-      return await doRequest<T>(path, options);
+      return await doRequest<T>(path, fetchOptions);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (autoRefreshToken && error instanceof ApiError && error.status === 401) {
         if (!refreshPromise) {
           refreshPromise = refresh().finally(() => {
             refreshPromise = null;
           });
         }
         const refreshed = await refreshPromise;
-        if (refreshed) return doRequest<T>(path, options);
+        if (refreshed) return doRequest<T>(path, fetchOptions);
       }
       throw error;
     }
