@@ -32,9 +32,9 @@ export const createTaskSchema = taskBaseSchema.extend({
 
 export type CreateTaskDto = z.infer<typeof createTaskSchema>;
 
-const PAGE_SIZES = [10, 25, 50] as const;
+export const PAGE_SIZES = [10, 25, 50] as const;
 
-const SORT_FIELDS = ["createdAt", "executionDate", "priority"] as const;
+export const SORT_FIELDS = ["createdAt", "executionDate", "priority"] as const;
 const sortRegex = new RegExp(`^-?(${SORT_FIELDS.join("|")})$`);
 
 const singleOperator = <T extends z.ZodRawShape>(shape: T) =>
