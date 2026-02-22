@@ -64,4 +64,5 @@ export const mockCreatedTask: TaskResponse = {
 export const taskHandlers = [
   http.get(`${env.VITE_API_URL}/tasks`, () => HttpResponse.json(mockPaginatedTasks)),
   http.post(`${env.VITE_API_URL}/tasks`, () => HttpResponse.json(mockCreatedTask, { status: 201 })),
+  http.delete(`${env.VITE_API_URL}/tasks/:id`, () => new HttpResponse(null, { status: 204 })),
 ];

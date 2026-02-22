@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { Loader2 } from "lucide-vue-next";
 
+import { useDeleteTask } from "../composables/useDeleteTask";
 import { useTaskFilters } from "../composables/useTaskFilters";
 import { useTaskList } from "../composables/useTaskList";
 
@@ -47,6 +48,12 @@ const {
   isFetchingNextPage,
   fetchNextPage,
 } = useTaskList({ queryParams, paginationMode });
+
+const {
+  mutate: deleteMutation,
+  isPending: isDeletePending,
+  variables: deleteVariables,
+} = useDeleteTask();
 
 const sentinelRef = ref<HTMLElement | null>(null);
 
@@ -100,7 +107,13 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
             isFetching && !isPending && 'opacity-50',
           ]"
         >
-          <TaskCard v-for="task in tasks" :key="task.id" :task="task" />
+          <TaskCard
+            v-for="task in tasks"
+            :key="task.id"
+            :task="task"
+            :is-deleting="isDeletePending && deleteVariables === task.id"
+            @delete="deleteMutation"
+          />
         </div>
 
         <div v-if="isInfinite" ref="sentinelRef" class="flex justify-center py-4">

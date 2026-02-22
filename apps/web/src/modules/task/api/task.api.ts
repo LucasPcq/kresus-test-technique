@@ -15,3 +15,6 @@ export const createTask = (dto: CreateTaskInput): Promise<TaskResponse> =>
     method: "POST",
     body: JSON.stringify(dto),
   });
+
+export const deleteTask = (id: string): Promise<void> =>
+  apiClient.request<void>(`/tasks/${id}`, { method: "DELETE" });
