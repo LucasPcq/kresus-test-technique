@@ -8,6 +8,7 @@ import { useTaskList } from "../composables/useTaskList";
 
 import TaskCard from "../components/TaskCard.vue";
 import TaskCardSkeleton from "../components/TaskCardSkeleton.vue";
+import TaskCreateDialog from "../components/TaskCreateDialog.vue";
 import TaskEmptyState from "../components/TaskEmptyState.vue";
 import TaskFilters from "../components/TaskFilters.vue";
 import TaskPagination from "../components/TaskPagination.vue";
@@ -16,6 +17,8 @@ import TaskListHeader from "../components/TaskListHeader.vue";
 import { Button } from "@/components/ui/button";
 
 const TASK_GRID_CLASS = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 content-start";
+
+const isCreateDialogOpen = ref(false);
 
 const {
   filters,
@@ -59,6 +62,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
     <TaskListHeader
       :sort="filters.sort"
       @update:sort="setSort"
+      @create="isCreateDialogOpen = true"
     />
 
     <TaskFilters
@@ -80,7 +84,13 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         <TaskCardSkeleton v-for="i in filters.pageSize" :key="i" />
       </div>
 
-      <TaskEmptyState v-else-if="tasks.length === 0" class="h-full" :has-filters="hasActiveFilters" @reset-filters="resetFilters" />
+      <TaskEmptyState
+        v-else-if="tasks.length === 0"
+        class="h-full"
+        :has-filters="hasActiveFilters"
+        @reset-filters="resetFilters"
+        @create="isCreateDialogOpen = true"
+      />
 
       <template v-else>
         <div
@@ -121,5 +131,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         @update:pagination-mode="setPaginationMode"
       />
     </div>
+
+    <TaskCreateDialog v-model:open="isCreateDialogOpen" />
   </div>
 </template>

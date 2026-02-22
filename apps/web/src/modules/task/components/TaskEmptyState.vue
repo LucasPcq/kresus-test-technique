@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ClipboardList, SearchX } from "lucide-vue-next";
+import { ClipboardList, Plus, SearchX } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 
 defineProps<{ hasFilters: boolean }>();
-const emit = defineEmits<{ "reset-filters": [] }>();
+const emit = defineEmits<{ "reset-filters": []; create: [] }>();
 </script>
 
 <template>
@@ -26,6 +26,10 @@ const emit = defineEmits<{ "reset-filters": [] }>();
     </div>
     <Button v-if="hasFilters" variant="outline" @click="emit('reset-filters')">
       Réinitialiser les filtres
+    </Button>
+    <Button v-else @click="emit('create')">
+      <Plus class="size-4" />
+      Créer une tâche
     </Button>
   </div>
 </template>
