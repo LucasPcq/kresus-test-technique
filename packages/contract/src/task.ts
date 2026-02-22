@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// ---------------------------------------------------------------------------
+// Priority
+// ---------------------------------------------------------------------------
+
 export const PRIORITY = {
   HIGH: "HIGH",
   MEDIUM: "MEDIUM",
@@ -10,9 +14,20 @@ export type Priority = (typeof PRIORITY)[keyof typeof PRIORITY];
 
 export const priorityValues = Object.values(PRIORITY);
 
-const taskBaseSchema = z.object({
-  title: z.string().min(1).max(50),
-  content: z.string().min(1).max(256),
+// ---------------------------------------------------------------------------
+// Field constraints
+// ---------------------------------------------------------------------------
+
+export const TASK_TITLE_MAX_LENGTH = 50;
+export const TASK_CONTENT_MAX_LENGTH = 256;
+
+// ---------------------------------------------------------------------------
+// Create
+// ---------------------------------------------------------------------------
+
+export const taskBaseSchema = z.object({
+  title: z.string().min(1).max(TASK_TITLE_MAX_LENGTH),
+  content: z.string().min(1).max(TASK_CONTENT_MAX_LENGTH),
   priority: z.enum(priorityValues),
   executionDate: z.iso.datetime().optional(),
   completed: z.boolean().optional().default(false),
@@ -31,6 +46,49 @@ export const createTaskSchema = taskBaseSchema.extend({
 });
 
 export type CreateTaskDto = z.infer<typeof createTaskSchema>;
+export type CreateTaskInput = z.input<typeof createTaskSchema>;
+
+// ---------------------------------------------------------------------------
+// Update
+// ---------------------------------------------------------------------------
+
+const updateTaskBaseSchema = z.object({
+  title: z.string().min(1).max(TASK_TITLE_MAX_LENGTH),
+  content: z.string().min(1).max(TASK_CONTENT_MAX_LENGTH),
+  priority: z.enum(priorityValues),
+  executionDate: z.iso.datetime().optional(),
+  completed: z.boolean(),
+});
+
+export const updateTaskSwaggerSchema = updateTaskBaseSchema.partial();
+
+export const updateTaskSchema = updateTaskBaseSchema
+  .partial()
+  .extend({
+    executionDate: z.iso
+      .datetime()
+      .transform((val) => new Date(val))
+      .optional(),
+  })
+  .refine((data) => Object.values(data).some((v) => v !== undefined), {
+    message: "At least one field must be provided",
+  });
+
+export type UpdateTaskDto = z.infer<typeof updateTaskSchema>;
+
+// ---------------------------------------------------------------------------
+// Delete
+// ---------------------------------------------------------------------------
+
+export const batchDeleteSchema = z.object({
+  ids: z.array(z.string()).min(1),
+});
+
+export type BatchDeleteDto = z.infer<typeof batchDeleteSchema>;
+
+// ---------------------------------------------------------------------------
+// Query / Pagination
+// ---------------------------------------------------------------------------
 
 export const PAGE_SIZES = [10, 25, 50] as const;
 
@@ -89,6 +147,10 @@ export const taskQuerySchema = z.object({
 });
 
 export type TaskQueryDto = z.infer<typeof taskQuerySchema>;
+
+// ---------------------------------------------------------------------------
+// Response
+// ---------------------------------------------------------------------------
 
 export const taskResponseSchema = z.object({
   id: z.string(),
