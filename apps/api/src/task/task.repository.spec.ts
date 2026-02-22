@@ -7,7 +7,11 @@ const mockPrisma = {
   task: {
     create: vi.fn(),
     findMany: vi.fn(),
+    findUnique: vi.fn(),
     count: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    deleteMany: vi.fn(),
   },
 };
 
@@ -72,6 +76,72 @@ describe("TaskRepository", () => {
 
       expect(mockPrisma.task.count).toHaveBeenCalledWith({ where });
       expect(result).toBe(5);
+    });
+  });
+
+  describe("findById", () => {
+    it("should call prisma.task.findUnique with id when called", async () => {
+      const task = { id: "task-1", title: "My task" };
+      mockPrisma.task.findUnique.mockResolvedValue(task);
+
+      const result = await repository.findById("task-1");
+
+      expect(mockPrisma.task.findUnique).toHaveBeenCalledWith({ where: { id: "task-1" } });
+      expect(result).toEqual(task);
+    });
+  });
+
+  describe("findManyByIds", () => {
+    it("should call prisma.task.findMany with ids filter when called", async () => {
+      const tasks = [{ id: "task-1" }, { id: "task-2" }];
+      mockPrisma.task.findMany.mockResolvedValue(tasks);
+
+      const result = await repository.findManyByIds(["task-1", "task-2"]);
+
+      expect(mockPrisma.task.findMany).toHaveBeenCalledWith({
+        where: { id: { in: ["task-1", "task-2"] } },
+      });
+      expect(result).toEqual(tasks);
+    });
+  });
+
+  describe("update", () => {
+    it("should call prisma.task.update with id and data when called", async () => {
+      const updated = { id: "task-1", title: "Updated" };
+      mockPrisma.task.update.mockResolvedValue(updated);
+
+      const result = await repository.update("task-1", { title: "Updated" });
+
+      expect(mockPrisma.task.update).toHaveBeenCalledWith({
+        where: { id: "task-1" },
+        data: { title: "Updated" },
+      });
+      expect(result).toEqual(updated);
+    });
+  });
+
+  describe("delete", () => {
+    it("should call prisma.task.delete with id when called", async () => {
+      const deleted = { id: "task-1" };
+      mockPrisma.task.delete.mockResolvedValue(deleted);
+
+      const result = await repository.delete("task-1");
+
+      expect(mockPrisma.task.delete).toHaveBeenCalledWith({ where: { id: "task-1" } });
+      expect(result).toEqual(deleted);
+    });
+  });
+
+  describe("deleteMany", () => {
+    it("should call prisma.task.deleteMany with ids filter when called", async () => {
+      mockPrisma.task.deleteMany.mockResolvedValue({ count: 2 });
+
+      const result = await repository.deleteMany(["task-1", "task-2"]);
+
+      expect(mockPrisma.task.deleteMany).toHaveBeenCalledWith({
+        where: { id: { in: ["task-1", "task-2"] } },
+      });
+      expect(result).toEqual({ count: 2 });
     });
   });
 });

@@ -6,6 +6,9 @@ import { TaskService } from "./task.service";
 const mockTaskService = {
   create: vi.fn(),
   findAll: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+  batchDelete: vi.fn(),
 };
 
 describe("TaskController", () => {
@@ -67,6 +70,44 @@ describe("TaskController", () => {
       await controller.findAll(query, user);
 
       expect(mockTaskService.findAll).toHaveBeenCalledWith(query, "user-1");
+    });
+  });
+
+  describe("update", () => {
+    it("should delegate to taskService.update when called with id, dto and user", async () => {
+      const dto = { title: "Updated task" };
+      const user = { sub: "user-1", email: "test@example.com" };
+      const updated = { id: "task-1", ...dto };
+      mockTaskService.update.mockResolvedValue(updated);
+
+      const result = await controller.update("task-1", dto, user);
+
+      expect(mockTaskService.update).toHaveBeenCalledWith("task-1", dto, "user-1");
+      expect(result).toEqual(updated);
+    });
+  });
+
+  describe("remove", () => {
+    it("should delegate to taskService.delete when called with id and user", async () => {
+      const user = { sub: "user-1", email: "test@example.com" };
+      mockTaskService.delete.mockResolvedValue({ id: "task-1" });
+
+      const result = await controller.remove("task-1", user);
+
+      expect(mockTaskService.delete).toHaveBeenCalledWith("task-1", "user-1");
+      expect(result).toEqual({ id: "task-1" });
+    });
+  });
+
+  describe("batchDelete", () => {
+    it("should delegate to taskService.batchDelete when called with ids and user", async () => {
+      const user = { sub: "user-1", email: "test@example.com" };
+      mockTaskService.batchDelete.mockResolvedValue({ count: 2 });
+
+      const result = await controller.batchDelete({ ids: ["task-1", "task-2"] }, user);
+
+      expect(mockTaskService.batchDelete).toHaveBeenCalledWith(["task-1", "task-2"], "user-1");
+      expect(result).toEqual({ count: 2 });
     });
   });
 });

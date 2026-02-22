@@ -30,4 +30,24 @@ export class TaskRepository {
   count(where: Prisma.TaskWhereInput) {
     return this.prisma.task.count({ where });
   }
+
+  findById(id: string) {
+    return this.prisma.task.findUnique({ where: { id } });
+  }
+
+  findManyByIds(ids: string[]) {
+    return this.prisma.task.findMany({ where: { id: { in: ids } } });
+  }
+
+  update(id: string, data: Prisma.TaskUpdateInput) {
+    return this.prisma.task.update({ where: { id }, data });
+  }
+
+  delete(id: string) {
+    return this.prisma.task.delete({ where: { id } });
+  }
+
+  deleteMany(ids: string[]) {
+    return this.prisma.task.deleteMany({ where: { id: { in: ids } } });
+  }
 }

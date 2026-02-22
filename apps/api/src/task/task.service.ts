@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import {
@@ -7,6 +7,7 @@ import {
   Priority,
   TaskQueryDto,
   TaskResponse,
+  UpdateTaskDto,
 } from "@kresus/contract";
 
 import { TaskRepository } from "./task.repository";
@@ -45,6 +46,47 @@ export class TaskService {
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     };
+  }
+
+  async update(id: string, { completed, ...fields }: UpdateTaskDto, userId: string) {
+    await this.verifyOwnership(id, userId);
+
+    const data: Prisma.TaskUpdateInput = {
+      ...fields,
+      ...(completed !== undefined && {
+        completedAt: completed ? new Date() : null,
+      }),
+    };
+
+    return this.taskRepository.update(id, data);
+  }
+
+  async delete(id: string, userId: string) {
+    await this.verifyOwnership(id, userId);
+    return this.taskRepository.delete(id);
+  }
+
+  async batchDelete(ids: string[], userId: string) {
+    const tasks = await this.taskRepository.findManyByIds(ids);
+
+    const notFoundIds = ids.filter((id) => !tasks.some((t) => t.id === id));
+    if (notFoundIds.length > 0) {
+      throw new NotFoundException(`Tasks not found: ${notFoundIds.join(", ")}`);
+    }
+
+    const notOwned = tasks.filter((t) => t.userId !== userId);
+    if (notOwned.length > 0) {
+      throw new ForbiddenException("You do not own all the requested tasks");
+    }
+
+    return this.taskRepository.deleteMany(ids);
+  }
+
+  private async verifyOwnership(id: string, userId: string) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) throw new NotFoundException(`Task ${id} not found`);
+    if (task.userId !== userId) throw new ForbiddenException("You do not own this task");
+    return task;
   }
 
   private buildWhere(userId: string, filter?: TaskFilter): Prisma.TaskWhereInput {

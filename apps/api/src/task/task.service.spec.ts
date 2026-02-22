@@ -1,3 +1,4 @@
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TaskRepository } from "./task.repository";
@@ -7,6 +8,11 @@ const mockTaskRepository = {
   create: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
+  findById: vi.fn(),
+  findManyByIds: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+  deleteMany: vi.fn(),
 };
 
 describe("TaskService", () => {
@@ -245,6 +251,129 @@ describe("TaskService", () => {
           }),
         );
       });
+    });
+  });
+
+  describe("update", () => {
+    const userId = "user-1";
+    const taskId = "task-1";
+    const existingTask = { id: taskId, userId, title: "Old title" };
+
+    it("should throw NotFoundException when task does not exist", async () => {
+      mockTaskRepository.findById.mockResolvedValue(null);
+
+      await expect(service.update(taskId, { title: "New" }, userId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it("should throw ForbiddenException when task belongs to another user", async () => {
+      mockTaskRepository.findById.mockResolvedValue({ ...existingTask, userId: "other-user" });
+
+      await expect(service.update(taskId, { title: "New" }, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it("should pass fields to repository when updating without completed", async () => {
+      mockTaskRepository.findById.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue({ ...existingTask, title: "New" });
+
+      await service.update(taskId, { title: "New" }, userId);
+
+      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { title: "New" });
+    });
+
+    it("should set completedAt to current date when completed is true", async () => {
+      const now = new Date("2026-01-01T00:00:00Z");
+      vi.setSystemTime(now);
+      mockTaskRepository.findById.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue(existingTask);
+
+      await service.update(taskId, { completed: true }, userId);
+
+      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { completedAt: now });
+      vi.useRealTimers();
+    });
+
+    it("should set completedAt to null when completed is false", async () => {
+      mockTaskRepository.findById.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue(existingTask);
+
+      await service.update(taskId, { completed: false }, userId);
+
+      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { completedAt: null });
+    });
+
+    it("should not include completedAt when completed is undefined", async () => {
+      mockTaskRepository.findById.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue(existingTask);
+
+      await service.update(taskId, { title: "New" }, userId);
+
+      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { title: "New" });
+    });
+  });
+
+  describe("delete", () => {
+    const userId = "user-1";
+    const taskId = "task-1";
+
+    it("should throw NotFoundException when task does not exist", async () => {
+      mockTaskRepository.findById.mockResolvedValue(null);
+
+      await expect(service.delete(taskId, userId)).rejects.toThrow(NotFoundException);
+    });
+
+    it("should throw ForbiddenException when task belongs to another user", async () => {
+      mockTaskRepository.findById.mockResolvedValue({ id: taskId, userId: "other-user" });
+
+      await expect(service.delete(taskId, userId)).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should call repository.delete when task exists and is owned", async () => {
+      mockTaskRepository.findById.mockResolvedValue({ id: taskId, userId });
+      mockTaskRepository.delete.mockResolvedValue({ id: taskId });
+
+      await service.delete(taskId, userId);
+
+      expect(mockTaskRepository.delete).toHaveBeenCalledWith(taskId);
+    });
+  });
+
+  describe("batchDelete", () => {
+    const userId = "user-1";
+
+    it("should throw NotFoundException when some ids are not found", async () => {
+      mockTaskRepository.findManyByIds.mockResolvedValue([{ id: "task-1", userId }]);
+
+      await expect(service.batchDelete(["task-1", "task-2"], userId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it("should throw ForbiddenException when some tasks are not owned", async () => {
+      mockTaskRepository.findManyByIds.mockResolvedValue([
+        { id: "task-1", userId },
+        { id: "task-2", userId: "other-user" },
+      ]);
+
+      await expect(service.batchDelete(["task-1", "task-2"], userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it("should call repository.deleteMany when all tasks exist and are owned", async () => {
+      const ids = ["task-1", "task-2"];
+      mockTaskRepository.findManyByIds.mockResolvedValue([
+        { id: "task-1", userId },
+        { id: "task-2", userId },
+      ]);
+      mockTaskRepository.deleteMany.mockResolvedValue({ count: 2 });
+
+      await service.batchDelete(ids, userId);
+
+      expect(mockTaskRepository.deleteMany).toHaveBeenCalledWith(ids);
     });
   });
 });
