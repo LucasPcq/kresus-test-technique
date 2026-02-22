@@ -127,7 +127,9 @@ describe("TaskCreateDialog", () => {
 
   it("should show error message when API returns an error", async () => {
     server.use(
-      http.post(apiUrl("/tasks"), () => HttpResponse.json({ message: "Bad request" }, { status: 400 })),
+      http.post(apiUrl("/tasks"), () =>
+        HttpResponse.json({ message: "Bad request" }, { status: 400 }),
+      ),
     );
 
     await mountDialog();
@@ -141,7 +143,9 @@ describe("TaskCreateDialog", () => {
 
   it("should show generic error message for server errors", async () => {
     server.use(
-      http.post(apiUrl("/tasks"), () => HttpResponse.json({ message: "Server error" }, { status: 500 })),
+      http.post(apiUrl("/tasks"), () =>
+        HttpResponse.json({ message: "Server error" }, { status: 500 }),
+      ),
     );
 
     await mountDialog();

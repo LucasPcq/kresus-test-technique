@@ -4,7 +4,12 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 
-import { PRIORITY, TASK_CONTENT_MAX_LENGTH, TASK_TITLE_MAX_LENGTH, taskBaseSchema } from "@kresus/contract";
+import {
+  PRIORITY,
+  TASK_CONTENT_MAX_LENGTH,
+  TASK_TITLE_MAX_LENGTH,
+  taskBaseSchema,
+} from "@kresus/contract";
 
 import type { DateValue } from "reka-ui";
 import { CalendarDays } from "lucide-vue-next";
