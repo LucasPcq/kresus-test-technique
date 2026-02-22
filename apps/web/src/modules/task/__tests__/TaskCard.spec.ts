@@ -29,17 +29,7 @@ describe("TaskCard", () => {
     expect(wrapper.text()).toContain("Rédiger le rapport");
   });
 
-  it("should render truncated content", () => {
-    const longContent = "A".repeat(150);
-    const wrapper = mount(TaskCard, {
-      props: { task: { ...baseTask, content: longContent } },
-    });
-
-    expect(wrapper.text()).toContain("…");
-    expect(wrapper.text()).not.toContain(longContent);
-  });
-
-  it("should render full content when short", () => {
+  it("should render full content", () => {
     const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
     expect(wrapper.text()).toContain("Contenu de la tâche");
@@ -243,5 +233,40 @@ describe("TaskCard", () => {
       );
       expect(confirmButton?.disabled).toBe(true);
     });
+  });
+
+  it("should show checkbox instead of circle in selection mode", () => {
+    const wrapper = mount(TaskCard, {
+      props: { task: baseTask, selectionMode: true, selected: false },
+    });
+
+    expect(wrapper.find("button[role='checkbox']").exists()).toBe(true);
+    expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(false);
+  });
+
+  it("should hide three-dots menu in selection mode", () => {
+    const wrapper = mount(TaskCard, {
+      props: { task: baseTask, selectionMode: true, selected: false },
+    });
+
+    expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(false);
+  });
+
+  it("should emit toggle-select when card is clicked in selection mode", async () => {
+    const wrapper = mount(TaskCard, {
+      props: { task: baseTask, selectionMode: true, selected: false },
+    });
+
+    await wrapper.find("[data-slot='card']").trigger("click");
+
+    expect(wrapper.emitted("toggle-select")).toBeTruthy();
+    expect(wrapper.emitted("toggle-select")?.[0]).toEqual(["1"]);
+  });
+
+  it("should show completion circle in normal mode", () => {
+    const wrapper = mount(TaskCard, { props: { task: baseTask } });
+
+    expect(wrapper.find("button[role='checkbox']").exists()).toBe(false);
+    expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(true);
   });
 });

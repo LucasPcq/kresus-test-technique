@@ -6,7 +6,6 @@ import type { BadgeVariants } from "@/components/ui/badge";
 export const PAGINATION_MODES = ["classic", "infinite"] as const;
 export type PaginationMode = (typeof PAGINATION_MODES)[number];
 
-export const CONTENT_MAX_LENGTH = 120;
 export const SEARCH_DEBOUNCE_MS = 300;
 
 export const PRIORITY_CONFIG: Record<

@@ -2,6 +2,8 @@
 import { computed, ref } from "vue";
 import { CalendarDays, CheckCircle2, Circle, EllipsisVertical, Trash2 } from "lucide-vue-next";
 
+import { Checkbox } from "@/components/ui/checkbox";
+
 import type { TaskResponse } from "@kresus/contract";
 
 import { Badge } from "@/components/ui/badge";
@@ -25,15 +27,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatDateShort } from "@/lib/date";
 
-import { CONTENT_MAX_LENGTH, PRIORITY_CONFIG } from "../task.constants";
+import { PRIORITY_CONFIG } from "../task.constants";
 
 const props = defineProps<{
   task: TaskResponse;
   isDeleting?: boolean;
+  selectionMode?: boolean;
+  selected?: boolean;
 }>();
 
 const emit = defineEmits<{
   delete: [id: string];
+  "toggle-select": [id: string];
 }>();
 
 const isAlertOpen = ref(false);
@@ -47,11 +52,6 @@ const formattedDate = computed(() => {
   return formatDateShort(new Date(props.task.executionDate));
 });
 
-const truncatedContent = computed(() => {
-  if (props.task.content.length <= CONTENT_MAX_LENGTH) return props.task.content;
-  return `${props.task.content.slice(0, CONTENT_MAX_LENGTH)}…`;
-});
-
 const onConfirmDelete = () => {
   emit("delete", props.task.id);
 };
@@ -62,9 +62,11 @@ const onConfirmDelete = () => {
     :class="[
       'group relative flex flex-col transition-colors',
       isCompleted && 'opacity-60',
+      selectionMode && 'cursor-pointer',
     ]"
+    @click="selectionMode && emit('toggle-select', task.id)"
   >
-    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div v-if="!selectionMode" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button
@@ -87,7 +89,15 @@ const onConfirmDelete = () => {
 
     <CardHeader class="flex-row items-start justify-between gap-2 space-y-0">
       <div class="flex items-center gap-2 min-w-0">
+        <Checkbox
+          v-if="selectionMode"
+          :model-value="selected"
+          class="shrink-0"
+          @click.stop
+          @update:model-value="emit('toggle-select', task.id)"
+        />
         <component
+          v-else
           :is="isCompleted ? CheckCircle2 : Circle"
           :class="[
             'size-5 shrink-0',
@@ -99,7 +109,7 @@ const onConfirmDelete = () => {
       <Badge :variant="priorityConfig.variant">{{ priorityConfig.label }}</Badge>
     </CardHeader>
     <CardContent>
-      <p class="text-sm text-muted-foreground">{{ truncatedContent }}</p>
+      <p class="text-sm text-muted-foreground">{{ task.content }}</p>
     </CardContent>
     <CardFooter v-if="formattedDate" class="mt-auto text-xs text-muted-foreground gap-1">
       <CalendarDays class="size-3.5" />
