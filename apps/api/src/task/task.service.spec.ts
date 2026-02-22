@@ -1,4 +1,4 @@
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -10,10 +10,10 @@ const mockTaskRepository = {
   findMany: vi.fn(),
   count: vi.fn(),
   findById: vi.fn(),
-  findManyByIds: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
   deleteMany: vi.fn(),
+  transaction: vi.fn(),
 };
 
 describe("TaskService", () => {
@@ -347,36 +347,36 @@ describe("TaskService", () => {
   describe("batchDelete", () => {
     const userId = "user-1";
 
-    it("should throw NotFoundException when some ids are not found", async () => {
-      mockTaskRepository.findManyByIds.mockResolvedValue([{ id: "task-1", userId }]);
+    beforeEach(() => {
+      mockTaskRepository.transaction.mockImplementation((fn: (tx: unknown) => unknown) =>
+        fn("mock-tx"),
+      );
+    });
+
+    it("should throw NotFoundException when some tasks were not found or not owned", async () => {
+      mockTaskRepository.deleteMany.mockResolvedValue({ count: 1 });
 
       await expect(service.batchDelete(["task-1", "task-2"], userId)).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it("should throw ForbiddenException when some tasks are not owned", async () => {
-      mockTaskRepository.findManyByIds.mockResolvedValue([
-        { id: "task-1", userId },
-        { id: "task-2", userId: "other-user" },
-      ]);
-
-      await expect(service.batchDelete(["task-1", "task-2"], userId)).rejects.toThrow(
-        ForbiddenException,
-      );
-    });
-
-    it("should call repository.deleteMany when all tasks exist and are owned", async () => {
+    it("should call repository.deleteMany within transaction with ids and userId", async () => {
       const ids = ["task-1", "task-2"];
-      mockTaskRepository.findManyByIds.mockResolvedValue([
-        { id: "task-1", userId },
-        { id: "task-2", userId },
-      ]);
       mockTaskRepository.deleteMany.mockResolvedValue({ count: 2 });
 
       await service.batchDelete(ids, userId);
 
-      expect(mockTaskRepository.deleteMany).toHaveBeenCalledWith(ids);
+      expect(mockTaskRepository.transaction).toHaveBeenCalledWith(expect.any(Function));
+      expect(mockTaskRepository.deleteMany).toHaveBeenCalledWith({ ids, userId }, "mock-tx");
+    });
+
+    it("should return count when all tasks are deleted", async () => {
+      mockTaskRepository.deleteMany.mockResolvedValue({ count: 2 });
+
+      const result = await service.batchDelete(["task-1", "task-2"], userId);
+
+      expect(result).toEqual({ count: 2 });
     });
   });
 });

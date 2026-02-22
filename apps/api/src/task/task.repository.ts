@@ -35,10 +35,6 @@ export class TaskRepository {
     return this.prisma.task.findUnique({ where: { id } });
   }
 
-  findManyByIds(ids: string[]) {
-    return this.prisma.task.findMany({ where: { id: { in: ids } } });
-  }
-
   update({ id, userId }: { id: string; userId: string }, data: Prisma.TaskUpdateInput) {
     return this.prisma.task.update({ where: { id, userId }, data });
   }
@@ -47,7 +43,12 @@ export class TaskRepository {
     return this.prisma.task.delete({ where: { id, userId } });
   }
 
-  deleteMany(ids: string[]) {
-    return this.prisma.task.deleteMany({ where: { id: { in: ids } } });
+  deleteMany({ ids, userId }: { ids: string[]; userId: string }, tx?: Prisma.TransactionClient) {
+    const client = tx ?? this.prisma;
+    return client.task.deleteMany({ where: { id: { in: ids }, userId } });
+  }
+
+  async transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(fn);
   }
 }

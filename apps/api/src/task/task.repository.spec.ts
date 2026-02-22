@@ -13,6 +13,7 @@ const mockPrisma = {
     delete: vi.fn(),
     deleteMany: vi.fn(),
   },
+  $transaction: vi.fn(),
 };
 
 describe("TaskRepository", () => {
@@ -91,20 +92,6 @@ describe("TaskRepository", () => {
     });
   });
 
-  describe("findManyByIds", () => {
-    it("should call prisma.task.findMany with ids filter when called", async () => {
-      const tasks = [{ id: "task-1" }, { id: "task-2" }];
-      mockPrisma.task.findMany.mockResolvedValue(tasks);
-
-      const result = await repository.findManyByIds(["task-1", "task-2"]);
-
-      expect(mockPrisma.task.findMany).toHaveBeenCalledWith({
-        where: { id: { in: ["task-1", "task-2"] } },
-      });
-      expect(result).toEqual(tasks);
-    });
-  });
-
   describe("update", () => {
     it("should call prisma.task.update with id, userId and data when called", async () => {
       const updated = { id: "task-1", title: "Updated" };
@@ -135,15 +122,42 @@ describe("TaskRepository", () => {
   });
 
   describe("deleteMany", () => {
-    it("should call prisma.task.deleteMany with ids filter when called", async () => {
+    it("should call prisma.task.deleteMany with ids and userId filter when called", async () => {
       mockPrisma.task.deleteMany.mockResolvedValue({ count: 2 });
 
-      const result = await repository.deleteMany(["task-1", "task-2"]);
+      const result = await repository.deleteMany({ ids: ["task-1", "task-2"], userId: "user-1" });
 
       expect(mockPrisma.task.deleteMany).toHaveBeenCalledWith({
-        where: { id: { in: ["task-1", "task-2"] } },
+        where: { id: { in: ["task-1", "task-2"] }, userId: "user-1" },
       });
       expect(result).toEqual({ count: 2 });
+    });
+
+    it("should use transaction client when provided", async () => {
+      const mockTx = { task: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) } };
+
+      const result = await repository.deleteMany(
+        { ids: ["task-1"], userId: "user-1" },
+        mockTx as never,
+      );
+
+      expect(mockTx.task.deleteMany).toHaveBeenCalledWith({
+        where: { id: { in: ["task-1"] }, userId: "user-1" },
+      });
+      expect(mockPrisma.task.deleteMany).not.toHaveBeenCalled();
+      expect(result).toEqual({ count: 1 });
+    });
+  });
+
+  describe("transaction", () => {
+    it("should delegate to prisma.$transaction when called", async () => {
+      const fn = vi.fn().mockResolvedValue("result");
+      mockPrisma.$transaction.mockImplementation((cb: (tx: unknown) => unknown) => cb("tx-client"));
+
+      const result = await repository.transaction(fn);
+
+      expect(mockPrisma.$transaction).toHaveBeenCalledWith(fn);
+      expect(result).toBe("result");
     });
   });
 });

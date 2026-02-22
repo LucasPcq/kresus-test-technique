@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import {
@@ -72,19 +72,17 @@ export class TaskService {
   }
 
   async batchDelete(ids: string[], userId: string) {
-    const tasks = await this.taskRepository.findManyByIds(ids);
+    return this.taskRepository.transaction(async (tx) => {
+      const { count } = await this.taskRepository.deleteMany({ ids, userId }, tx);
 
-    const notFoundIds = ids.filter((id) => !tasks.some((t) => t.id === id));
-    if (notFoundIds.length > 0) {
-      throw new NotFoundException(`Tasks not found: ${notFoundIds.join(", ")}`);
-    }
+      if (count !== ids.length) {
+        throw new NotFoundException(
+          `Some tasks were not found (expected ${ids.length}, deleted ${count})`,
+        );
+      }
 
-    const notOwned = tasks.filter((t) => t.userId !== userId);
-    if (notOwned.length > 0) {
-      throw new ForbiddenException("You do not own all the requested tasks");
-    }
-
-    return this.taskRepository.deleteMany(ids);
+      return { count };
+    });
   }
 
   private handlePrismaNotFound(error: unknown, id: string): never {
