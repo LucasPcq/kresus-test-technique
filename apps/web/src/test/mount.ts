@@ -7,7 +7,11 @@ import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises, mount } from "@vue/test-utils";
 
-export function buildWrapper(component: Component) {
+export function buildWrapper(
+  component: Component,
+  props?: Record<string, unknown>,
+  options?: { attachTo?: Element },
+) {
   const pinia = createPinia();
   setActivePinia(pinia);
 
@@ -26,6 +30,8 @@ export function buildWrapper(component: Component) {
 
   return {
     wrapper: mount(component, {
+      props,
+      attachTo: options?.attachTo,
       global: { plugins: [pinia, router, [VueQueryPlugin, { queryClient }]] },
     }),
     router,

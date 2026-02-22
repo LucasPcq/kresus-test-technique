@@ -49,6 +49,19 @@ export const mockPaginatedTasks: PaginatedResponse<TaskResponse> = {
   totalPages: 1,
 };
 
+export const mockCreatedTask: TaskResponse = {
+  id: "4",
+  title: "Nouvelle tâche",
+  content: "Description de la nouvelle tâche",
+  priority: PRIORITY.MEDIUM,
+  executionDate: null,
+  completedAt: null,
+  createdAt: new Date("2026-02-21"),
+  updatedAt: new Date("2026-02-21"),
+  userId: "1",
+};
+
 export const taskHandlers = [
   http.get(`${env.VITE_API_URL}/tasks`, () => HttpResponse.json(mockPaginatedTasks)),
+  http.post(`${env.VITE_API_URL}/tasks`, () => HttpResponse.json(mockCreatedTask, { status: 201 })),
 ];

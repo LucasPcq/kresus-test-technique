@@ -3,7 +3,7 @@ import { authHandlers } from "./auth";
 import { taskHandlers } from "./task";
 
 export { mockAuthUser } from "./auth";
-export { mockTasks, mockPaginatedTasks } from "./task";
+export { mockTasks, mockPaginatedTasks, mockCreatedTask } from "./task";
 
 export const apiUrl = (path: string) => `${env.VITE_API_URL}${path}`;
 
