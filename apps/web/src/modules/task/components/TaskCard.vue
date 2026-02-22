@@ -39,6 +39,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   delete: [id: string];
   "toggle-select": [id: string];
+  "toggle-complete": [id: string, completed: boolean];
 }>();
 
 const isAlertOpen = ref(false);
@@ -96,14 +97,21 @@ const onConfirmDelete = () => {
           @click.stop
           @update:model-value="emit('toggle-select', task.id)"
         />
-        <component
+        <button
           v-else
-          :is="isCompleted ? CheckCircle2 : Circle"
-          :class="[
-            'size-5 shrink-0',
-            isCompleted ? 'text-green-500' : 'text-muted-foreground',
-          ]"
-        />
+          type="button"
+          class="shrink-0 cursor-pointer"
+          :aria-label="isCompleted ? 'Marquer comme non complétée' : 'Marquer comme complétée'"
+          @click.stop="emit('toggle-complete', task.id, !isCompleted)"
+        >
+          <component
+            :is="isCompleted ? CheckCircle2 : Circle"
+            :class="[
+              'size-5 transition-colors',
+              isCompleted ? 'text-green-500' : 'text-muted-foreground hover:text-green-400',
+            ]"
+          />
+        </button>
         <CardTitle class="text-base truncate">{{ task.title }}</CardTitle>
       </div>
       <Badge :variant="priorityConfig.variant">{{ priorityConfig.label }}</Badge>

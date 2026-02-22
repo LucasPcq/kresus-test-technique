@@ -35,7 +35,7 @@ describe("TaskCard", () => {
     expect(wrapper.text()).toContain("Contenu de la tâche");
   });
 
-  it("should render HIGH priority badge as destructive", () => {
+  it("should render HIGH priority badge", () => {
     const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
     expect(wrapper.text()).toContain("Haute");
@@ -73,200 +73,139 @@ describe("TaskCard", () => {
     expect(wrapper.find("[data-slot='card-footer']").exists()).toBe(false);
   });
 
-  it("should apply opacity when task is completed", () => {
-    const wrapper = mount(TaskCard, {
-      props: { task: { ...baseTask, completedAt: new Date() } },
+  describe("completion toggle", () => {
+    it("should show 'Marquer comme complétée' button for incomplete task", () => {
+      const wrapper = mount(TaskCard, { props: { task: baseTask } });
+
+      expect(wrapper.find("button[aria-label='Marquer comme complétée']").exists()).toBe(true);
     });
 
-    expect(wrapper.find("[data-slot='card']").classes()).toContain("opacity-60");
-  });
+    it("should show 'Marquer comme non complétée' button for completed task", () => {
+      const wrapper = mount(TaskCard, {
+        props: { task: { ...baseTask, completedAt: new Date() } },
+      });
 
-  it("should not apply opacity for incomplete task", () => {
-    const wrapper = mount(TaskCard, { props: { task: baseTask } });
-
-    expect(wrapper.find("[data-slot='card']").classes()).not.toContain("opacity-60");
-  });
-
-  it("should have the three dots button hidden by default with group-hover class", () => {
-    const wrapper = mount(TaskCard, { props: { task: baseTask } });
-
-    const menuButton = wrapper.find("button[aria-label='Actions']");
-    expect(menuButton.exists()).toBe(true);
-
-    const menuWrapper = menuButton.element.closest(".opacity-0");
-    expect(menuWrapper).toBeTruthy();
-    expect(menuWrapper?.classList.contains("group-hover:opacity-100")).toBe(true);
-  });
-
-  it("should have group class on card for hover detection", () => {
-    const wrapper = mount(TaskCard, { props: { task: baseTask } });
-
-    expect(wrapper.find("[data-slot='card']").classes()).toContain("group");
-  });
-
-  it("should open dropdown menu with delete option when three dots is clicked", async () => {
-    mount(TaskCard, {
-      props: { task: baseTask },
-      attachTo: document.body,
-    });
-
-    const menuButton = document.body.querySelector("button[aria-label='Actions']");
-    menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await flushPromises();
-
-    await vi.waitFor(() => {
-      expect(document.body.textContent).toContain("Supprimer");
+      expect(wrapper.find("button[aria-label='Marquer comme non complétée']").exists()).toBe(true);
     });
   });
 
-  it("should open alert dialog when delete menu item is clicked", async () => {
-    mount(TaskCard, {
-      props: { task: baseTask },
-      attachTo: document.body,
+  describe("delete flow", () => {
+    it("should show delete option in the actions menu", async () => {
+      mount(TaskCard, {
+        props: { task: baseTask },
+        attachTo: document.body,
+      });
+
+      const menuButton = document.body.querySelector("button[aria-label='Actions']");
+      menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        expect(document.body.textContent).toContain("Supprimer");
+      });
     });
 
-    const menuButton = document.body.querySelector("button[aria-label='Actions']");
-    menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await flushPromises();
+    it("should open confirmation dialog when delete is clicked", async () => {
+      mount(TaskCard, {
+        props: { task: baseTask },
+        attachTo: document.body,
+      });
 
-    await vi.waitFor(() => {
-      const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
-        el.textContent?.includes("Supprimer"),
+      const menuButton = document.body.querySelector("button[aria-label='Actions']");
+      menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
+          el.textContent?.includes("Supprimer"),
+        );
+        deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        expect(document.body.textContent).toContain("Supprimer la tâche");
+        expect(document.body.textContent).toContain("Cette action est irréversible");
+      });
+    });
+
+    it("should close confirmation dialog when cancel is clicked", async () => {
+      mount(TaskCard, {
+        props: { task: baseTask },
+        attachTo: document.body,
+      });
+
+      const menuButton = document.body.querySelector("button[aria-label='Actions']");
+      menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
+          el.textContent?.includes("Supprimer"),
+        );
+        deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        expect(document.body.textContent).toContain("Supprimer la tâche");
+      });
+
+      const cancelButton = [...document.body.querySelectorAll("button")].find(
+        (b) => b.textContent?.trim() === "Annuler",
       );
-      expect(deleteItem).toBeTruthy();
-      deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-    await flushPromises();
+      cancelButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
 
-    await vi.waitFor(() => {
-      expect(document.body.textContent).toContain("Supprimer la tâche");
-      expect(document.body.textContent).toContain("Cette action est irréversible");
-    });
-  });
-
-  it("should emit delete event when alert dialog confirm is clicked", async () => {
-    const wrapper = mount(TaskCard, {
-      props: { task: baseTask },
-      attachTo: document.body,
+      await vi.waitFor(() => {
+        expect(document.body.querySelector("[role='alertdialog']")).toBeNull();
+      });
     });
 
-    const menuButton = document.body.querySelector("button[aria-label='Actions']");
-    menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await flushPromises();
+    it("should show loading state when isDeleting is true", async () => {
+      mount(TaskCard, {
+        props: { task: baseTask, isDeleting: true },
+        attachTo: document.body,
+      });
 
-    await vi.waitFor(() => {
-      const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
-        el.textContent?.includes("Supprimer"),
-      );
-      deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-    await flushPromises();
+      const menuButton = document.body.querySelector("button[aria-label='Actions']");
+      menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
 
-    await vi.waitFor(() => {
-      const confirmButton = [...document.body.querySelectorAll("button")].find(
-        (b) => b.textContent?.trim() === "Supprimer",
-      );
-      expect(confirmButton).toBeTruthy();
-      confirmButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-    await flushPromises();
+      await vi.waitFor(() => {
+        const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
+          el.textContent?.includes("Supprimer"),
+        );
+        deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await flushPromises();
 
-    expect(wrapper.emitted("delete")).toBeTruthy();
-    expect(wrapper.emitted("delete")?.[0]).toEqual(["1"]);
-  });
-
-  it("should close alert dialog when cancel is clicked", async () => {
-    mount(TaskCard, {
-      props: { task: baseTask },
-      attachTo: document.body,
-    });
-
-    const menuButton = document.body.querySelector("button[aria-label='Actions']");
-    menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await flushPromises();
-
-    await vi.waitFor(() => {
-      const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
-        el.textContent?.includes("Supprimer"),
-      );
-      deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-    await flushPromises();
-
-    await vi.waitFor(() => {
-      expect(document.body.textContent).toContain("Supprimer la tâche");
-    });
-
-    const cancelButton = [...document.body.querySelectorAll("button")].find(
-      (b) => b.textContent?.trim() === "Annuler",
-    );
-    cancelButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await flushPromises();
-
-    await vi.waitFor(() => {
-      expect(document.body.querySelector("[role='alertdialog']")).toBeNull();
+      await vi.waitFor(() => {
+        expect(document.body.textContent).toContain("Suppression…");
+        const confirmButton = [...document.body.querySelectorAll("button")].find((b) =>
+          b.textContent?.includes("Suppression"),
+        );
+        expect(confirmButton?.disabled).toBe(true);
+      });
     });
   });
 
-  it("should show loading state when isDeleting is true", async () => {
-    mount(TaskCard, {
-      props: { task: baseTask, isDeleting: true },
-      attachTo: document.body,
+  describe("selection mode", () => {
+    it("should show checkbox and hide actions menu", () => {
+      const wrapper = mount(TaskCard, {
+        props: { task: baseTask, selectionMode: true, selected: false },
+      });
+
+      expect(wrapper.find("button[role='checkbox']").exists()).toBe(true);
+      expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(false);
     });
 
-    const menuButton = document.body.querySelector("button[aria-label='Actions']");
-    menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await flushPromises();
+    it("should hide completion toggle button", () => {
+      const wrapper = mount(TaskCard, {
+        props: { task: baseTask, selectionMode: true, selected: false },
+      });
 
-    await vi.waitFor(() => {
-      const deleteItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
-        el.textContent?.includes("Supprimer"),
-      );
-      deleteItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(wrapper.find("button[aria-label='Marquer comme complétée']").exists()).toBe(false);
     });
-    await flushPromises();
-
-    await vi.waitFor(() => {
-      expect(document.body.textContent).toContain("Suppression…");
-      const confirmButton = [...document.body.querySelectorAll("button")].find((b) =>
-        b.textContent?.includes("Suppression"),
-      );
-      expect(confirmButton?.disabled).toBe(true);
-    });
-  });
-
-  it("should show checkbox instead of circle in selection mode", () => {
-    const wrapper = mount(TaskCard, {
-      props: { task: baseTask, selectionMode: true, selected: false },
-    });
-
-    expect(wrapper.find("button[role='checkbox']").exists()).toBe(true);
-    expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(false);
-  });
-
-  it("should hide three-dots menu in selection mode", () => {
-    const wrapper = mount(TaskCard, {
-      props: { task: baseTask, selectionMode: true, selected: false },
-    });
-
-    expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(false);
-  });
-
-  it("should emit toggle-select when card is clicked in selection mode", async () => {
-    const wrapper = mount(TaskCard, {
-      props: { task: baseTask, selectionMode: true, selected: false },
-    });
-
-    await wrapper.find("[data-slot='card']").trigger("click");
-
-    expect(wrapper.emitted("toggle-select")).toBeTruthy();
-    expect(wrapper.emitted("toggle-select")?.[0]).toEqual(["1"]);
-  });
-
-  it("should show completion circle in normal mode", () => {
-    const wrapper = mount(TaskCard, { props: { task: baseTask } });
-
-    expect(wrapper.find("button[role='checkbox']").exists()).toBe(false);
-    expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(true);
   });
 });

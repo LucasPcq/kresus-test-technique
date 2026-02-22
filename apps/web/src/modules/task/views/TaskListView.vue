@@ -3,8 +3,11 @@ import { computed, reactive, ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { Loader2, Trash2 } from "lucide-vue-next";
 
+import { pluralize } from "@/lib/utils";
+
 import { useBatchDeleteTasks } from "../composables/useBatchDeleteTasks";
 import { useDeleteTask } from "../composables/useDeleteTask";
+import { useToggleTaskComplete } from "../composables/useToggleTaskComplete";
 import { useTaskFilters } from "../composables/useTaskFilters";
 import { useTaskList } from "../composables/useTaskList";
 
@@ -66,10 +69,9 @@ const {
   variables: deleteVariables,
 } = useDeleteTask();
 
-const {
-  mutate: batchDeleteMutation,
-  isPending: isBatchDeletePending,
-} = useBatchDeleteTasks();
+const { mutate: toggleCompleteMutation } = useToggleTaskComplete();
+
+const { mutate: batchDeleteMutation, isPending: isBatchDeletePending } = useBatchDeleteTasks();
 
 const selectionMode = ref(false);
 const selectedIds = reactive(new Set<string>());
@@ -162,6 +164,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
             :selected="selectedIds.has(task.id)"
             @delete="deleteMutation"
             @toggle-select="toggleSelect"
+            @toggle-complete="(id, completed) => toggleCompleteMutation({ id, completed })"
           />
         </div>
 
@@ -207,7 +210,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg"
       >
         <span class="text-sm font-medium">
-          {{ selectedCount }} tâche{{ selectedCount > 1 ? "s" : "" }} sélectionnée{{ selectedCount > 1 ? "s" : "" }}
+          {{ selectedCount }} {{ pluralize(selectedCount, "tâche") }} {{ pluralize(selectedCount, "sélectionnée") }}
         </span>
         <Button variant="destructive" size="sm" @click="isBatchAlertOpen = true">
           <Trash2 class="size-4" />
@@ -221,7 +224,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Supprimer les tâches</AlertDialogTitle>
           <AlertDialogDescription>
-            Êtes-vous sûr de vouloir supprimer {{ selectedCount }} tâche{{ selectedCount > 1 ? "s" : "" }} ? Cette action est irréversible.
+            Êtes-vous sûr de vouloir supprimer {{ selectedCount }} {{ pluralize(selectedCount, "tâche") }} ? Cette action est irréversible.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
