@@ -4,8 +4,11 @@ import { createApp } from "vue";
 
 import App from "./App.vue";
 import router from "./router";
+import { setFrenchZodErrorMap } from "./lib/zod-error-map";
 
 import "./assets/index.css";
+
+setFrenchZodErrorMap();
 
 const app = createApp(App);
 

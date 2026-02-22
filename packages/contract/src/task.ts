@@ -40,7 +40,7 @@ export const createTaskSchema = taskBaseSchema.extend({
     .datetime()
     .transform((val) => new Date(val))
     .refine((date) => date > new Date(), {
-      message: "Execution date must be in the future",
+      message: "La date d'exécution doit être dans le futur",
     })
     .optional(),
 });
@@ -71,7 +71,7 @@ export const updateTaskSchema = updateTaskBaseSchema
       .optional(),
   })
   .refine((data) => Object.values(data).some((v) => v !== undefined), {
-    message: "At least one field must be provided",
+    message: "Au moins un champ doit être renseigné",
   });
 
 export type UpdateTaskDto = z.infer<typeof updateTaskSchema>;
@@ -99,7 +99,7 @@ const singleOperator = <T extends z.ZodRawShape>(shape: T) =>
   z
     .object(shape)
     .refine((obj) => Object.values(obj).filter((v) => v !== undefined).length <= 1, {
-      message: "Only one operator allowed per filter field",
+      message: "Un seul opérateur autorisé par champ de filtre",
     })
     .optional();
 
