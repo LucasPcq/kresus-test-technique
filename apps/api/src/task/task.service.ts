@@ -49,8 +49,6 @@ export class TaskService {
   }
 
   async update(id: string, { completed, ...fields }: UpdateTaskDto, userId: string) {
-    await this.verifyOwnership(id, userId);
-
     const data: Prisma.TaskUpdateInput = {
       ...fields,
       ...(completed !== undefined && {
@@ -58,12 +56,19 @@ export class TaskService {
       }),
     };
 
-    return this.taskRepository.update(id, data);
+    try {
+      return await this.taskRepository.update({ id, userId }, data);
+    } catch (error) {
+      this.handlePrismaNotFound(error, id);
+    }
   }
 
   async delete(id: string, userId: string) {
-    await this.verifyOwnership(id, userId);
-    return this.taskRepository.delete(id);
+    try {
+      return await this.taskRepository.delete({ id, userId });
+    } catch (error) {
+      this.handlePrismaNotFound(error, id);
+    }
   }
 
   async batchDelete(ids: string[], userId: string) {
@@ -82,11 +87,14 @@ export class TaskService {
     return this.taskRepository.deleteMany(ids);
   }
 
-  private async verifyOwnership(id: string, userId: string) {
-    const task = await this.taskRepository.findById(id);
-    if (!task) throw new NotFoundException(`Task ${id} not found`);
-    if (task.userId !== userId) throw new ForbiddenException("You do not own this task");
-    return task;
+  private handlePrismaNotFound(error: unknown, id: string): never {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      throw new NotFoundException(`Task ${id} not found`);
+    }
+    throw error;
   }
 
   private buildWhere(userId: string, filter?: TaskFilter): Prisma.TaskWhereInput {

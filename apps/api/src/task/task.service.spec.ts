@@ -1,4 +1,5 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TaskRepository } from "./task.repository";
@@ -257,87 +258,89 @@ describe("TaskService", () => {
   describe("update", () => {
     const userId = "user-1";
     const taskId = "task-1";
-    const existingTask = { id: taskId, userId, title: "Old title" };
+    const prismaNotFound = new Prisma.PrismaClientKnownRequestError("Record not found", {
+      code: "P2025",
+      clientVersion: "5.0.0",
+    });
 
-    it("should throw NotFoundException when task does not exist", async () => {
-      mockTaskRepository.findById.mockResolvedValue(null);
+    it("should throw NotFoundException when task is not found or not owned", async () => {
+      mockTaskRepository.update.mockRejectedValue(prismaNotFound);
 
       await expect(service.update(taskId, { title: "New" }, userId)).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it("should throw ForbiddenException when task belongs to another user", async () => {
-      mockTaskRepository.findById.mockResolvedValue({ ...existingTask, userId: "other-user" });
+    it("should rethrow non-Prisma errors", async () => {
+      mockTaskRepository.update.mockRejectedValue(new Error("DB connection lost"));
 
       await expect(service.update(taskId, { title: "New" }, userId)).rejects.toThrow(
-        ForbiddenException,
+        "DB connection lost",
       );
     });
 
-    it("should pass fields to repository when updating without completed", async () => {
-      mockTaskRepository.findById.mockResolvedValue(existingTask);
-      mockTaskRepository.update.mockResolvedValue({ ...existingTask, title: "New" });
+    it("should pass fields to repository with compound where when updating", async () => {
+      mockTaskRepository.update.mockResolvedValue({ id: taskId, title: "New" });
 
       await service.update(taskId, { title: "New" }, userId);
 
-      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { title: "New" });
+      expect(mockTaskRepository.update).toHaveBeenCalledWith({ id: taskId, userId }, { title: "New" });
     });
 
     it("should set completedAt to current date when completed is true", async () => {
       const now = new Date("2026-01-01T00:00:00Z");
       vi.setSystemTime(now);
-      mockTaskRepository.findById.mockResolvedValue(existingTask);
-      mockTaskRepository.update.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue({ id: taskId });
 
       await service.update(taskId, { completed: true }, userId);
 
-      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { completedAt: now });
+      expect(mockTaskRepository.update).toHaveBeenCalledWith({ id: taskId, userId }, { completedAt: now });
       vi.useRealTimers();
     });
 
     it("should set completedAt to null when completed is false", async () => {
-      mockTaskRepository.findById.mockResolvedValue(existingTask);
-      mockTaskRepository.update.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue({ id: taskId });
 
       await service.update(taskId, { completed: false }, userId);
 
-      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { completedAt: null });
+      expect(mockTaskRepository.update).toHaveBeenCalledWith({ id: taskId, userId }, { completedAt: null });
     });
 
     it("should not include completedAt when completed is undefined", async () => {
-      mockTaskRepository.findById.mockResolvedValue(existingTask);
-      mockTaskRepository.update.mockResolvedValue(existingTask);
+      mockTaskRepository.update.mockResolvedValue({ id: taskId });
 
       await service.update(taskId, { title: "New" }, userId);
 
-      expect(mockTaskRepository.update).toHaveBeenCalledWith(taskId, { title: "New" });
+      expect(mockTaskRepository.update).toHaveBeenCalledWith({ id: taskId, userId }, { title: "New" });
     });
   });
 
   describe("delete", () => {
     const userId = "user-1";
     const taskId = "task-1";
+    const prismaNotFound = new Prisma.PrismaClientKnownRequestError("Record not found", {
+      code: "P2025",
+      clientVersion: "5.0.0",
+    });
 
-    it("should throw NotFoundException when task does not exist", async () => {
-      mockTaskRepository.findById.mockResolvedValue(null);
+    it("should throw NotFoundException when task is not found or not owned", async () => {
+      mockTaskRepository.delete.mockRejectedValue(prismaNotFound);
 
       await expect(service.delete(taskId, userId)).rejects.toThrow(NotFoundException);
     });
 
-    it("should throw ForbiddenException when task belongs to another user", async () => {
-      mockTaskRepository.findById.mockResolvedValue({ id: taskId, userId: "other-user" });
+    it("should rethrow non-Prisma errors", async () => {
+      mockTaskRepository.delete.mockRejectedValue(new Error("DB connection lost"));
 
-      await expect(service.delete(taskId, userId)).rejects.toThrow(ForbiddenException);
+      await expect(service.delete(taskId, userId)).rejects.toThrow("DB connection lost");
     });
 
-    it("should call repository.delete when task exists and is owned", async () => {
-      mockTaskRepository.findById.mockResolvedValue({ id: taskId, userId });
+    it("should call repository.delete with compound where when task exists and is owned", async () => {
       mockTaskRepository.delete.mockResolvedValue({ id: taskId });
 
       await service.delete(taskId, userId);
 
-      expect(mockTaskRepository.delete).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.delete).toHaveBeenCalledWith({ id: taskId, userId });
     });
   });
 

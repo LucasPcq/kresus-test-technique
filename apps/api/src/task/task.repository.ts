@@ -39,12 +39,12 @@ export class TaskRepository {
     return this.prisma.task.findMany({ where: { id: { in: ids } } });
   }
 
-  update(id: string, data: Prisma.TaskUpdateInput) {
-    return this.prisma.task.update({ where: { id }, data });
+  update({ id, userId }: { id: string; userId: string }, data: Prisma.TaskUpdateInput) {
+    return this.prisma.task.update({ where: { id, userId }, data });
   }
 
-  delete(id: string) {
-    return this.prisma.task.delete({ where: { id } });
+  delete({ id, userId }: { id: string; userId: string }) {
+    return this.prisma.task.delete({ where: { id, userId } });
   }
 
   deleteMany(ids: string[]) {

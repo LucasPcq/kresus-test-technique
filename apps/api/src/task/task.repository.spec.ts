@@ -106,14 +106,14 @@ describe("TaskRepository", () => {
   });
 
   describe("update", () => {
-    it("should call prisma.task.update with id and data when called", async () => {
+    it("should call prisma.task.update with id, userId and data when called", async () => {
       const updated = { id: "task-1", title: "Updated" };
       mockPrisma.task.update.mockResolvedValue(updated);
 
-      const result = await repository.update("task-1", { title: "Updated" });
+      const result = await repository.update({ id: "task-1", userId: "user-1" }, { title: "Updated" });
 
       expect(mockPrisma.task.update).toHaveBeenCalledWith({
-        where: { id: "task-1" },
+        where: { id: "task-1", userId: "user-1" },
         data: { title: "Updated" },
       });
       expect(result).toEqual(updated);
@@ -121,13 +121,15 @@ describe("TaskRepository", () => {
   });
 
   describe("delete", () => {
-    it("should call prisma.task.delete with id when called", async () => {
+    it("should call prisma.task.delete with id and userId when called", async () => {
       const deleted = { id: "task-1" };
       mockPrisma.task.delete.mockResolvedValue(deleted);
 
-      const result = await repository.delete("task-1");
+      const result = await repository.delete({ id: "task-1", userId: "user-1" });
 
-      expect(mockPrisma.task.delete).toHaveBeenCalledWith({ where: { id: "task-1" } });
+      expect(mockPrisma.task.delete).toHaveBeenCalledWith({
+        where: { id: "task-1", userId: "user-1" },
+      });
       expect(result).toEqual(deleted);
     });
   });
