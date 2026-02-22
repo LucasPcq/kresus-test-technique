@@ -2,7 +2,7 @@
 import type { TaskQueryDto } from "@kresus/contract";
 
 import type { AcceptableValue } from "reka-ui";
-import { Plus } from "lucide-vue-next";
+import { CheckSquare, Plus } from "lucide-vue-next";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,11 +17,13 @@ import { SORT_OPTIONS } from "../task.constants";
 
 defineProps<{
   sort: NonNullable<TaskQueryDto["sort"]>;
+  selectionMode: boolean;
 }>();
 
 const emit = defineEmits<{
   "update:sort": [value: NonNullable<TaskQueryDto["sort"]>];
   create: [];
+  "toggle-selection-mode": [];
 }>();
 
 const onSortChange = (val: AcceptableValue | AcceptableValue[]) => {
@@ -49,6 +51,14 @@ const onSortChange = (val: AcceptableValue | AcceptableValue[]) => {
           </SelectItem>
         </SelectContent>
       </Select>
+
+      <Button
+        :variant="selectionMode ? 'secondary' : 'outline'"
+        @click="emit('toggle-selection-mode')"
+      >
+        <CheckSquare class="size-4" />
+        Sélectionner
+      </Button>
 
       <Button @click="emit('create')">
         <Plus class="size-4" />

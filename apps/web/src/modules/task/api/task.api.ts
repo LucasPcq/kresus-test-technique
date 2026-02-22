@@ -18,3 +18,9 @@ export const createTask = (dto: CreateTaskInput): Promise<TaskResponse> =>
 
 export const deleteTask = (id: string): Promise<void> =>
   apiClient.request<void>(`/tasks/${id}`, { method: "DELETE" });
+
+export const batchDeleteTasks = (ids: string[]): Promise<{ count: number }> =>
+  apiClient.request<{ count: number }>("/tasks/batch-delete", {
+    method: "POST",
+    body: JSON.stringify({ ids }),
+  });

@@ -65,4 +65,5 @@ export const taskHandlers = [
   http.get(`${env.VITE_API_URL}/tasks`, () => HttpResponse.json(mockPaginatedTasks)),
   http.post(`${env.VITE_API_URL}/tasks`, () => HttpResponse.json(mockCreatedTask, { status: 201 })),
   http.delete(`${env.VITE_API_URL}/tasks/:id`, () => new HttpResponse(null, { status: 204 })),
+  http.post(`${env.VITE_API_URL}/tasks/batch-delete`, () => HttpResponse.json({ count: 2 })),
 ];
