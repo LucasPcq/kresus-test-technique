@@ -215,6 +215,29 @@ describe("TaskCreateDialog", () => {
     });
   });
 
+  it("should disable past dates in the execution date calendar", async () => {
+    await mountDialog();
+
+    const dateButton = [...document.body.querySelectorAll("button")].find((b) =>
+      b.textContent?.includes("Sélectionner une date"),
+    );
+    dateButton?.click();
+    await flushPromises();
+
+    await vi.waitFor(() => {
+      const todayCell = document.body.querySelector("[data-today]");
+      expect(todayCell).toBeTruthy();
+      expect(todayCell?.hasAttribute("data-disabled")).toBe(false);
+
+      const allCells = document.body.querySelectorAll("[data-slot='calendar-cell-trigger']");
+      const disabledCells = document.body.querySelectorAll(
+        "[data-slot='calendar-cell-trigger'][data-disabled]",
+      );
+      expect(disabledCells.length).toBeGreaterThan(0);
+      expect(disabledCells.length).toBeLessThan(allCells.length);
+    });
+  });
+
   it("should enforce maxlength on title and description inputs", async () => {
     await mountDialog();
 

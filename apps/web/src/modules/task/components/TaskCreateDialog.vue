@@ -12,6 +12,7 @@ import {
 } from "@kresus/contract";
 
 import type { DateValue } from "reka-ui";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { CalendarDays } from "lucide-vue-next";
 
 import { ApiError } from "@/api/client";
@@ -169,6 +170,7 @@ const onSubmit = handleSubmit((values) => {
                 <!-- @vue-ignore Volar false positive: #private fields in @internationalized/date break structural check on DateValue union -->
                 <Calendar
                   :model-value="selectedDate"
+                  :min-value="today(getLocalTimeZone())"
                   @update:model-value="onDateSelect"
                 />
               </PopoverContent>
