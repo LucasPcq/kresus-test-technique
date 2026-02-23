@@ -3,6 +3,7 @@ import { dateFilterOps, priorityFilterOps } from "@kresus/contract";
 
 import { formatDateShort, parseLocalDate } from "@/lib/date";
 
+import type { SelectOption } from "./task.constants";
 import { PRIORITY_CONFIG } from "./task.constants";
 
 // ---------------------------------------------------------------------------
@@ -46,18 +47,16 @@ export type ActiveFilter = CompletedFilter | PriorityFilter | DateFilter;
 // Value options
 // ---------------------------------------------------------------------------
 
-type Option<V = string> = { value: V; label: string };
-
 const COMPLETED_VALUE_OPTIONS = [
   { value: false, label: "À faire" },
   { value: true, label: "Terminées" },
-] as const satisfies ReadonlyArray<Option<boolean>>;
+] as const satisfies ReadonlyArray<SelectOption<boolean>>;
 
 const PRIORITY_VALUE_OPTIONS = [
   { value: "HIGH", label: PRIORITY_CONFIG.HIGH.label },
   { value: "MEDIUM", label: PRIORITY_CONFIG.MEDIUM.label },
   { value: "LOW", label: PRIORITY_CONFIG.LOW.label },
-] as const satisfies ReadonlyArray<Option<Priority>>;
+] as const satisfies ReadonlyArray<SelectOption<Priority>>;
 
 // ---------------------------------------------------------------------------
 // Field configuration
@@ -66,16 +65,16 @@ const PRIORITY_VALUE_OPTIONS = [
 type SelectFieldConfig = {
   field: "completed" | "priority";
   label: string;
-  operators: ReadonlyArray<Option>;
+  operators: ReadonlyArray<SelectOption>;
   defaultOperator: string;
-  values: ReadonlyArray<Option<unknown>>;
+  values: ReadonlyArray<SelectOption<unknown>>;
   valueType: "select";
 };
 
 type CalendarFieldConfig = {
   field: "executionDate";
   label: string;
-  operators: ReadonlyArray<Option>;
+  operators: ReadonlyArray<SelectOption>;
   defaultOperator: string;
   valueType: "calendar";
 };

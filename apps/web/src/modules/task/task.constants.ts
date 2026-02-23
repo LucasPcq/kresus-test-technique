@@ -13,6 +13,8 @@ export type PaginationMode = (typeof PAGINATION_MODE)[keyof typeof PAGINATION_MO
 
 export const SEARCH_DEBOUNCE_MS = 300;
 
+export type SelectOption<V = string> = { value: V; label: string };
+
 export const PRIORITY_CONFIG: Record<
   Priority,
   { label: string; variant: NonNullable<BadgeVariants["variant"]> }
@@ -29,7 +31,7 @@ const SORT_LABELS: Record<(typeof SORT_FIELDS)[number], string> = {
   priority: "Priorité",
 };
 
-export const SORT_OPTIONS = SORT_FIELDS.flatMap((field) => [
+export const SORT_OPTIONS: SelectOption[] = SORT_FIELDS.flatMap((field) => [
   { value: `-${field}`, label: `${SORT_LABELS[field]} ↓` },
   { value: field, label: `${SORT_LABELS[field]} ↑` },
 ]);
