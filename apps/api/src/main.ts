@@ -32,9 +32,10 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle("Kresus API")
-    .setDescription("Kresus Todo List API")
+    .setDescription(
+      "Authentification par cookies httpOnly. Appelez POST /auth/login pour vous authentifier, les cookies seront envoyés automatiquement sur les requêtes suivantes.",
+    )
     .setVersion("1.0")
-    .addCookieAuth("access_token")
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
