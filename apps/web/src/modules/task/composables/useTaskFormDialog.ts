@@ -47,9 +47,9 @@ export const useTaskFormDialog = ({
     () => isPending.value || !meta.value.valid || !meta.value.dirty,
   );
 
-  const onDateSelect = (date: DateValue) => {
+  const onDateSelect = (date: DateValue | undefined) => {
     selectedDate.value = date;
-    setFieldValue("executionDate", `${date.toString()}T00:00:00.000Z`);
+    setFieldValue("executionDate", date ? `${date.toString()}T00:00:00.000Z` : undefined);
   };
 
   return {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DateValue } from "reka-ui";
-import { CalendarDays } from "lucide-vue-next";
+import { CalendarDays, X } from "lucide-vue-next";
 
 import { TASK_CONTENT_MAX_LENGTH, TASK_TITLE_MAX_LENGTH } from "@kresus/contract";
 
@@ -28,7 +28,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  dateSelect: [date: DateValue];
+  dateSelect: [date: DateValue | undefined];
 }>();
 
 const dateLabel = (value: string | undefined) => {
@@ -91,14 +91,26 @@ const dateLabel = (value: string | undefined) => {
     <FormItem>
       <FormLabel>Date d'exécution</FormLabel>
       <Popover>
-        <PopoverTrigger as-child>
-          <FormControl>
-            <Button variant="outline" class="w-full justify-start gap-1.5 font-normal">
-              <CalendarDays class="size-4" />
-              {{ dateLabel(value) }}
-            </Button>
-          </FormControl>
-        </PopoverTrigger>
+        <div class="flex items-center gap-1.5">
+          <PopoverTrigger as-child>
+            <FormControl>
+              <Button variant="outline" class="min-w-0 flex-1 justify-start gap-1.5 font-normal">
+                <CalendarDays class="size-4 shrink-0" />
+                <span class="truncate">{{ dateLabel(value) }}</span>
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <Button
+            v-if="value"
+            type="button"
+            variant="ghost"
+            size="icon"
+            class="size-9 shrink-0"
+            @click="emit('dateSelect', undefined)"
+          >
+            <X class="size-4" />
+          </Button>
+        </div>
         <PopoverContent class="w-auto p-0" align="start">
           <!-- @vue-ignore Volar false positive: #private fields in @internationalized/date break structural check on DateValue union -->
           <Calendar
