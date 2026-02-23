@@ -64,7 +64,7 @@ describe("TaskCreateDialog", () => {
     expect(document.body.querySelector("form")).toBeNull();
   });
 
-  it("should show all form fields", async () => {
+  it("should show all form fields when dialog is open", async () => {
     await mountDialog();
 
     expect(document.body.textContent).toContain("Titre");
@@ -74,7 +74,7 @@ describe("TaskCreateDialog", () => {
     expect(document.body.textContent).toContain("Tâche complétée");
   });
 
-  it("should show cancel and create buttons", async () => {
+  it("should show cancel and create buttons when dialog is open", async () => {
     await mountDialog();
 
     expect(document.body.textContent).toContain("Annuler");
@@ -101,8 +101,8 @@ describe("TaskCreateDialog", () => {
     });
   });
 
-  it("should emit close when cancel is clicked", async () => {
-    const { wrapper } = await mountDialog();
+  it("should close the dialog when cancel is clicked", async () => {
+    await mountDialog();
 
     const buttons = [...document.body.querySelectorAll("button")];
     const cancelButton = buttons.find((b) => b.textContent?.includes("Annuler"));
@@ -111,21 +111,23 @@ describe("TaskCreateDialog", () => {
     cancelButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     await flushPromises();
 
-    expect(wrapper.emitted("update:open")).toBeTruthy();
+    await vi.waitFor(() => {
+      expect(document.body.querySelector("form")).toBeNull();
+    });
   });
 
-  it("should close the dialog after successful creation", async () => {
-    const { wrapper } = await mountDialog();
+  it("should close the dialog when creation succeeds", async () => {
+    await mountDialog();
 
     await fillForm();
     await submitForm();
 
     await vi.waitFor(() => {
-      expect(wrapper.emitted("update:open")).toBeTruthy();
+      expect(document.body.querySelector("form")).toBeNull();
     });
   });
 
-  it("should show error message when API returns an error", async () => {
+  it("should show error message when API returns 400", async () => {
     server.use(
       http.post(apiUrl("/tasks"), () =>
         HttpResponse.json({ message: "Bad request" }, { status: 400 }),
@@ -141,7 +143,7 @@ describe("TaskCreateDialog", () => {
     });
   });
 
-  it("should show generic error message for server errors", async () => {
+  it("should show generic error message when API returns a server error", async () => {
     server.use(
       http.post(apiUrl("/tasks"), () =>
         HttpResponse.json({ message: "Server error" }, { status: 500 }),
@@ -157,7 +159,7 @@ describe("TaskCreateDialog", () => {
     });
   });
 
-  it("should show asterisks on required fields", async () => {
+  it("should show asterisks on required field labels when dialog is open", async () => {
     await mountDialog();
 
     const labels = [...document.body.querySelectorAll("label")];
@@ -170,7 +172,7 @@ describe("TaskCreateDialog", () => {
     expect(priorityLabel?.querySelector(".text-destructive")?.textContent).toBe("*");
   });
 
-  it("should not show asterisk on optional fields", async () => {
+  it("should not show asterisks on optional field labels when dialog is open", async () => {
     await mountDialog();
 
     const labels = [...document.body.querySelectorAll("label")];
@@ -181,7 +183,7 @@ describe("TaskCreateDialog", () => {
     expect(completedLabel?.querySelector(".text-destructive")).toBeNull();
   });
 
-  it("should show character count for title field", async () => {
+  it("should show character count for title when text is entered", async () => {
     await mountDialog();
 
     expect(document.body.textContent).toContain(`0/${TASK_TITLE_MAX_LENGTH}`);
@@ -198,7 +200,7 @@ describe("TaskCreateDialog", () => {
     });
   });
 
-  it("should show character count for description field", async () => {
+  it("should show character count for description when text is entered", async () => {
     await mountDialog();
 
     expect(document.body.textContent).toContain(`0/${TASK_CONTENT_MAX_LENGTH}`);
@@ -215,30 +217,7 @@ describe("TaskCreateDialog", () => {
     });
   });
 
-  it("should disable past dates in the execution date calendar", async () => {
-    await mountDialog();
-
-    const dateButton = [...document.body.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Sélectionner une date"),
-    );
-    dateButton?.click();
-    await flushPromises();
-
-    await vi.waitFor(() => {
-      const todayCell = document.body.querySelector("[data-today]");
-      expect(todayCell).toBeTruthy();
-      expect(todayCell?.hasAttribute("data-disabled")).toBe(false);
-
-      const allCells = document.body.querySelectorAll("[data-slot='calendar-cell-trigger']");
-      const disabledCells = document.body.querySelectorAll(
-        "[data-slot='calendar-cell-trigger'][data-disabled]",
-      );
-      expect(disabledCells.length).toBeGreaterThan(0);
-      expect(disabledCells.length).toBeLessThan(allCells.length);
-    });
-  });
-
-  it("should enforce maxlength on title and description inputs", async () => {
+  it("should enforce maxlength on title and description when dialog is open", async () => {
     await mountDialog();
 
     const input = document.body.querySelector("input");

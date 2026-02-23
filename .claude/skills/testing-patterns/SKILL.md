@@ -13,12 +13,17 @@ STOP. Read this BEFORE writing any test code.
 
 ### NEVER test internal state — test behavior
 
+Includes `wrapper.vm.*`, `wrapper.emitted()`, and any assertion on component internals.
+Always assert on what the user **sees** (DOM content, visibility, disabled state).
+
 ```typescript
 // ❌ BAD — internal state
 expect(wrapper.vm.tasks).toHaveLength(3)
+expect(wrapper.emitted("update:open")).toBeTruthy()
 
 // ✅ GOOD — what the user sees
 expect(screen.getAllByRole('listitem')).toHaveLength(3)
+expect(document.body.querySelector("form")).toBeNull() // dialog closed
 ```
 
 ### NEVER use `it.skip` — CI will fail
@@ -42,9 +47,27 @@ expect(screen.getByText('My task')).toBeInTheDocument()
 
 ## Core Philosophy
 
-**Test BEHAVIOR (what the user sees/does), not IMPLEMENTATION (internal state, composables).**
+**Test BEHAVIOR (what the user sees/does), not IMPLEMENTATION (internal state, composables, emits).**
 
 Tests should survive refactoring. If you rename a composable, no tests should break unless the UI changed.
+
+---
+
+## Naming Convention
+
+Every `it()` MUST follow the pattern: **"should [behavior] when [condition]"**
+
+```typescript
+// ❌ BAD — missing "when" condition
+it("should render the task title")
+it("should show all form fields")
+it("displays 404")
+
+// ✅ GOOD — behavior + condition
+it("should render the task title when task is provided")
+it("should show all form fields when dialog is open")
+it("should display 404 when route does not exist")
+```
 
 ---
 
@@ -278,11 +301,12 @@ pnpm --filter=api test:coverage
 ## CHECKLIST — Verify BEFORE submitting
 
 1. [ ] Tests in `__tests__/` next to the code
-2. [ ] Arrange-Act-Assert pattern
-3. [ ] One behavior per test
-4. [ ] **NO `it.skip`** — CI fails
-5. [ ] **Assertions on what the user sees**, not internal state
-6. [ ] Query by role/label first, `testId` last
-7. [ ] MSW handlers for all API calls used in component tests
-8. [ ] Mock factories for test data (never hardcode inline objects)
-9. [ ] Service tests mock repository — repository tests mock Prisma
+2. [ ] `it()` names follow **"should [behavior] when [condition]"**
+3. [ ] Arrange-Act-Assert pattern
+4. [ ] One behavior per test
+5. [ ] **NO `it.skip`** — CI fails
+6. [ ] **Assertions on what the user sees**, not internal state (no `wrapper.vm.*`, no `wrapper.emitted()`)
+7. [ ] Query by role/label first, `testId` last
+8. [ ] MSW handlers for all API calls used in component tests
+9. [ ] Mock factories for test data (never hardcode inline objects)
+10. [ ] Service tests mock repository — repository tests mock Prisma

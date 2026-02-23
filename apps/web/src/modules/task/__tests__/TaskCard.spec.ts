@@ -4,6 +4,8 @@ import { mount, flushPromises } from "@vue/test-utils";
 import { PRIORITY } from "@kresus/contract";
 import type { TaskResponse } from "@kresus/contract";
 
+import { buildWrapper } from "@/test/mount";
+
 import TaskCard from "../components/TaskCard.vue";
 
 const baseTask: TaskResponse = {
@@ -23,25 +25,25 @@ describe("TaskCard", () => {
     document.body.innerHTML = "";
   });
 
-  it("should render the task title", () => {
+  it("should render the task title when task is provided", () => {
     const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
     expect(wrapper.text()).toContain("Rédiger le rapport");
   });
 
-  it("should render full content", () => {
+  it("should render the content when task is provided", () => {
     const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
     expect(wrapper.text()).toContain("Contenu de la tâche");
   });
 
-  it("should render HIGH priority badge", () => {
+  it("should render 'Haute' badge when task has high priority", () => {
     const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
     expect(wrapper.text()).toContain("Haute");
   });
 
-  it("should render MEDIUM priority badge", () => {
+  it("should render 'Moyenne' badge when task has medium priority", () => {
     const wrapper = mount(TaskCard, {
       props: { task: { ...baseTask, priority: PRIORITY.MEDIUM } },
     });
@@ -49,7 +51,7 @@ describe("TaskCard", () => {
     expect(wrapper.text()).toContain("Moyenne");
   });
 
-  it("should render LOW priority badge", () => {
+  it("should render 'Basse' badge when task has low priority", () => {
     const wrapper = mount(TaskCard, {
       props: { task: { ...baseTask, priority: PRIORITY.LOW } },
     });
@@ -57,7 +59,7 @@ describe("TaskCard", () => {
     expect(wrapper.text()).toContain("Basse");
   });
 
-  it("should format the execution date in French", () => {
+  it("should format the execution date in French when executionDate is set", () => {
     const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
     expect(wrapper.text()).toContain("15");
@@ -74,13 +76,13 @@ describe("TaskCard", () => {
   });
 
   describe("completion toggle", () => {
-    it("should show 'Marquer comme complétée' button for incomplete task", () => {
+    it("should show 'Marquer comme complétée' button when task is incomplete", () => {
       const wrapper = mount(TaskCard, { props: { task: baseTask } });
 
       expect(wrapper.find("button[aria-label='Marquer comme complétée']").exists()).toBe(true);
     });
 
-    it("should show 'Marquer comme non complétée' button for completed task", () => {
+    it("should show 'Marquer comme non complétée' button when task is completed", () => {
       const wrapper = mount(TaskCard, {
         props: { task: { ...baseTask, completedAt: new Date() } },
       });
@@ -89,8 +91,45 @@ describe("TaskCard", () => {
     });
   });
 
+  describe("edit flow", () => {
+    it("should show edit option when actions menu is opened", async () => {
+      mount(TaskCard, {
+        props: { task: baseTask },
+        attachTo: document.body,
+      });
+
+      const menuButton = document.body.querySelector("button[aria-label='Actions']");
+      menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        expect(document.body.textContent).toContain("Modifier");
+      });
+    });
+
+    it("should open edit dialog when edit is clicked", async () => {
+      buildWrapper(TaskCard, { task: baseTask }, { attachTo: document.body });
+
+      const menuButton = document.body.querySelector("button[aria-label='Actions']");
+      menuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        const editItem = [...document.body.querySelectorAll("[role='menuitem']")].find((el) =>
+          el.textContent?.includes("Modifier"),
+        );
+        editItem?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await flushPromises();
+
+      await vi.waitFor(() => {
+        expect(document.body.textContent).toContain("Modifier la tâche");
+      });
+    });
+  });
+
   describe("delete flow", () => {
-    it("should show delete option in the actions menu", async () => {
+    it("should show delete option when actions menu is opened", async () => {
       mount(TaskCard, {
         props: { task: baseTask },
         attachTo: document.body,
@@ -191,7 +230,7 @@ describe("TaskCard", () => {
   });
 
   describe("selection mode", () => {
-    it("should show checkbox and hide actions menu", () => {
+    it("should show checkbox and hide actions menu when in selection mode", () => {
       const wrapper = mount(TaskCard, {
         props: { task: baseTask, selectionMode: true, selected: false },
       });
@@ -200,7 +239,7 @@ describe("TaskCard", () => {
       expect(wrapper.find("button[aria-label='Actions']").exists()).toBe(false);
     });
 
-    it("should hide completion toggle button", () => {
+    it("should hide completion toggle button when in selection mode", () => {
       const wrapper = mount(TaskCard, {
         props: { task: baseTask, selectionMode: true, selected: false },
       });

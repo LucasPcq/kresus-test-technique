@@ -4,31 +4,31 @@ import type { ActiveFilter } from "../task.filter-config";
 import { formatFilterLabel } from "../task.filter-config";
 
 describe("formatFilterLabel", () => {
-  it("should format completed filter", () => {
+  it("should return correct label when filter is completed=false", () => {
     const filter: ActiveFilter = { field: "completed", operator: "eq", value: false };
 
     expect(formatFilterLabel(filter)).toBe("Statut · est · À faire");
   });
 
-  it("should format completed=true filter", () => {
+  it("should return correct label when filter is completed=true", () => {
     const filter: ActiveFilter = { field: "completed", operator: "eq", value: true };
 
     expect(formatFilterLabel(filter)).toBe("Statut · est · Terminées");
   });
 
-  it("should format priority eq filter", () => {
+  it("should return correct label when filter is priority eq", () => {
     const filter: ActiveFilter = { field: "priority", operator: "eq", value: "HIGH" };
 
     expect(formatFilterLabel(filter)).toBe("Priorité · est · Haute");
   });
 
-  it("should format priority neq filter", () => {
+  it("should return correct label when filter is priority neq", () => {
     const filter: ActiveFilter = { field: "priority", operator: "neq", value: "LOW" };
 
     expect(formatFilterLabel(filter)).toBe("Priorité · n'est pas · Basse");
   });
 
-  it("should format date between filter", () => {
+  it("should return correct label when filter is date between", () => {
     const filter: ActiveFilter = {
       field: "executionDate",
       operator: "between",
@@ -41,7 +41,7 @@ describe("formatFilterLabel", () => {
     expect(label).toContain("–");
   });
 
-  it("should format date gte filter", () => {
+  it("should return correct label when filter is date gte", () => {
     const filter: ActiveFilter = {
       field: "executionDate",
       operator: "gte",
@@ -53,7 +53,7 @@ describe("formatFilterLabel", () => {
     expect(label).toContain("après le");
   });
 
-  it("should format date lte filter", () => {
+  it("should return correct label when filter is date lte", () => {
     const filter: ActiveFilter = {
       field: "executionDate",
       operator: "lte",

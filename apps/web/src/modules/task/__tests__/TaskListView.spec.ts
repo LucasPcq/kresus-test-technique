@@ -16,7 +16,7 @@ describe("TaskListView", () => {
     setActivePinia(createPinia());
   });
 
-  it("should show skeleton cards while loading", async () => {
+  it("should show skeleton cards when data is loading", async () => {
     server.use(
       http.get(apiUrl("/tasks"), async () => {
         await delay("infinite");
@@ -40,7 +40,7 @@ describe("TaskListView", () => {
     });
   });
 
-  it("should show empty state when no tasks", async () => {
+  it("should show empty state when there are no tasks", async () => {
     const emptyResponse: PaginatedResponse<TaskResponse> = {
       items: [],
       total: 0,
@@ -58,7 +58,7 @@ describe("TaskListView", () => {
     });
   });
 
-  it("should render the page title", async () => {
+  it("should render the page title when data is loaded", async () => {
     const { wrapper } = buildWrapper(TaskListView);
 
     await vi.waitFor(() => {
@@ -66,7 +66,7 @@ describe("TaskListView", () => {
     });
   });
 
-  it("should render the sort select", async () => {
+  it("should render the sort select when data is loaded", async () => {
     const { wrapper } = buildWrapper(TaskListView);
 
     await vi.waitFor(() => {
@@ -87,7 +87,7 @@ describe("TaskListView", () => {
     });
   });
 
-  it("should show pagination when in classic mode with data", async () => {
+  it("should show pagination when data has multiple pages", async () => {
     const multiPageResponse: PaginatedResponse<TaskResponse> = {
       ...mockPaginatedTasks,
       total: 30,

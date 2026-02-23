@@ -81,7 +81,7 @@ describe("TaskService", () => {
 
   describe("findAll", () => {
     const userId = "user-1";
-    const baseQuery = { page: 1, pageSize: 10 as const };
+    const baseQuery = { page: 1, pageSize: 10 as const, sort: "-createdAt" };
 
     it("should return paginated response when tasks exist", async () => {
       const tasks = [{ id: "task-1" }, { id: "task-2" }];
@@ -122,7 +122,7 @@ describe("TaskService", () => {
     });
 
     describe("sort", () => {
-      it("should sort by createdAt desc when no sort provided", async () => {
+      it("should sort by createdAt desc when sort is -createdAt", async () => {
         await service.findAll(baseQuery, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(

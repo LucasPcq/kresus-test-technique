@@ -13,7 +13,7 @@ describe("qs serialization for TaskQueryDto", () => {
     sort: "-createdAt",
   };
 
-  it("should serialize base pagination params", () => {
+  it("should serialize base pagination params when given default query", () => {
     const result = serialize(baseParams);
 
     expect(result).toContain("page=1");
@@ -27,25 +27,25 @@ describe("qs serialization for TaskQueryDto", () => {
     expect(result).not.toContain("filter");
   });
 
-  it("should serialize completed filter", () => {
+  it("should serialize completed filter when completed is provided", () => {
     const result = serialize({ ...baseParams, filter: { completed: true } });
 
     expect(result).toContain("filter[completed]=true");
   });
 
-  it("should serialize priority filter with eq operator", () => {
+  it("should serialize priority filter when eq operator is used", () => {
     const result = serialize({ ...baseParams, filter: { priority: { eq: PRIORITY.HIGH } } });
 
     expect(result).toContain("filter[priority][eq]=HIGH");
   });
 
-  it("should serialize title filter with contains operator", () => {
+  it("should serialize title filter when contains operator is used", () => {
     const result = serialize({ ...baseParams, filter: { title: { contains: "rapport" } } });
 
     expect(result).toContain("filter[title][contains]=rapport");
   });
 
-  it("should serialize executionDate between filter", () => {
+  it("should serialize executionDate filter when between operator is used", () => {
     const from = new Date("2026-03-01");
     const to = new Date("2026-06-30");
     const result = serialize({ ...baseParams, filter: { executionDate: { between: [from, to] } } });
@@ -54,14 +54,14 @@ describe("qs serialization for TaskQueryDto", () => {
     expect(result).toContain("filter[executionDate][between][1]=");
   });
 
-  it("should serialize executionDate gte filter", () => {
+  it("should serialize executionDate filter when gte operator is used", () => {
     const date = new Date("2026-03-01");
     const result = serialize({ ...baseParams, filter: { executionDate: { gte: date } } });
 
     expect(result).toContain("filter[executionDate][gte]=");
   });
 
-  it("should combine multiple filters", () => {
+  it("should combine multiple filters when several are provided", () => {
     const result = serialize({
       ...baseParams,
       filter: {
