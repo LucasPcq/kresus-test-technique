@@ -23,7 +23,10 @@ const createApiClient = () => {
   const doRequest = async <T>(path: string, options: RequestInit): Promise<T> => {
     const response = await fetch(`${env.VITE_API_URL}${path}`, {
       credentials: "include",
-      headers: { "Content-Type": "application/json", ...options.headers },
+      headers: {
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...options.headers,
+      },
       ...options,
     });
 

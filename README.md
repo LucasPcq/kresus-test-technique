@@ -43,6 +43,8 @@ pnpm dev
 
 L'API demarre sur http://localhost:3000 et le frontend sur http://localhost:5173.
 
+La documentation Swagger est disponible sur http://localhost:3000/api.
+
 ## Compte de test
 
 Le seed cree un utilisateur de test :

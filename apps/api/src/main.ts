@@ -14,7 +14,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ querystringParser: (str) => qs.parse(str) }),
+    new FastifyAdapter({
+      routerOptions: { querystringParser: (str: string) => qs.parse(str) },
+    }),
   );
 
   const configService = app.get(ConfigService);
