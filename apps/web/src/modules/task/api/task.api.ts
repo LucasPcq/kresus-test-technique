@@ -3,7 +3,7 @@ import type {
   PaginatedResponse,
   TaskQueryDto,
   TaskResponse,
-  UpdateTaskDto,
+  UpdateTaskInput,
 } from "@kresus/contract";
 
 import { apiClient } from "@/api/client";
@@ -17,7 +17,7 @@ export const createTask = (dto: CreateTaskInput): Promise<TaskResponse> =>
     body: JSON.stringify(dto),
   });
 
-export const updateTask = ({ id, ...dto }: UpdateTaskDto & { id: string }): Promise<TaskResponse> =>
+export const updateTask = ({ id, ...dto }: UpdateTaskInput & { id: string }): Promise<TaskResponse> =>
   apiClient.request<TaskResponse>(`/tasks/${id}`, {
     method: "PATCH",
     body: JSON.stringify(dto),

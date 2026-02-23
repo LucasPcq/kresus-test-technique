@@ -39,9 +39,6 @@ export const createTaskSchema = taskBaseSchema.extend({
   executionDate: z.iso
     .datetime()
     .transform((val) => new Date(val))
-    .refine((date) => date > new Date(), {
-      message: "La date d'exécution doit être dans le futur",
-    })
     .optional(),
 });
 
@@ -75,6 +72,7 @@ export const updateTaskSchema = updateTaskBaseSchema
   });
 
 export type UpdateTaskDto = z.infer<typeof updateTaskSchema>;
+export type UpdateTaskInput = z.input<typeof updateTaskSchema>;
 
 // ---------------------------------------------------------------------------
 // Delete
