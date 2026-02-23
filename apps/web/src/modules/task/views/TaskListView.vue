@@ -1,35 +1,26 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-vue-next";
+import { Loader2 } from "lucide-vue-next";
 
-import { pluralize } from "@/lib/utils";
-
-import { useBatchDeleteTasks } from "../composables/useBatchDeleteTasks";
 import { useDeleteTask } from "../composables/useDeleteTask";
 import { useToggleTaskComplete } from "../composables/useToggleTaskComplete";
+import { useBatchDeleteTasks } from "../composables/useBatchDeleteTasks";
 import { useTaskFilters } from "../composables/useTaskFilters";
 import { useTaskList } from "../composables/useTaskList";
+import { useTaskSelection } from "../composables/useTaskSelection";
 
 import TaskCard from "../components/TaskCard.vue";
 import TaskCardSkeleton from "../components/TaskCardSkeleton.vue";
 import TaskCreateDialog from "../components/TaskCreateDialog.vue";
 import TaskEmptyState from "../components/TaskEmptyState.vue";
+import TaskErrorState from "../components/TaskErrorState.vue";
 import TaskFilters from "../components/TaskFilters.vue";
 import TaskPagination from "../components/TaskPagination.vue";
 import TaskListHeader from "../components/TaskListHeader.vue";
+import TaskSelectionBar from "../components/TaskSelectionBar.vue";
 
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const TASK_GRID_CLASS = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 content-start";
 
@@ -70,36 +61,21 @@ const {
   variables: deleteVariables,
 } = useDeleteTask();
 
-const { mutate: toggleCompleteMutation } = useToggleTaskComplete();
-
 const { mutate: batchDeleteMutation, isPending: isBatchDeletePending } = useBatchDeleteTasks();
 
-const selectionMode = ref(false);
-const selectedIds = reactive(new Set<string>());
-const isBatchAlertOpen = ref(false);
+const { mutate: toggleCompleteMutation } = useToggleTaskComplete();
 
-const selectedCount = computed(() => selectedIds.size);
+const {
+  selectionMode,
+  selectedIds,
+  selectedCount,
+  toggleSelectionMode,
+  toggleSelect,
+  resetSelection,
+} = useTaskSelection();
 
-const toggleSelectionMode = () => {
-  selectionMode.value = !selectionMode.value;
-  selectedIds.clear();
-};
-
-const toggleSelect = (id: string) => {
-  if (selectedIds.has(id)) {
-    selectedIds.delete(id);
-  } else {
-    selectedIds.add(id);
-  }
-};
-
-const onConfirmBatchDelete = () => {
-  batchDeleteMutation([...selectedIds], {
-    onSuccess: () => {
-      selectedIds.clear();
-      selectionMode.value = false;
-    },
-  });
+const onBatchDelete = () => {
+  batchDeleteMutation([...selectedIds], { onSuccess: resetSelection });
 };
 
 const sentinelRef = ref<HTMLElement | null>(null);
@@ -136,18 +112,12 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         <TaskCardSkeleton v-for="i in filters.pageSize" :key="i" />
       </div>
 
-      <div v-else-if="isError" class="flex h-full flex-col items-center justify-center gap-4 text-center">
-        <AlertTriangle class="size-12 text-destructive" />
-        <div>
-          <p class="text-lg font-medium">Erreur de chargement</p>
-          <p class="text-sm text-muted-foreground">
-            Impossible de récupérer les tâches. Vérifiez vos filtres ou réessayez.
-          </p>
-        </div>
-        <Button v-if="hasActiveFilters" variant="outline" @click="resetFilters">
-          Réinitialiser les filtres
-        </Button>
-      </div>
+      <TaskErrorState
+        v-else-if="isError"
+        class="h-full"
+        :has-filters="hasActiveFilters"
+        @reset-filters="resetFilters"
+      />
 
       <TaskEmptyState
         v-else-if="tasks.length === 0"
@@ -207,49 +177,13 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
       />
     </div>
 
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="translate-y-full opacity-0"
-      enter-to-class="translate-y-0 opacity-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="translate-y-0 opacity-100"
-      leave-to-class="translate-y-full opacity-0"
-    >
-      <div
-        v-if="selectionMode && selectedCount > 0"
-        class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg"
-      >
-        <span class="text-sm font-medium">
-          {{ selectedCount }} {{ pluralize(selectedCount, "tâche") }} {{ pluralize(selectedCount, "sélectionnée") }}
-        </span>
-        <Button variant="destructive" size="sm" @click="isBatchAlertOpen = true">
-          <Trash2 class="size-4" />
-          Supprimer
-        </Button>
-      </div>
-    </Transition>
+    <TaskSelectionBar
+      v-if="selectionMode && selectedCount > 0"
+      :selected-count="selectedCount"
+      :is-deleting="isBatchDeletePending"
+      @delete="onBatchDelete"
+    />
 
-    <AlertDialog v-model:open="isBatchAlertOpen">
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Supprimer les tâches</AlertDialogTitle>
-          <AlertDialogDescription>
-            Êtes-vous sûr de vouloir supprimer {{ selectedCount }} {{ pluralize(selectedCount, "tâche") }} ? Cette action est irréversible.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
-          <AlertDialogAction
-            :class="buttonVariants({ variant: 'destructive' })"
-            :disabled="isBatchDeletePending"
-            @click="onConfirmBatchDelete"
-          >
-            {{ isBatchDeletePending ? "Suppression…" : "Supprimer" }}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-
-    <TaskCreateDialog v-model:open="isCreateDialogOpen" />
+    <TaskCreateDialog v-if="isCreateDialogOpen" v-model:open="isCreateDialogOpen" />
   </div>
 </template>
