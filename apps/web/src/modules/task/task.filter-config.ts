@@ -46,16 +46,18 @@ export type ActiveFilter = CompletedFilter | PriorityFilter | DateFilter;
 // Value options
 // ---------------------------------------------------------------------------
 
+type Option<V = string> = { value: V; label: string };
+
 const COMPLETED_VALUE_OPTIONS = [
   { value: false, label: "À faire" },
   { value: true, label: "Terminées" },
-] as const;
+] as const satisfies ReadonlyArray<Option<boolean>>;
 
 const PRIORITY_VALUE_OPTIONS = [
-  { value: "HIGH" as const, label: PRIORITY_CONFIG.HIGH.label },
-  { value: "MEDIUM" as const, label: PRIORITY_CONFIG.MEDIUM.label },
-  { value: "LOW" as const, label: PRIORITY_CONFIG.LOW.label },
-] as const;
+  { value: "HIGH", label: PRIORITY_CONFIG.HIGH.label },
+  { value: "MEDIUM", label: PRIORITY_CONFIG.MEDIUM.label },
+  { value: "LOW", label: PRIORITY_CONFIG.LOW.label },
+] as const satisfies ReadonlyArray<Option<Priority>>;
 
 // ---------------------------------------------------------------------------
 // Field configuration
@@ -64,16 +66,16 @@ const PRIORITY_VALUE_OPTIONS = [
 type SelectFieldConfig = {
   field: "completed" | "priority";
   label: string;
-  operators: ReadonlyArray<{ value: string; label: string }>;
+  operators: ReadonlyArray<Option>;
   defaultOperator: string;
-  values: ReadonlyArray<{ value: unknown; label: string }>;
+  values: ReadonlyArray<Option<unknown>>;
   valueType: "select";
 };
 
 type CalendarFieldConfig = {
   field: "executionDate";
   label: string;
-  operators: ReadonlyArray<{ value: string; label: string }>;
+  operators: ReadonlyArray<Option>;
   defaultOperator: string;
   valueType: "calendar";
 };
