@@ -12,7 +12,7 @@ export const useEditTask = () => {
 
   return useMutation({
     mutationFn: (variables: UpdateTaskInput & { id: string }) => updateTask(variables),
-    onMutate: async ({ id, completed, ...fields }) => {
+    onMutate: async ({ id, completed, executionDate, ...fields }) => {
       const snapshot = await applyOptimisticUpdate({
         queryClient,
         updatePage: (page) => ({
@@ -22,6 +22,9 @@ export const useEditTask = () => {
               ? {
                   ...task,
                   ...fields,
+                  ...(executionDate !== undefined && {
+                    executionDate: new Date(executionDate),
+                  }),
                   ...(completed !== undefined && {
                     completedAt: completed ? new Date() : null,
                   }),

@@ -11,6 +11,7 @@ import { buildWrapper } from "@/test/mount";
 import TaskEditDialog from "../components/TaskEditDialog.vue";
 
 const task = mockTasks[0];
+if (!task) throw new Error("mockTasks is empty");
 
 const mountDialog = async () => {
   const result = buildWrapper(TaskEditDialog, { task, open: true }, { attachTo: document.body });
