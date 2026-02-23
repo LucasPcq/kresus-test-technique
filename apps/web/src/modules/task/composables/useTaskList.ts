@@ -1,7 +1,7 @@
 import { computed, type Ref } from "vue";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 
-import type { TaskQueryDto } from "@kresus/contract";
+import type { TaskQueryInput } from "@kresus/contract";
 
 import { type PaginationMode, PAGINATION_MODE } from "../task.constants";
 import { TASK_QUERY_KEYS } from "../queryKeys";
@@ -12,7 +12,7 @@ export const useTaskList = ({
   queryParams,
   paginationMode,
 }: {
-  queryParams: Ref<TaskQueryDto>;
+  queryParams: Ref<TaskQueryInput>;
   paginationMode: Ref<PaginationMode>;
 }) => {
   const isClassic = computed(() => paginationMode.value === PAGINATION_MODE.CLASSIC);

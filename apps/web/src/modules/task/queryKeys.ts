@@ -1,6 +1,6 @@
-import type { TaskQueryDto } from "@kresus/contract";
+import type { TaskQueryInput } from "@kresus/contract";
 
 export const TASK_QUERY_KEYS = {
-  list: (params: TaskQueryDto) => ["tasks", "list", params],
-  infinite: (params: TaskQueryDto) => ["tasks", "infinite", params],
+  list: (params: TaskQueryInput) => ["tasks", "list", params],
+  infinite: (params: TaskQueryInput) => ["tasks", "infinite", params],
 } as const;

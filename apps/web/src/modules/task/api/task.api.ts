@@ -1,14 +1,14 @@
 import type {
   CreateTaskInput,
   PaginatedResponse,
-  TaskQueryDto,
+  TaskQueryInput,
   TaskResponse,
   UpdateTaskInput,
 } from "@kresus/contract";
 
 import { apiClient } from "@/api/client";
 
-export const fetchTasks = (params: TaskQueryDto): Promise<PaginatedResponse<TaskResponse>> =>
+export const fetchTasks = (params: TaskQueryInput): Promise<PaginatedResponse<TaskResponse>> =>
   apiClient.request<PaginatedResponse<TaskResponse>>("/tasks", { params });
 
 export const createTask = (dto: CreateTaskInput): Promise<TaskResponse> =>

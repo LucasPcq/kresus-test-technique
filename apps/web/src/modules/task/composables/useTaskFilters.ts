@@ -1,10 +1,11 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import type { TaskQueryDto } from "@kresus/contract";
+import type { TaskFilterInput, TaskQueryInput } from "@kresus/contract";
 
 import { type PaginationMode } from "../task.constants";
 import type { ActiveFilter, FilterField } from "../task.filter-config";
+
 import { TASK_QUERY_URL_KEYS, parseTaskQueryURL } from "../schemas/task-query.schema";
 
 import { serializeBoolean } from "../utils/serialize";
@@ -59,7 +60,7 @@ export const useTaskFilters = () => {
   });
 
   const queryParams = computed(
-    (): TaskQueryDto => ({
+    (): TaskQueryInput => ({
       page: filters.value.page,
       pageSize: filters.value.pageSize,
       sort: filters.value.sort,
@@ -135,7 +136,7 @@ export const useTaskFilters = () => {
     router.replace({ query: { ...query, page: "1" } });
   };
 
-  const buildExecutionDateFilter = (): TaskQueryDto["filter"] => {
+  const buildExecutionDateFilter = (): TaskFilterInput => {
     const { dateFrom, dateTo, dateOp } = filters.value;
 
     if (dateOp === "between" && dateFrom && dateTo)
@@ -151,9 +152,9 @@ export const useTaskFilters = () => {
     return {};
   };
 
-  const buildFilter = (): TaskQueryDto["filter"] => {
+  const buildFilter = (): TaskFilterInput | undefined => {
     const { completed, priority, priorityOp, title } = filters.value;
-    const filter: TaskQueryDto["filter"] = {
+    const filter: TaskFilterInput = {
       ...(completed !== undefined && { completed: completed ? 1 : 0 }),
       ...(priority && { priority: { [priorityOp ?? "eq"]: priority } }),
       ...(title && { title: { contains: title } }),

@@ -111,13 +111,13 @@ const priorityFilterSchema = singleOperator({
 export const dateFilterOps = ["between", "gte", "lte"] as const;
 
 const executionDateFilterSchema = singleOperator({
-  eq: z.coerce.date().optional(),
-  neq: z.coerce.date().optional(),
-  gt: z.coerce.date().optional(),
-  gte: z.coerce.date().optional(),
-  lt: z.coerce.date().optional(),
-  lte: z.coerce.date().optional(),
-  between: z.tuple([z.coerce.date(), z.coerce.date()]).optional(),
+  eq: z.date().optional(),
+  neq: z.date().optional(),
+  gt: z.date().optional(),
+  gte: z.date().optional(),
+  lt: z.date().optional(),
+  lte: z.date().optional(),
+  between: z.tuple([z.date(), z.date()]).optional(),
 });
 
 const titleFilterSchema = singleOperator({
@@ -133,7 +133,7 @@ const taskFilterSchema = z
     priority: priorityFilterSchema,
     executionDate: executionDateFilterSchema,
     title: titleFilterSchema,
-    completed: z.coerce
+    completed: z
       .number()
       .pipe(z.literal([0, 1]))
       .transform(Boolean)
@@ -142,13 +142,17 @@ const taskFilterSchema = z
   .optional();
 
 export const taskQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().pipe(z.literal(PAGE_SIZES)).default(PAGE_SIZES[0]),
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().pipe(z.literal(PAGE_SIZES)).default(PAGE_SIZES[0]),
   sort: z.string().regex(sortRegex).default("-createdAt"),
   filter: taskFilterSchema,
 });
 
 export type TaskQueryDto = z.infer<typeof taskQuerySchema>;
+export type TaskFilterInput = Omit<NonNullable<TaskQueryDto["filter"]>, "completed"> & {
+  completed?: 0 | 1;
+};
+export type TaskQueryInput = Omit<TaskQueryDto, "filter"> & { filter?: TaskFilterInput };
 
 // ---------------------------------------------------------------------------
 // Response

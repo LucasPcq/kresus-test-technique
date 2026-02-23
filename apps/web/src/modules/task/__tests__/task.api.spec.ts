@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import qs from "qs";
 
 import { PRIORITY } from "@kresus/contract";
-import type { TaskQueryDto } from "@kresus/contract";
+import type { TaskQueryInput } from "@kresus/contract";
 
-describe("qs serialization for TaskQueryDto", () => {
-  const serialize = (params: TaskQueryDto) => qs.stringify(params, { encode: false });
+describe("qs serialization for TaskQueryInput", () => {
+  const serialize = (params: TaskQueryInput) => qs.stringify(params, { encode: false });
 
-  const baseParams: TaskQueryDto = {
+  const baseParams: TaskQueryInput = {
     page: 1,
     pageSize: 10,
     sort: "-createdAt",
@@ -28,9 +28,9 @@ describe("qs serialization for TaskQueryDto", () => {
   });
 
   it("should serialize completed filter when completed is provided", () => {
-    const result = serialize({ ...baseParams, filter: { completed: true } });
+    const result = serialize({ ...baseParams, filter: { completed: 1 } });
 
-    expect(result).toContain("filter[completed]=true");
+    expect(result).toContain("filter[completed]=1");
   });
 
   it("should serialize priority filter when eq operator is used", () => {
@@ -65,13 +65,13 @@ describe("qs serialization for TaskQueryDto", () => {
     const result = serialize({
       ...baseParams,
       filter: {
-        completed: false,
+        completed: 0,
         priority: { eq: PRIORITY.MEDIUM },
         title: { contains: "facture" },
       },
     });
 
-    expect(result).toContain("filter[completed]=false");
+    expect(result).toContain("filter[completed]=0");
     expect(result).toContain("filter[priority][eq]=MEDIUM");
     expect(result).toContain("filter[title][contains]=facture");
   });
