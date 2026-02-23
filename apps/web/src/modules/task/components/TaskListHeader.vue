@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { TaskQueryInput } from "@kresus/contract";
-
-import type { AcceptableValue } from "reka-ui";
 import { CheckSquare, Plus } from "lucide-vue-next";
 
 import { Button } from "@/components/ui/button";
@@ -13,21 +10,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import type { SortValue } from "@kresus/contract";
+
 import { SORT_OPTIONS } from "../task.constants";
 
 defineProps<{
-  sort: NonNullable<TaskQueryInput["sort"]>;
+  sort: SortValue;
   selectionMode: boolean;
 }>();
 
 const emit = defineEmits<{
-  "update:sort": [value: NonNullable<TaskQueryInput["sort"]>];
+  "update:sort": [value: SortValue];
   create: [];
   "toggle-selection-mode": [];
 }>();
 
-const onSortChange = (val: AcceptableValue | AcceptableValue[]) => {
-  if (typeof val !== "string") return;
+const onSortChange = (val: SortValue) => {
   emit("update:sort", val);
 };
 </script>

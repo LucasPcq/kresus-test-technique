@@ -93,6 +93,9 @@ export const PAGE_SIZES = [10, 25, 50] as const;
 export const SORT_FIELDS = ["createdAt", "executionDate", "priority"] as const;
 export const sortRegex = new RegExp(`^-?(${SORT_FIELDS.join("|")})$`);
 
+type SortField = (typeof SORT_FIELDS)[number];
+export type SortValue = SortField | `-${SortField}`;
+
 const singleOperator = <T extends z.ZodRawShape>(shape: T) =>
   z
     .object(shape)
@@ -144,7 +147,7 @@ const taskFilterSchema = z
 export const taskQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().pipe(z.literal(PAGE_SIZES)).default(PAGE_SIZES[0]),
-  sort: z.string().regex(sortRegex).default("-createdAt"),
+  sort: z.string().regex(sortRegex).default("-createdAt").pipe(z.custom<SortValue>()),
   filter: taskFilterSchema,
 });
 

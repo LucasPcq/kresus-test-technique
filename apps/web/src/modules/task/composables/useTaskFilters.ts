@@ -3,6 +3,8 @@ import { useRoute, useRouter } from "vue-router";
 
 import type { TaskFilterInput, TaskQueryInput } from "@kresus/contract";
 
+import type { SortValue } from "@kresus/contract";
+
 import { type PaginationMode } from "../task.constants";
 import type { ActiveFilter, FilterField } from "../task.filter-config";
 
@@ -86,7 +88,7 @@ export const useTaskFilters = () => {
   const setPage = (n: number) => updateQuery({ page: String(n) });
   const setPageSize = (n: number) => updateFilterQuery({ pageSize: String(n) });
   const setPaginationMode = (m: PaginationMode) => updateFilterQuery({ mode: m });
-  const setSort = (s: string) => updateFilterQuery({ sort: s });
+  const setSort = (s: SortValue) => updateFilterQuery({ sort: s });
 
   const setTitleSearch = (v: string | undefined) => updateFilterQuery({ title: v || undefined });
 

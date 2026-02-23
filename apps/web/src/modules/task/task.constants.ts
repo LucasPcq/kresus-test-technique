@@ -1,4 +1,4 @@
-import type { Priority } from "@kresus/contract";
+import type { Priority, SortValue } from "@kresus/contract";
 import { PRIORITY, SORT_FIELDS } from "@kresus/contract";
 
 import type { BadgeVariants } from "@/components/ui/badge";
@@ -31,7 +31,7 @@ const SORT_LABELS: Record<(typeof SORT_FIELDS)[number], string> = {
   priority: "Priorité",
 };
 
-export const SORT_OPTIONS: SelectOption[] = SORT_FIELDS.flatMap((field) => [
-  { value: `-${field}`, label: `${SORT_LABELS[field]} ↓` },
+export const SORT_OPTIONS = SORT_FIELDS.flatMap((field) => [
+  { value: `-${field}` as const, label: `${SORT_LABELS[field]} ↓` },
   { value: field, label: `${SORT_LABELS[field]} ↑` },
-]);
+]) satisfies SelectOption<SortValue>[];
