@@ -32,11 +32,13 @@ export const useBatchDeleteTasks = () => {
         rollbackOptimisticUpdate({ queryClient, snapshot: context.snapshot });
       }
     },
-    onSettled: (_data, _err, ids) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    onSuccess: (_data, ids) => {
       toast.success(
         `${ids.length} ${pluralize(ids.length, "tâche")} ${pluralize(ids.length, "supprimée")}`,
       );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 };
