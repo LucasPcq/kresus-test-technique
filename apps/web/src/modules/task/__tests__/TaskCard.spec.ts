@@ -9,7 +9,7 @@ import { buildWrapper } from "@/test/mount";
 import TaskCard from "../components/TaskCard.vue";
 
 const baseTask: TaskResponse = {
-  id: "1",
+  id: "550e8400-e29b-41d4-a716-446655440101",
   title: "Rédiger le rapport",
   content: "Contenu de la tâche",
   priority: PRIORITY.HIGH,
@@ -17,7 +17,7 @@ const baseTask: TaskResponse = {
   completedAt: null,
   createdAt: new Date("2026-02-01"),
   updatedAt: new Date("2026-02-01"),
-  userId: "1",
+  userId: "550e8400-e29b-41d4-a716-446655440001",
 };
 
 describe("TaskCard", () => {

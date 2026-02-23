@@ -19,7 +19,7 @@ describe("UserRepository", () => {
 
   describe("findByEmail", () => {
     it("calls prisma.user.findUnique with the email", async () => {
-      const user = { id: "1", email: "test@example.com", password: "hash" };
+      const user = { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", password: "hash" };
       mockPrisma.user.findUnique.mockResolvedValue(user);
 
       const result = await repository.findByEmail("test@example.com");
@@ -42,7 +42,7 @@ describe("UserRepository", () => {
   describe("create", () => {
     it("calls prisma.user.create with provided data", async () => {
       const data = { email: "new@example.com", password: "hashed" };
-      const created = { id: "2", ...data, createdAt: new Date(), updatedAt: new Date() };
+      const created = { id: "550e8400-e29b-41d4-a716-446655440002", ...data, createdAt: new Date(), updatedAt: new Date() };
       mockPrisma.user.create.mockResolvedValue(created);
 
       const result = await repository.create(data);

@@ -30,9 +30,9 @@ describe("TaskRepository", () => {
         title: "My task",
         content: "Some content",
         priority: "HIGH" as const,
-        userId: "user-1",
+        userId: "550e8400-e29b-41d4-a716-446655440001",
       };
-      const created = { id: "task-1", ...input, createdAt: new Date(), updatedAt: new Date() };
+      const created = { id: "550e8400-e29b-41d4-a716-446655440101", ...input, createdAt: new Date(), updatedAt: new Date() };
       mockPrisma.task.create.mockResolvedValue(created);
 
       const result = await repository.create(input);
@@ -42,7 +42,7 @@ describe("TaskRepository", () => {
           title: "My task",
           content: "Some content",
           priority: "HIGH",
-          user: { connect: { id: "user-1" } },
+          user: { connect: { id: "550e8400-e29b-41d4-a716-446655440001" } },
         },
       });
       expect(result).toEqual(created);
@@ -51,8 +51,8 @@ describe("TaskRepository", () => {
 
   describe("findMany", () => {
     it("should pass where, skip, take and orderBy to prisma when called", async () => {
-      const tasks = [{ id: "task-1" }];
-      const where = { userId: "user-1", priority: { equals: "HIGH" } };
+      const tasks = [{ id: "550e8400-e29b-41d4-a716-446655440101" }];
+      const where = { userId: "550e8400-e29b-41d4-a716-446655440001", priority: { equals: "HIGH" } };
       const orderBy = { createdAt: "desc" as const };
       mockPrisma.task.findMany.mockResolvedValue(tasks);
 
@@ -70,7 +70,7 @@ describe("TaskRepository", () => {
 
   describe("count", () => {
     it("should pass where to prisma.task.count when called", async () => {
-      const where = { userId: "user-1" };
+      const where = { userId: "550e8400-e29b-41d4-a716-446655440001" };
       mockPrisma.task.count.mockResolvedValue(5);
 
       const result = await repository.count(where);
@@ -82,25 +82,25 @@ describe("TaskRepository", () => {
 
   describe("findById", () => {
     it("should call prisma.task.findUnique with id when called", async () => {
-      const task = { id: "task-1", title: "My task" };
+      const task = { id: "550e8400-e29b-41d4-a716-446655440101", title: "My task" };
       mockPrisma.task.findUnique.mockResolvedValue(task);
 
-      const result = await repository.findById("task-1");
+      const result = await repository.findById("550e8400-e29b-41d4-a716-446655440101");
 
-      expect(mockPrisma.task.findUnique).toHaveBeenCalledWith({ where: { id: "task-1" } });
+      expect(mockPrisma.task.findUnique).toHaveBeenCalledWith({ where: { id: "550e8400-e29b-41d4-a716-446655440101" } });
       expect(result).toEqual(task);
     });
   });
 
   describe("update", () => {
     it("should call prisma.task.update with id, userId and data when called", async () => {
-      const updated = { id: "task-1", title: "Updated" };
+      const updated = { id: "550e8400-e29b-41d4-a716-446655440101", title: "Updated" };
       mockPrisma.task.update.mockResolvedValue(updated);
 
-      const result = await repository.update({ id: "task-1", userId: "user-1" }, { title: "Updated" });
+      const result = await repository.update({ id: "550e8400-e29b-41d4-a716-446655440101", userId: "550e8400-e29b-41d4-a716-446655440001" }, { title: "Updated" });
 
       expect(mockPrisma.task.update).toHaveBeenCalledWith({
-        where: { id: "task-1", userId: "user-1" },
+        where: { id: "550e8400-e29b-41d4-a716-446655440101", userId: "550e8400-e29b-41d4-a716-446655440001" },
         data: { title: "Updated" },
       });
       expect(result).toEqual(updated);
@@ -109,13 +109,13 @@ describe("TaskRepository", () => {
 
   describe("delete", () => {
     it("should call prisma.task.delete with id and userId when called", async () => {
-      const deleted = { id: "task-1" };
+      const deleted = { id: "550e8400-e29b-41d4-a716-446655440101" };
       mockPrisma.task.delete.mockResolvedValue(deleted);
 
-      const result = await repository.delete({ id: "task-1", userId: "user-1" });
+      const result = await repository.delete({ id: "550e8400-e29b-41d4-a716-446655440101", userId: "550e8400-e29b-41d4-a716-446655440001" });
 
       expect(mockPrisma.task.delete).toHaveBeenCalledWith({
-        where: { id: "task-1", userId: "user-1" },
+        where: { id: "550e8400-e29b-41d4-a716-446655440101", userId: "550e8400-e29b-41d4-a716-446655440001" },
       });
       expect(result).toEqual(deleted);
     });
@@ -125,10 +125,10 @@ describe("TaskRepository", () => {
     it("should call prisma.task.deleteMany with ids and userId filter when called", async () => {
       mockPrisma.task.deleteMany.mockResolvedValue({ count: 2 });
 
-      const result = await repository.deleteMany({ ids: ["task-1", "task-2"], userId: "user-1" });
+      const result = await repository.deleteMany({ ids: ["550e8400-e29b-41d4-a716-446655440101", "550e8400-e29b-41d4-a716-446655440102"], userId: "550e8400-e29b-41d4-a716-446655440001" });
 
       expect(mockPrisma.task.deleteMany).toHaveBeenCalledWith({
-        where: { id: { in: ["task-1", "task-2"] }, userId: "user-1" },
+        where: { id: { in: ["550e8400-e29b-41d4-a716-446655440101", "550e8400-e29b-41d4-a716-446655440102"] }, userId: "550e8400-e29b-41d4-a716-446655440001" },
       });
       expect(result).toEqual({ count: 2 });
     });
@@ -137,12 +137,12 @@ describe("TaskRepository", () => {
       const mockTx = { task: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) } };
 
       const result = await repository.deleteMany(
-        { ids: ["task-1"], userId: "user-1" },
+        { ids: ["550e8400-e29b-41d4-a716-446655440101"], userId: "550e8400-e29b-41d4-a716-446655440001" },
         mockTx as never,
       );
 
       expect(mockTx.task.deleteMany).toHaveBeenCalledWith({
-        where: { id: { in: ["task-1"] }, userId: "user-1" },
+        where: { id: { in: ["550e8400-e29b-41d4-a716-446655440101"] }, userId: "550e8400-e29b-41d4-a716-446655440001" },
       });
       expect(mockPrisma.task.deleteMany).not.toHaveBeenCalled();
       expect(result).toEqual({ count: 1 });

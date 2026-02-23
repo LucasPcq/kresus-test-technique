@@ -79,7 +79,7 @@ export type UpdateTaskInput = z.input<typeof updateTaskSchema>;
 // ---------------------------------------------------------------------------
 
 export const batchDeleteSchema = z.object({
-  ids: z.array(z.string()).min(1),
+  ids: z.array(z.uuid()).min(1),
 });
 
 export type BatchDeleteDto = z.infer<typeof batchDeleteSchema>;
@@ -162,7 +162,7 @@ export type TaskQueryInput = Omit<TaskQueryDto, "filter"> & { filter?: TaskFilte
 // ---------------------------------------------------------------------------
 
 export const taskResponseSchema = z.object({
-  id: z.string(),
+  id: z.uuid(),
   title: z.string(),
   content: z.string(),
   priority: z.enum(priorityValues),
@@ -170,7 +170,7 @@ export const taskResponseSchema = z.object({
   completedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  userId: z.string(),
+  userId: z.uuid(),
 });
 
 export type TaskResponse = z.infer<typeof taskResponseSchema>;

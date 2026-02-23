@@ -3,7 +3,7 @@ import type { PaginatedResponse, TaskResponse } from "@kresus/contract";
 
 export const mockTasks: TaskResponse[] = [
   {
-    id: "1",
+    id: "550e8400-e29b-41d4-a716-446655440101",
     title: "Rédiger le rapport",
     content: "Rédiger le rapport trimestriel pour le client",
     priority: PRIORITY.HIGH,
@@ -11,10 +11,10 @@ export const mockTasks: TaskResponse[] = [
     completedAt: null,
     createdAt: new Date("2026-02-01"),
     updatedAt: new Date("2026-02-01"),
-    userId: "1",
+    userId: "550e8400-e29b-41d4-a716-446655440001",
   },
   {
-    id: "2",
+    id: "550e8400-e29b-41d4-a716-446655440102",
     title: "Envoyer les factures",
     content: "Envoyer les factures du mois de janvier",
     priority: PRIORITY.MEDIUM,
@@ -22,10 +22,10 @@ export const mockTasks: TaskResponse[] = [
     completedAt: new Date("2026-02-20"),
     createdAt: new Date("2026-01-15"),
     updatedAt: new Date("2026-02-20"),
-    userId: "1",
+    userId: "550e8400-e29b-41d4-a716-446655440001",
   },
   {
-    id: "3",
+    id: "550e8400-e29b-41d4-a716-446655440103",
     title: "Mettre à jour la documentation",
     content: "Mettre à jour la documentation technique du projet",
     priority: PRIORITY.LOW,
@@ -33,7 +33,7 @@ export const mockTasks: TaskResponse[] = [
     completedAt: null,
     createdAt: new Date("2026-02-10"),
     updatedAt: new Date("2026-02-10"),
-    userId: "1",
+    userId: "550e8400-e29b-41d4-a716-446655440001",
   },
 ];
 
@@ -46,7 +46,7 @@ export const mockPaginatedTasks: PaginatedResponse<TaskResponse> = {
 };
 
 export const mockCreatedTask: TaskResponse = {
-  id: "4",
+  id: "550e8400-e29b-41d4-a716-446655440104",
   title: "Nouvelle tâche",
   content: "Description de la nouvelle tâche",
   priority: PRIORITY.MEDIUM,
@@ -54,5 +54,5 @@ export const mockCreatedTask: TaskResponse = {
   completedAt: null,
   createdAt: new Date("2026-02-21"),
   updatedAt: new Date("2026-02-21"),
-  userId: "1",
+  userId: "550e8400-e29b-41d4-a716-446655440001",
 };

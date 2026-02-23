@@ -5,7 +5,7 @@ const authBaseSchema = z.object({ email: z.email() });
 export const registerSchema = authBaseSchema.extend({ password: z.string().min(8) });
 export const loginSchema = authBaseSchema.extend({ password: z.string().min(1) });
 export const authUserResponseSchema = z.object({
-  id: z.string(),
+  id: z.uuid(),
   email: z.email(),
 });
 

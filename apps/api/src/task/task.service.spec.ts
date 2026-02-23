@@ -27,7 +27,7 @@ describe("TaskService", () => {
   });
 
   describe("create", () => {
-    const userId = "user-1";
+    const userId = "550e8400-e29b-41d4-a716-446655440001";
     const baseDto = {
       title: "My task",
       content: "Some content",
@@ -80,11 +80,11 @@ describe("TaskService", () => {
   });
 
   describe("findAll", () => {
-    const userId = "user-1";
+    const userId = "550e8400-e29b-41d4-a716-446655440001";
     const baseQuery = { page: 1, pageSize: 10 as const, sort: "-createdAt" };
 
     it("should return paginated response when tasks exist", async () => {
-      const tasks = [{ id: "task-1" }, { id: "task-2" }];
+      const tasks = [{ id: "550e8400-e29b-41d4-a716-446655440101" }, { id: "550e8400-e29b-41d4-a716-446655440102" }];
       mockTaskRepository.findMany.mockResolvedValue(tasks);
       mockTaskRepository.count.mockResolvedValue(12);
 
@@ -256,8 +256,8 @@ describe("TaskService", () => {
   });
 
   describe("update", () => {
-    const userId = "user-1";
-    const taskId = "task-1";
+    const userId = "550e8400-e29b-41d4-a716-446655440001";
+    const taskId = "550e8400-e29b-41d4-a716-446655440101";
     const prismaNotFound = new Prisma.PrismaClientKnownRequestError("Record not found", {
       code: "P2025",
       clientVersion: "5.0.0",
@@ -316,8 +316,8 @@ describe("TaskService", () => {
   });
 
   describe("delete", () => {
-    const userId = "user-1";
-    const taskId = "task-1";
+    const userId = "550e8400-e29b-41d4-a716-446655440001";
+    const taskId = "550e8400-e29b-41d4-a716-446655440101";
     const prismaNotFound = new Prisma.PrismaClientKnownRequestError("Record not found", {
       code: "P2025",
       clientVersion: "5.0.0",
@@ -345,7 +345,7 @@ describe("TaskService", () => {
   });
 
   describe("batchDelete", () => {
-    const userId = "user-1";
+    const userId = "550e8400-e29b-41d4-a716-446655440001";
 
     beforeEach(() => {
       mockTaskRepository.transaction.mockImplementation((fn: (tx: unknown) => unknown) =>
@@ -356,13 +356,13 @@ describe("TaskService", () => {
     it("should throw NotFoundException when some tasks were not found or not owned", async () => {
       mockTaskRepository.deleteMany.mockResolvedValue({ count: 1 });
 
-      await expect(service.batchDelete(["task-1", "task-2"], userId)).rejects.toThrow(
+      await expect(service.batchDelete(["550e8400-e29b-41d4-a716-446655440101", "550e8400-e29b-41d4-a716-446655440102"], userId)).rejects.toThrow(
         NotFoundException,
       );
     });
 
     it("should call repository.deleteMany within transaction with ids and userId", async () => {
-      const ids = ["task-1", "task-2"];
+      const ids = ["550e8400-e29b-41d4-a716-446655440101", "550e8400-e29b-41d4-a716-446655440102"];
       mockTaskRepository.deleteMany.mockResolvedValue({ count: 2 });
 
       await service.batchDelete(ids, userId);
@@ -374,7 +374,7 @@ describe("TaskService", () => {
     it("should return count when all tasks are deleted", async () => {
       mockTaskRepository.deleteMany.mockResolvedValue({ count: 2 });
 
-      const result = await service.batchDelete(["task-1", "task-2"], userId);
+      const result = await service.batchDelete(["550e8400-e29b-41d4-a716-446655440101", "550e8400-e29b-41d4-a716-446655440102"], userId);
 
       expect(result).toEqual({ count: 2 });
     });

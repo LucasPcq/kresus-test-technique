@@ -3,7 +3,7 @@ CREATE TYPE "Priority" AS ENUM ('HIGH', 'MEDIUM', 'LOW');
 
 -- CreateTable
 CREATE TABLE "Task" (
-    "id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
     "title" VARCHAR(50) NOT NULL,
     "content" VARCHAR(256) NOT NULL,
     "priority" "Priority" NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE "Task" (
     "completedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT NOT NULL,
+    "userId" UUID NOT NULL,
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );

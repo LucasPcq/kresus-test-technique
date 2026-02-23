@@ -14,7 +14,7 @@ enum Priority {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
@@ -23,7 +23,7 @@ model User {
 }
 
 model Task {
-  id            String    @id @default(cuid())
+  id            String    @id @default(uuid()) @db.Uuid
   title         String    @db.VarChar(50)
   content       String    @db.VarChar(256)
   priority      Priority
@@ -32,7 +32,7 @@ model Task {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  userId String
+  userId String @db.Uuid
   user   User   @relation(fields: [userId], references: [id])
 
   @@index([userId])

@@ -40,7 +40,7 @@ describe("AuthService", () => {
   describe("register", () => {
     it("creates a user and returns token and user info", async () => {
       mockUserService.findByEmail.mockResolvedValue(null);
-      mockUserService.create.mockResolvedValue({ id: "1", email: "test@example.com" });
+      mockUserService.create.mockResolvedValue({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
 
       const result = await service.register({ email: "test@example.com", password: "password123" });
 
@@ -53,12 +53,12 @@ describe("AuthService", () => {
       expect(result).toEqual({
         token: "jwt_token",
         refreshToken: "jwt_token",
-        user: { id: "1", email: "test@example.com" },
+        user: { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" },
       });
     });
 
     it("throws ConflictException when email is already taken", async () => {
-      mockUserService.findByEmail.mockResolvedValue({ id: "1", email: "test@example.com" });
+      mockUserService.findByEmail.mockResolvedValue({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
 
       await expect(
         service.register({ email: "test@example.com", password: "password123" }),
@@ -71,7 +71,7 @@ describe("AuthService", () => {
   describe("login", () => {
     it("returns token and user info when credentials are valid", async () => {
       mockUserService.findByEmail.mockResolvedValue({
-        id: "1",
+        id: "550e8400-e29b-41d4-a716-446655440001",
         email: "test@example.com",
         password: "hashed_password",
       });
@@ -82,7 +82,7 @@ describe("AuthService", () => {
       expect(result).toEqual({
         token: "jwt_token",
         refreshToken: "jwt_token",
-        user: { id: "1", email: "test@example.com" },
+        user: { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" },
       });
     });
 
@@ -96,7 +96,7 @@ describe("AuthService", () => {
 
     it("throws UnauthorizedException when password is incorrect", async () => {
       mockUserService.findByEmail.mockResolvedValue({
-        id: "1",
+        id: "550e8400-e29b-41d4-a716-446655440001",
         email: "test@example.com",
         password: "hashed_password",
       });

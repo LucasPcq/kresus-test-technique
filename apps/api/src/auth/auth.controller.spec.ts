@@ -31,7 +31,7 @@ describe("AuthController", () => {
 
   describe("register", () => {
     it("sets tokens and returns user info", async () => {
-      const user = { id: "1", email: "test@example.com" };
+      const user = { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
       mockAuthService.register.mockResolvedValue({
         token: "jwt_token",
         refreshToken: "refresh_token",
@@ -57,7 +57,7 @@ describe("AuthController", () => {
 
   describe("login", () => {
     it("sets tokens and returns user info", async () => {
-      const user = { id: "1", email: "test@example.com" };
+      const user = { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
       mockAuthService.login.mockResolvedValue({
         token: "jwt_token",
         refreshToken: "refresh_token",
@@ -83,8 +83,8 @@ describe("AuthController", () => {
 
   describe("me", () => {
     it("returns user info from JWT payload", () => {
-      const req = { user: { sub: "1", email: "test@example.com" } } as unknown as FastifyRequest;
-      expect(controller.me(req)).toEqual({ id: "1", email: "test@example.com" });
+      const req = { user: { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" } } as unknown as FastifyRequest;
+      expect(controller.me(req)).toEqual({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
     });
   });
 
@@ -97,11 +97,11 @@ describe("AuthController", () => {
 
   describe("refresh", () => {
     it("sets new tokens from refresh token payload", async () => {
-      const payload = { sub: "1", email: "test@example.com" };
+      const payload = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
       mockAuthService.refresh.mockResolvedValue({
         token: "new_jwt",
         refreshToken: "new_refresh",
-        user: { id: "1", email: "test@example.com" },
+        user: { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" },
       });
 
       const req = { user: payload } as unknown as FastifyRequest;
