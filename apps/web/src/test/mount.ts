@@ -25,7 +25,7 @@ export function buildWrapper(
   });
 
   const queryClient = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
 
   return {

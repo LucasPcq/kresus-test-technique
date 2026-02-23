@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
-import { Loader2, Trash2 } from "lucide-vue-next";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-vue-next";
 
 import { pluralize } from "@/lib/utils";
 
@@ -40,13 +40,13 @@ const {
   paginationMode,
   queryParams,
   hasActiveFilters,
+  activeFilters,
   setPage,
   setPageSize,
   setSort,
-  setCompleted,
-  setPriority,
+  setFilter,
+  removeFilter,
   setTitleSearch,
-  setDateRange,
   setPaginationMode,
   resetFilters,
 } = useTaskFilters();
@@ -57,6 +57,7 @@ const {
   totalPages,
   isPending,
   isFetching,
+  isError,
   isInfinite,
   hasNextPage,
   isFetchingNextPage,
@@ -122,21 +123,30 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
 
     <TaskFilters
       :title-search="filters.title"
-      :completed="filters.completed"
-      :priority="filters.priority"
-      :date-from="filters.dateFrom"
-      :date-to="filters.dateTo"
       :has-active-filters="hasActiveFilters"
+      :active-filters="activeFilters"
       @update:title-search="setTitleSearch"
-      @update:completed="setCompleted"
-      @update:priority="setPriority"
-      @update:date-range="setDateRange"
+      @add-filter="setFilter"
+      @remove-filter="removeFilter"
       @reset-filters="resetFilters"
     />
 
     <div class="min-h-0 flex-1 overflow-y-auto pb-2">
       <div v-if="isPending" :class="TASK_GRID_CLASS">
         <TaskCardSkeleton v-for="i in filters.pageSize" :key="i" />
+      </div>
+
+      <div v-else-if="isError" class="flex h-full flex-col items-center justify-center gap-4 text-center">
+        <AlertTriangle class="size-12 text-destructive" />
+        <div>
+          <p class="text-lg font-medium">Erreur de chargement</p>
+          <p class="text-sm text-muted-foreground">
+            Impossible de récupérer les tâches. Vérifiez vos filtres ou réessayez.
+          </p>
+        </div>
+        <Button v-if="hasActiveFilters" variant="outline" @click="resetFilters">
+          Réinitialiser les filtres
+        </Button>
       </div>
 
       <TaskEmptyState

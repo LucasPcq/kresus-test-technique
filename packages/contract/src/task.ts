@@ -103,10 +103,14 @@ const singleOperator = <T extends z.ZodRawShape>(shape: T) =>
     })
     .optional();
 
+export const priorityFilterOps = ["eq", "neq"] as const;
+
 const priorityFilterSchema = singleOperator({
   eq: z.enum(priorityValues).optional(),
   neq: z.enum(priorityValues).optional(),
 });
+
+export const dateFilterOps = ["between", "gte", "lte"] as const;
 
 const executionDateFilterSchema = singleOperator({
   eq: z.coerce.date().optional(),

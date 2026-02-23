@@ -17,19 +17,6 @@ export const PRIORITY_CONFIG: Record<
   [PRIORITY.LOW]: { label: "Basse", variant: "secondary" },
 };
 
-export const PRIORITY_OPTIONS = [
-  { value: "all", label: "Toutes" },
-  ...Object.entries(PRIORITY_CONFIG).map(([value, { label }]) => ({
-    value,
-    label,
-  })),
-];
-
-export const COMPLETED_OPTIONS = [
-  { value: "all", label: "Toutes" },
-  { value: "false", label: "À faire" },
-  { value: "true", label: "Terminées" },
-];
 
 const SORT_LABELS: Record<(typeof SORT_FIELDS)[number], string> = {
   createdAt: "Date de création",

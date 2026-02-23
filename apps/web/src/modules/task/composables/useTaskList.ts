@@ -58,12 +58,17 @@ export const useTaskList = ({
     isClassic.value ? classicQuery.isFetching.value : infiniteQuery.isFetching.value,
   );
 
+  const isError = computed(() =>
+    isClassic.value ? classicQuery.isError.value : infiniteQuery.isError.value,
+  );
+
   return {
     tasks,
     total,
     totalPages,
     isPending,
     isFetching,
+    isError,
     isClassic,
     isInfinite,
     hasNextPage: infiniteQuery.hasNextPage,

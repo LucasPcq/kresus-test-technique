@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import type { TaskQueryDto } from "@kresus/contract";
 
 import { type PaginationMode } from "../task.constants";
+import type { ActiveFilter, FilterField } from "../task.filter-config";
 import { TASK_QUERY_URL_KEYS, parseTaskQueryURL } from "../schemas/task-query.schema";
 
 import { serializeBoolean } from "../utils/serialize";
@@ -18,6 +19,44 @@ export const useTaskFilters = () => {
   const hasActiveFilters = computed(() =>
     TASK_QUERY_URL_KEYS.some((key) => filters.value[key] !== undefined),
   );
+
+  const activeFilters = computed((): ActiveFilter[] => {
+    const f = filters.value;
+    const result: ActiveFilter[] = [];
+
+    if (f.completed !== undefined) {
+      result.push({ field: "completed", operator: "eq", value: f.completed });
+    }
+
+    if (f.priority) {
+      result.push({ field: "priority", operator: f.priorityOp ?? "eq", value: f.priority });
+    }
+
+    if (f.dateFrom || f.dateTo) {
+      const op = f.dateOp ?? "between";
+      if (op === "between" && f.dateFrom && f.dateTo) {
+        result.push({
+          field: "executionDate",
+          operator: "between",
+          value: { from: f.dateFrom, to: f.dateTo },
+        });
+      } else if (op === "gte" && f.dateFrom) {
+        result.push({
+          field: "executionDate",
+          operator: "gte",
+          value: { from: f.dateFrom },
+        });
+      } else if (op === "lte" && f.dateTo) {
+        result.push({
+          field: "executionDate",
+          operator: "lte",
+          value: { to: f.dateTo },
+        });
+      }
+    }
+
+    return result;
+  });
 
   const queryParams = computed(
     (): TaskQueryDto => ({
@@ -46,18 +85,47 @@ export const useTaskFilters = () => {
   const setPage = (n: number) => updateQuery({ page: String(n) });
   const setPageSize = (n: number) => updateFilterQuery({ pageSize: String(n) });
   const setPaginationMode = (m: PaginationMode) => updateFilterQuery({ mode: m });
-
   const setSort = (s: string) => updateFilterQuery({ sort: s });
-
-  const setPriority = (v: string | undefined) => updateFilterQuery({ priority: v });
 
   const setTitleSearch = (v: string | undefined) => updateFilterQuery({ title: v || undefined });
 
-  const setCompleted = (v: boolean | undefined) =>
-    updateFilterQuery({ completed: serializeBoolean(v) });
+  const setFilter = (filter: ActiveFilter) => {
+    switch (filter.field) {
+      case "completed":
+        updateFilterQuery({ completed: serializeBoolean(filter.value) });
+        break;
+      case "priority":
+        updateFilterQuery({ priority: filter.value, priorityOp: filter.operator });
+        break;
+      case "executionDate":
+        if (filter.operator === "between") {
+          updateFilterQuery({
+            dateFrom: filter.value.from,
+            dateTo: filter.value.to,
+            dateOp: "between",
+          });
+        } else if (filter.operator === "gte") {
+          updateFilterQuery({ dateFrom: filter.value.from, dateTo: undefined, dateOp: "gte" });
+        } else if (filter.operator === "lte") {
+          updateFilterQuery({ dateFrom: undefined, dateTo: filter.value.to, dateOp: "lte" });
+        }
+        break;
+    }
+  };
 
-  const setDateRange = ({ from, to }: { from: string | undefined; to: string | undefined }) =>
-    updateFilterQuery({ dateFrom: from, dateTo: to });
+  const removeFilter = (field: FilterField) => {
+    switch (field) {
+      case "completed":
+        updateFilterQuery({ completed: undefined });
+        break;
+      case "priority":
+        updateFilterQuery({ priority: undefined, priorityOp: undefined });
+        break;
+      case "executionDate":
+        updateFilterQuery({ dateFrom: undefined, dateTo: undefined, dateOp: undefined });
+        break;
+    }
+  };
 
   const resetFilters = () => {
     const filterKeys = new Set<string>(TASK_QUERY_URL_KEYS);
@@ -68,19 +136,26 @@ export const useTaskFilters = () => {
   };
 
   const buildExecutionDateFilter = (): TaskQueryDto["filter"] => {
-    const { dateFrom, dateTo } = filters.value;
+    const { dateFrom, dateTo, dateOp } = filters.value;
+
+    if (dateOp === "between" && dateFrom && dateTo)
+      return { executionDate: { between: [new Date(dateFrom), new Date(dateTo)] } };
+    if (dateOp === "gte" && dateFrom) return { executionDate: { gte: new Date(dateFrom) } };
+    if (dateOp === "lte" && dateTo) return { executionDate: { lte: new Date(dateTo) } };
+
     if (dateFrom && dateTo)
       return { executionDate: { between: [new Date(dateFrom), new Date(dateTo)] } };
     if (dateFrom) return { executionDate: { gte: new Date(dateFrom) } };
     if (dateTo) return { executionDate: { lte: new Date(dateTo) } };
+
     return {};
   };
 
   const buildFilter = (): TaskQueryDto["filter"] => {
-    const { completed, priority, title } = filters.value;
+    const { completed, priority, priorityOp, title } = filters.value;
     const filter: TaskQueryDto["filter"] = {
-      ...(completed !== undefined && { completed }),
-      ...(priority && { priority: { eq: priority } }),
+      ...(completed !== undefined && { completed: completed ? 1 : 0 }),
+      ...(priority && { priority: { [priorityOp ?? "eq"]: priority } }),
       ...(title && { title: { contains: title } }),
       ...buildExecutionDateFilter(),
     };
@@ -92,13 +167,13 @@ export const useTaskFilters = () => {
     paginationMode,
     queryParams,
     hasActiveFilters,
+    activeFilters,
     setPage,
     setPageSize,
     setSort,
-    setCompleted,
-    setPriority,
+    setFilter,
+    removeFilter,
     setTitleSearch,
-    setDateRange,
     setPaginationMode,
     resetFilters,
   };
