@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { CalendarDays, CheckCircle2, Circle } from "lucide-vue-next";
 
 import type { TaskResponse } from "@kresus/contract";
@@ -7,6 +7,7 @@ import type { TaskResponse } from "@kresus/contract";
 import { formatDateShort } from "@/lib/date";
 
 import TaskCardActions from "./TaskCardActions.vue";
+import TaskEditDialog from "./TaskEditDialog.vue";
 
 import { PRIORITY_CONFIG } from "../task.constants";
 
@@ -26,6 +27,8 @@ const emit = defineEmits<{
   "toggle-select": [id: string];
   "toggle-complete": [id: string, completed: boolean];
 }>();
+
+const isEditOpen = ref(false);
 
 const priorityConfig = computed(() => PRIORITY_CONFIG[props.task.priority]);
 
@@ -47,7 +50,7 @@ const formattedDate = computed(() => {
     @click="selectionMode && emit('toggle-select', task.id)"
   >
     <div v-if="!selectionMode" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-      <TaskCardActions :is-deleting="isDeleting" @delete="emit('delete', task.id)" />
+      <TaskCardActions :is-deleting="isDeleting" @edit="isEditOpen = true" @delete="emit('delete', task.id)" />
     </div>
 
     <CardHeader class="flex-row items-start justify-between gap-2 space-y-0">
@@ -86,4 +89,6 @@ const formattedDate = computed(() => {
       {{ formattedDate }}
     </CardFooter>
   </Card>
+
+  <TaskEditDialog v-if="isEditOpen" :task="task" v-model:open="isEditOpen" />
 </template>

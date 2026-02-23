@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-import { EllipsisVertical, Trash2 } from "lucide-vue-next";
+import { EllipsisVertical, Pencil, Trash2 } from "lucide-vue-next";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -26,6 +26,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
+  edit: [];
   delete: [];
 }>();
 
@@ -45,6 +46,10 @@ const isAlertOpen = ref(false);
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
+      <DropdownMenuItem @click="emit('edit')">
+        <Pencil class="size-4" />
+        Modifier
+      </DropdownMenuItem>
       <DropdownMenuItem class="text-destructive" @click="isAlertOpen = true">
         <Trash2 class="size-4" />
         Supprimer
