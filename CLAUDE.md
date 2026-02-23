@@ -12,8 +12,10 @@
 | Format | `pnpm format` |
 | Build | `pnpm build` |
 | Install | `pnpm install` |
-| DB migrate | `pnpm --filter=api prisma migrate dev` |
-| DB studio | `pnpm --filter=api prisma studio` |
+| DB seed | `pnpm --filter=api seed` |
+| DB migrate | `pnpm --filter=api migrate` |
+| DB reset | `pnpm --filter=api migrate:reset` |
+| DB studio | `pnpm --filter=api studio` |
 
 ## Architecture
 
