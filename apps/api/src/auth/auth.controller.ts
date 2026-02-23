@@ -18,6 +18,7 @@ import {
 	type AuthUserResponse,
 	type JwtPayload,
 	type LoginDto,
+	type RefreshJwtPayload,
 	type RegisterDto,
 	loginSchema,
 	registerSchema,
@@ -75,7 +76,9 @@ export class AuthController {
 	@Post("logout")
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiLogout()
-	logout(@Res({ passthrough: true }) res: FastifyReply): void {
+	async logout(@Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {
+		const payload = req.user as JwtPayload;
+		await this.authService.logout(payload.familyId);
 		this.cookieService.clearTokens(res);
 	}
 
@@ -85,7 +88,7 @@ export class AuthController {
 	@UseGuards(AuthGuard("jwt-refresh"))
 	@ApiRefresh()
 	async refresh(@Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {
-		const result = await this.authService.refresh(req.user as JwtPayload);
+		const result = await this.authService.refresh(req.user as RefreshJwtPayload);
 		this.cookieService.setTokens(res, { token: result.token, refreshToken: result.refreshToken });
 	}
 }

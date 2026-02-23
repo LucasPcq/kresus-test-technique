@@ -9,6 +9,7 @@ const mockAuthService = {
   register: vi.fn(),
   login: vi.fn(),
   refresh: vi.fn(),
+  logout: vi.fn(),
 };
 
 const mockCookieService = {
@@ -83,21 +84,25 @@ describe("AuthController", () => {
 
   describe("me", () => {
     it("returns user info from JWT payload", () => {
-      const req = { user: { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" } } as unknown as FastifyRequest;
+      const req = { user: { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" } } as unknown as FastifyRequest;
       expect(controller.me(req)).toEqual({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
     });
   });
 
   describe("logout", () => {
-    it("clears all auth cookies", () => {
-      controller.logout(mockRes);
+    it("revokes the token family and clears cookies", async () => {
+      const req = { user: { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" } } as unknown as FastifyRequest;
+
+      await controller.logout(req, mockRes);
+
+      expect(mockAuthService.logout).toHaveBeenCalledWith("family-123");
       expect(mockCookieService.clearTokens).toHaveBeenCalledWith(mockRes);
     });
   });
 
   describe("refresh", () => {
     it("sets new tokens from refresh token payload", async () => {
-      const payload = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const payload = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123", jti: "token-jti" };
       mockAuthService.refresh.mockResolvedValue({
         token: "new_jwt",
         refreshToken: "new_refresh",

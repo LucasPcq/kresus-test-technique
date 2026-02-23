@@ -18,4 +18,7 @@ export type AuthResult = { token: string; refreshToken: string; user: AuthUserRe
 export type JwtPayload = {
   sub: string;
   email: string;
+  familyId: string;
 };
+
+export type RefreshJwtPayload = JwtPayload & { jti: string };
