@@ -163,7 +163,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
 
     <div
       v-if="!isPending && tasks.length > 0"
-      class="shrink-0 -mx-8 -mb-8 border-t bg-background px-8 py-3"
+      class="shrink-0 -mx-4 -mb-4 md:-mx-8 md:-mb-8 border-t bg-background px-4 md:px-8 py-3"
     >
       <TaskPagination
         :page="filters.page"

@@ -64,10 +64,28 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-4">
-    <p class="text-sm text-muted-foreground shrink-0">
-      {{ total }} tâche{{ total > 1 ? "s" : "" }}
-    </p>
+  <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-muted-foreground shrink-0">
+        {{ total }} tâche{{ total > 1 ? "s" : "" }}
+      </p>
+
+      <ToggleGroup
+        type="single"
+        :model-value="paginationMode"
+        @update:model-value="onPaginationModeChange"
+        variant="outline"
+        size="sm"
+        class="md:hidden"
+      >
+        <ToggleGroupItem :value="PAGINATION_MODE.CLASSIC">
+          <ArrowLeftRight class="size-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem :value="PAGINATION_MODE.INFINITE">
+          <InfinityIcon class="size-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </div>
 
     <Pagination
       v-if="paginationMode === PAGINATION_MODE.CLASSIC"
@@ -78,14 +96,14 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
       :sibling-count="1"
       @update:page="emit('update:page', $event)"
     >
-      <PaginationContent>
+      <PaginationContent class="justify-center">
         <PaginationFirst>
           <ChevronFirst class="size-4" />
-          <span class="hidden sm:block">Début</span>
+          <span class="hidden lg:block">Début</span>
         </PaginationFirst>
         <PaginationPrevious>
           <ChevronLeft class="size-4" />
-          <span class="hidden sm:block">Précédent</span>
+          <span class="hidden lg:block">Précédent</span>
         </PaginationPrevious>
 
         <template v-for="item in totalPages" :key="item">
@@ -100,17 +118,17 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
         </template>
 
         <PaginationNext>
-          <span class="hidden sm:block">Suivant</span>
+          <span class="hidden lg:block">Suivant</span>
           <ChevronRight class="size-4" />
         </PaginationNext>
         <PaginationLast>
-          <span class="hidden sm:block">Fin</span>
+          <span class="hidden lg:block">Fin</span>
           <ChevronLast class="size-4" />
         </PaginationLast>
       </PaginationContent>
     </Pagination>
 
-    <div class="flex items-center gap-3">
+    <div class="hidden md:flex items-center gap-3">
       <Select v-if="paginationMode === PAGINATION_MODE.CLASSIC" :model-value="String(pageSize)" @update:model-value="onPageSizeChange">
         <SelectTrigger class="w-32">
           <SelectValue />

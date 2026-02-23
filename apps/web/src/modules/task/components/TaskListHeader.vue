@@ -31,12 +31,12 @@ const onSortChange = (val: SortValue) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
     <h2 class="text-3xl font-bold tracking-tight">Mes tâches</h2>
 
     <div class="flex items-center gap-2">
       <Select :model-value="sort" @update:model-value="onSortChange">
-        <SelectTrigger class="w-52">
+        <SelectTrigger class="w-40 sm:w-52">
           <SelectValue placeholder="Trier par" />
         </SelectTrigger>
         <SelectContent>
@@ -52,13 +52,25 @@ const onSortChange = (val: SortValue) => {
 
       <Button
         :variant="selectionMode ? 'secondary' : 'outline'"
+        size="icon"
+        class="sm:hidden"
+        @click="emit('toggle-selection-mode')"
+      >
+        <CheckSquare class="size-4" />
+      </Button>
+      <Button
+        :variant="selectionMode ? 'secondary' : 'outline'"
+        class="hidden sm:inline-flex"
         @click="emit('toggle-selection-mode')"
       >
         <CheckSquare class="size-4" />
         Sélectionner
       </Button>
 
-      <Button @click="emit('create')">
+      <Button size="icon" class="sm:hidden" @click="emit('create')">
+        <Plus class="size-4" />
+      </Button>
+      <Button class="hidden sm:inline-flex" @click="emit('create')">
         <Plus class="size-4" />
         Créer une tâche
       </Button>

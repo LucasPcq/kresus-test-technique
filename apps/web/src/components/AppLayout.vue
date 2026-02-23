@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import AppSidebar from "./AppSidebar.vue";
 </script>
@@ -10,7 +10,10 @@ import AppSidebar from "./AppSidebar.vue";
   <SidebarProvider :open="false" class="h-svh overflow-hidden">
     <AppSidebar />
     <SidebarInset>
-      <div class="flex flex-1 flex-col overflow-hidden p-8">
+      <header class="flex h-12 shrink-0 items-center border-b px-4 md:hidden">
+        <SidebarTrigger />
+      </header>
+      <div class="flex flex-1 flex-col overflow-hidden p-4 md:p-8">
         <RouterView />
       </div>
     </SidebarInset>
