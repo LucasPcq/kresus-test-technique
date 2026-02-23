@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink } from "vue-router";
 import { CheckSquare } from "lucide-vue-next";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -16,16 +13,14 @@ import {
 } from "@/components/ui/sidebar";
 
 import NavUser from "./NavUser.vue";
-
-const route = useRoute();
 </script>
 
 <template>
-  <Sidebar collapsible="none">
+  <Sidebar collapsible="icon">
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" as-child>
+          <SidebarMenuButton size="lg" as-child tooltip="Kresus Tasks">
             <RouterLink to="/">
               <div
                 class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
@@ -39,23 +34,7 @@ const route = useRoute();
       </SidebarMenu>
     </SidebarHeader>
 
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton as-child :is-active="route.path === '/'">
-                <RouterLink to="/">
-                  <CheckSquare class="size-4" />
-                  <span>Tâches</span>
-                </RouterLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </SidebarContent>
+    <SidebarContent />
 
     <SidebarFooter>
       <NavUser />

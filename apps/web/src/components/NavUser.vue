@@ -25,7 +25,7 @@ const emailInitial = computed(() => authenticatedUser.email.charAt(0).toUpperCas
     <SidebarMenuItem>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <SidebarMenuButton size="lg">
+          <SidebarMenuButton size="lg" class="cursor-pointer border border-sidebar-border hover:bg-sidebar-accent">
             <Avatar class="size-8 rounded-lg">
               <AvatarFallback class="rounded-lg text-xs">{{ emailInitial }}</AvatarFallback>
             </Avatar>
@@ -37,7 +37,7 @@ const emailInitial = computed(() => authenticatedUser.email.charAt(0).toUpperCas
             <ChevronsUpDown class="ml-auto size-4" />
           </SidebarMenuButton>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="w-(--reka-popper-anchor-width)">
+        <DropdownMenuContent align="end" class="w-(--reka-popper-anchor-width) min-w-56">
           <DropdownMenuItem :disabled="isPending" @click="logout()">
             <LogOut class="size-4" />
             Se déconnecter
