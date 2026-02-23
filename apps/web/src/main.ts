@@ -4,13 +4,16 @@ import { createApp } from "vue";
 
 import App from "./App.vue";
 import router from "./router";
+import { setFrenchZodErrorMap } from "./lib/zod-error-map";
 
 import "./assets/index.css";
+
+setFrenchZodErrorMap();
 
 const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VueQueryPlugin);
+app.use(VueQueryPlugin, { enableDevtoolsV6Plugin: true });
 
 app.mount("#app");

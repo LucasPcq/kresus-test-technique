@@ -4,7 +4,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import App from "../App.vue";
 
 describe("App", () => {
-  it("mounts without errors", () => {
+  it("should mount without errors when rendered", () => {
     const router = createRouter({ history: createWebHashHistory(), routes: [] });
     const wrapper = mount(App, { global: { plugins: [router] } });
     expect(wrapper.exists()).toBe(true);

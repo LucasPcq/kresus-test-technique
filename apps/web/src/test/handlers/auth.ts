@@ -1,10 +1,8 @@
 import { http, HttpResponse } from "msw";
 
-import type { AuthUserResponse } from "@kresus/contract";
-
 import { env } from "@/config/env";
 
-export const mockAuthUser: AuthUserResponse = { id: "1", email: "test@example.com" };
+import { mockAuthUser } from "../mocks/auth";
 
 export const authHandlers = [
   http.post(`${env.VITE_API_URL}/auth/login`, () => HttpResponse.json(mockAuthUser)),

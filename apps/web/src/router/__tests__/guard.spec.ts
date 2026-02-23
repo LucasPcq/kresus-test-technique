@@ -40,13 +40,13 @@ describe("router guard", () => {
     document.cookie = "session=; Max-Age=0; path=/";
   });
 
-  it("redirects unauthenticated user from / to /login", async () => {
+  it("should redirect to /login when user is unauthenticated", async () => {
     const router = buildRouter();
     await router.push("/");
     expect(router.currentRoute.value.name).toBe("login");
   });
 
-  it("allows authenticated user on /", async () => {
+  it("should allow access to / when user is authenticated", async () => {
     document.cookie = "session=1; path=/";
     server.use(http.get(apiUrl("/auth/me"), () => HttpResponse.json(mockAuthUser)));
 
@@ -55,7 +55,7 @@ describe("router guard", () => {
     expect(router.currentRoute.value.name).toBe("home");
   });
 
-  it("redirects authenticated user from /login to /", async () => {
+  it("should redirect to / when authenticated user visits /login", async () => {
     document.cookie = "session=1; path=/";
     server.use(http.get(apiUrl("/auth/me"), () => HttpResponse.json(mockAuthUser)));
 
@@ -64,7 +64,7 @@ describe("router guard", () => {
     expect(router.currentRoute.value.name).toBe("home");
   });
 
-  it("allows unauthenticated user on /login", async () => {
+  it("should allow access to /login when user is unauthenticated", async () => {
     const router = buildRouter();
     await router.push("/login");
     expect(router.currentRoute.value.name).toBe("login");

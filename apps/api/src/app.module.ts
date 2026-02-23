@@ -11,9 +11,10 @@ import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 
 import { UserModule } from "./user/user.module";
+import { TaskModule } from "./task/task.module";
 
 @Module({
-  imports: [ConfigModule, PrismaModule, UserModule, AuthModule],
+  imports: [ConfigModule, PrismaModule, UserModule, AuthModule, TaskModule],
   controllers: [AppController],
   providers: [
     AppService,

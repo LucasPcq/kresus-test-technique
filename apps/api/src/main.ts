@@ -1,5 +1,6 @@
 import cookieParser from "cookie-parser";
 import { NestFactory } from "@nestjs/core";
+import type { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import { AppModule } from "./app.module";
@@ -9,7 +10,9 @@ import { env, validateEnv } from "./config/env";
 async function bootstrap() {
   validateEnv();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.set("query parser", "extended");
 
   const configService = app.get(ConfigService);
 

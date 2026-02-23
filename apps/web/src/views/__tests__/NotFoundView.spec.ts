@@ -10,14 +10,14 @@ describe("NotFoundView", () => {
     setActivePinia(createPinia());
   });
 
-  it("displays 404 and 'Page introuvable'", () => {
+  it("should display 404 and 'Page introuvable' when rendered", () => {
     const { wrapper } = buildWrapper(NotFoundView);
 
     expect(wrapper.text()).toContain("404");
     expect(wrapper.text()).toContain("Page introuvable");
   });
 
-  it("contains a link to /", () => {
+  it("should contain a link to / when rendered", () => {
     const { wrapper } = buildWrapper(NotFoundView);
 
     expect(wrapper.find("a[href='/']").exists()).toBe(true);

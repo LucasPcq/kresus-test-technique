@@ -17,7 +17,7 @@ describe("RegisterView", () => {
   });
 
   describe("rendering", () => {
-    it("should render email input, password input and submit button", () => {
+    it("should render email input, password input and submit button when mounted", () => {
       const { wrapper } = buildWrapper(RegisterView);
 
       expect(wrapper.find("input[type='email']").exists()).toBe(true);
@@ -32,7 +32,7 @@ describe("RegisterView", () => {
       expect(button.disabled).toBe(true);
     });
 
-    it("should render a link to the login page", () => {
+    it("should render a link to the login page when mounted", () => {
       const { wrapper } = buildWrapper(RegisterView);
 
       expect(wrapper.find("a[href='/login']").exists()).toBe(true);

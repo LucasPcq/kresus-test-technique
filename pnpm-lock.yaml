@@ -130,12 +130,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@internationalized/date':
+        specifier: ^3.11.0
+        version: 3.11.0
       '@kresus/contract':
         specifier: workspace:^
         version: link:../../packages/contract
       '@tanstack/vue-query':
         specifier: ^5.92.9
         version: 5.92.9(vue@3.5.28(typescript@5.9.3))
+      '@tanstack/vue-query-devtools':
+        specifier: ^6.1.5
+        version: 6.1.5(@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       '@vee-validate/zod':
         specifier: ^4.15.1
         version: 4.15.1(vue@3.5.28(typescript@5.9.3))(zod@4.3.6)
@@ -157,6 +163,9 @@ importers:
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3))
+      qs:
+        specifier: ^6.15.0
+        version: 6.15.0
       reka-ui:
         specifier: ^2.8.2
         version: 2.8.2(vue@3.5.28(typescript@5.9.3))
@@ -175,6 +184,9 @@ importers:
       vue-router:
         specifier: ^5.0.2
         version: 5.0.3(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      vue-sonner:
+        specifier: ^2.0.9
+        version: 2.0.9
       zod:
         specifier: 4.3.6
         version: 4.3.6
@@ -191,6 +203,9 @@ importers:
       '@types/node':
         specifier: ^24.10.13
         version: 24.10.13
+      '@types/qs':
+        specifier: ^6.14.0
+        version: 6.14.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.4
         version: 6.0.4(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
@@ -1375,8 +1390,17 @@ packages:
   '@tanstack/query-core@5.90.20':
     resolution: {integrity: sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==}
 
+  '@tanstack/query-devtools@5.93.0':
+    resolution: {integrity: sha512-+kpsx1NQnOFTZsw6HAFCW3HkKg0+2cepGtAWXjiiSOJJ1CtQpt72EE2nyZb+AjAbLRPoeRmPJ8MtQd8r8gsPdg==}
+
   '@tanstack/virtual-core@3.13.18':
     resolution: {integrity: sha512-Mx86Hqu1k39icq2Zusq+Ey2J6dDWTjDvEv43PJtRCoEYTLyfaPnxIQ6iy7YAOK0NV/qOEmZQ/uCufrppZxTgcg==}
+
+  '@tanstack/vue-query-devtools@6.1.5':
+    resolution: {integrity: sha512-5tQf/4GKfDyvu+Jqv/Fq1im93nXQyge0yWphCmwNHz6Y6+kqA9swJY2G/kLU2TaT2s1CE+elt5EfYNGE1tsDqQ==}
+    peerDependencies:
+      '@tanstack/vue-query': ^5.92.9
+      vue: ^3.3.0
 
   '@tanstack/vue-query@5.92.9':
     resolution: {integrity: sha512-jjAZcqKveyX0C4w/6zUqbnqk/XzuxNWaFsWjGTJWULVFizUNeLGME2gf9vVSDclIyiBhR13oZJPPs6fJgfpIJQ==}
@@ -3773,6 +3797,20 @@ packages:
       pinia:
         optional: true
 
+  vue-sonner@2.0.9:
+    resolution: {integrity: sha512-i6BokNlNDL93fpzNxN/LZSn6D6MzlO+i3qXt6iVZne3x1k7R46d5HlFB4P8tYydhgqOrRbIZEsnRd3kG7qGXyw==}
+    peerDependencies:
+      '@nuxt/kit': ^4.0.3
+      '@nuxt/schema': ^4.0.3
+      nuxt: ^4.0.3
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+      '@nuxt/schema':
+        optional: true
+      nuxt:
+        optional: true
+
   vue-tsc@3.2.4:
     resolution: {integrity: sha512-xj3YCvSLNDKt1iF9OcImWHhmYcihVu9p4b9s4PGR/qp6yhW+tZJaypGxHScRyOrdnHvaOeF+YkZOdKwbgGvp5g==}
     hasBin: true
@@ -4958,7 +4996,15 @@ snapshots:
 
   '@tanstack/query-core@5.90.20': {}
 
+  '@tanstack/query-devtools@5.93.0': {}
+
   '@tanstack/virtual-core@3.13.18': {}
+
+  '@tanstack/vue-query-devtools@6.1.5(@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))':
+    dependencies:
+      '@tanstack/query-devtools': 5.93.0
+      '@tanstack/vue-query': 5.92.9(vue@3.5.28(typescript@5.9.3))
+      vue: 3.5.28(typescript@5.9.3)
 
   '@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3))':
     dependencies:
@@ -7540,6 +7586,8 @@ snapshots:
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.28
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3))
+
+  vue-sonner@2.0.9: {}
 
   vue-tsc@3.2.4(typescript@5.9.3):
     dependencies:

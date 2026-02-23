@@ -1,3 +1,4 @@
+import qs from "qs";
 import { env } from "../config/env";
 
 import { refresh } from "@/modules/auth/api/auth.api";
@@ -11,7 +12,10 @@ export class ApiError extends Error {
   }
 }
 
-type RequestOptions = RequestInit & { autoRefreshToken?: boolean };
+type RequestOptions = RequestInit & {
+  autoRefreshToken?: boolean;
+  params?: Record<string, unknown>;
+};
 
 const createApiClient = () => {
   let refreshPromise: Promise<boolean> | null = null;
@@ -34,9 +38,13 @@ const createApiClient = () => {
     return response.json() as Promise<T>;
   };
 
-  const request = async <T>(path: string, { autoRefreshToken = true, ...fetchOptions }: RequestOptions = {}): Promise<T> => {
+  const request = async <T>(
+    path: string,
+    { autoRefreshToken = true, params, ...fetchOptions }: RequestOptions = {},
+  ): Promise<T> => {
+    const url = params ? `${path}?${qs.stringify(params, { encode: false })}` : path;
     try {
-      return await doRequest<T>(path, fetchOptions);
+      return await doRequest<T>(url, fetchOptions);
     } catch (error) {
       if (autoRefreshToken && error instanceof ApiError && error.status === 401) {
         if (!refreshPromise) {
@@ -45,7 +53,7 @@ const createApiClient = () => {
           });
         }
         const refreshed = await refreshPromise;
-        if (refreshed) return doRequest<T>(path, fetchOptions);
+        if (refreshed) return doRequest<T>(url, fetchOptions);
       }
       throw error;
     }
