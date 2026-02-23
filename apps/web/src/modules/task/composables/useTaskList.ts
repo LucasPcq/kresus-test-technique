@@ -18,17 +18,20 @@ export const useTaskList = ({
   const isClassic = computed(() => paginationMode.value === PAGINATION_MODE.CLASSIC);
   const isInfinite = computed(() => paginationMode.value === PAGINATION_MODE.INFINITE);
 
+  const classicQueryKey = computed(() => TASK_QUERY_KEYS.list(queryParams.value));
+  const infiniteQueryKey = computed(() => TASK_QUERY_KEYS.infinite(queryParams.value));
+
   const classicQuery = useQuery({
     enabled: isClassic,
-    queryKey: computed(() => TASK_QUERY_KEYS.list(queryParams.value)),
+    queryKey: classicQueryKey,
     queryFn: () => fetchTasks(queryParams.value),
     placeholderData: (prev) => prev,
   });
 
   const infiniteQuery = useInfiniteQuery({
     enabled: isInfinite,
+    queryKey: infiniteQueryKey,
     initialPageParam: 1,
-    queryKey: computed(() => TASK_QUERY_KEYS.infinite(queryParams.value)),
     queryFn: ({ pageParam }) => fetchTasks({ ...queryParams.value, page: pageParam }),
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
