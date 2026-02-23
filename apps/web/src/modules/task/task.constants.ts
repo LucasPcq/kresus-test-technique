@@ -3,8 +3,13 @@ import { PRIORITY, SORT_FIELDS } from "@kresus/contract";
 
 import type { BadgeVariants } from "@/components/ui/badge";
 
-export const PAGINATION_MODES = ["classic", "infinite"] as const;
-export type PaginationMode = (typeof PAGINATION_MODES)[number];
+export const PAGINATION_MODE = {
+  CLASSIC: "classic",
+  INFINITE: "infinite",
+} as const;
+
+export const PAGINATION_MODES = Object.values(PAGINATION_MODE);
+export type PaginationMode = (typeof PAGINATION_MODE)[keyof typeof PAGINATION_MODE];
 
 export const SEARCH_DEBOUNCE_MS = 300;
 

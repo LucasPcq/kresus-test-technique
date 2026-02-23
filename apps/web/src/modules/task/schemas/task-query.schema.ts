@@ -2,10 +2,10 @@ import { z } from "zod";
 
 import { dateFilterOps, priorityFilterOps, priorityValues, taskQuerySchema } from "@kresus/contract";
 
-import { PAGINATION_MODES } from "../task.constants";
+import { PAGINATION_MODE, PAGINATION_MODES } from "../task.constants";
 
 export const taskQueryURLSchema = taskQuerySchema.omit({ filter: true }).extend({
-  mode: z.enum(PAGINATION_MODES).default("classic"),
+  mode: z.enum(PAGINATION_MODES).default(PAGINATION_MODE.CLASSIC),
   priority: z.enum(priorityValues).optional(),
   priorityOp: z.enum(priorityFilterOps).default("eq"),
   title: z.string().optional(),

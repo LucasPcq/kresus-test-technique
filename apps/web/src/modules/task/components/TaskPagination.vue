@@ -12,7 +12,7 @@ import {
   Infinity as InfinityIcon,
 } from "lucide-vue-next";
 
-import { type PaginationMode, PAGINATION_MODES } from "../task.constants";
+import { type PaginationMode, PAGINATION_MODE, PAGINATION_MODES } from "../task.constants";
 
 import {
   Pagination,
@@ -70,7 +70,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
     </p>
 
     <Pagination
-      v-if="paginationMode === 'classic'"
+      v-if="paginationMode === PAGINATION_MODE.CLASSIC"
       v-slot="{ page: currentPage }"
       :page="page"
       :items-per-page="pageSize"
@@ -111,7 +111,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
     </Pagination>
 
     <div class="flex items-center gap-3">
-      <Select v-if="paginationMode === 'classic'" :model-value="String(pageSize)" @update:model-value="onPageSizeChange">
+      <Select v-if="paginationMode === PAGINATION_MODE.CLASSIC" :model-value="String(pageSize)" @update:model-value="onPageSizeChange">
         <SelectTrigger class="w-32">
           <SelectValue />
         </SelectTrigger>
@@ -129,10 +129,10 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
         variant="outline"
         size="sm"
       >
-        <ToggleGroupItem value="classic">
+        <ToggleGroupItem :value="PAGINATION_MODE.CLASSIC">
           <ArrowLeftRight class="size-4" />
         </ToggleGroupItem>
-        <ToggleGroupItem value="infinite">
+        <ToggleGroupItem :value="PAGINATION_MODE.INFINITE">
           <InfinityIcon class="size-4" />
         </ToggleGroupItem>
       </ToggleGroup>
