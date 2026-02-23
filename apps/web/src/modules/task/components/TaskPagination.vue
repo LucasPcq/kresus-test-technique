@@ -67,7 +67,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
   <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
     <div class="flex items-center justify-between">
       <p class="text-sm text-muted-foreground shrink-0">
-        {{ total }} tâche{{ total > 1 ? "s" : "" }}
+        {{ $t("task.count", { count: total }, total) }}
       </p>
 
       <ToggleGroup
@@ -99,11 +99,11 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
       <PaginationContent class="justify-center">
         <PaginationFirst>
           <ChevronFirst class="size-4" />
-          <span class="hidden lg:block">Début</span>
+          <span class="hidden lg:block">{{ $t("pagination.first") }}</span>
         </PaginationFirst>
         <PaginationPrevious>
           <ChevronLeft class="size-4" />
-          <span class="hidden lg:block">Précédent</span>
+          <span class="hidden lg:block">{{ $t("pagination.previous") }}</span>
         </PaginationPrevious>
 
         <template v-for="item in totalPages" :key="item">
@@ -118,11 +118,11 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
         </template>
 
         <PaginationNext>
-          <span class="hidden lg:block">Suivant</span>
+          <span class="hidden lg:block">{{ $t("pagination.next") }}</span>
           <ChevronRight class="size-4" />
         </PaginationNext>
         <PaginationLast>
-          <span class="hidden lg:block">Fin</span>
+          <span class="hidden lg:block">{{ $t("pagination.last") }}</span>
           <ChevronLast class="size-4" />
         </PaginationLast>
       </PaginationContent>
@@ -135,7 +135,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
         </SelectTrigger>
         <SelectContent>
           <SelectItem v-for="size in PAGE_SIZES" :key="size" :value="String(size)">
-            {{ size }} / page
+            {{ $t("task.perPage", { size }) }}
           </SelectItem>
         </SelectContent>
       </Select>

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 
+import i18n from "@/lib/i18n";
+
 import type { ActiveFilter } from "../task.filter-config";
 
 import TaskFilters from "../components/TaskFilters.vue";
@@ -11,30 +13,31 @@ const defaultProps = {
   activeFilters: [] as ActiveFilter[],
 };
 
+const mountFilters = (props: typeof defaultProps) =>
+  mount(TaskFilters, { props, global: { plugins: [i18n] } });
+
 describe("TaskFilters", () => {
   it("should render the search input when mounted", () => {
-    const wrapper = mount(TaskFilters, { props: defaultProps });
+    const wrapper = mountFilters(defaultProps);
 
     expect(wrapper.find("input").exists()).toBe(true);
   });
 
   it("should render the add-filter button when mounted", () => {
-    const wrapper = mount(TaskFilters, { props: defaultProps });
+    const wrapper = mountFilters(defaultProps);
 
     expect(wrapper.text()).toContain("Ajouter un filtre");
   });
 
   it("should not render reset button when no active filters", () => {
-    const wrapper = mount(TaskFilters, { props: defaultProps });
+    const wrapper = mountFilters(defaultProps);
     const resetBtn = wrapper.findAll("button").find((b) => b.text().includes("Réinitialiser"));
 
     expect(resetBtn).toBeUndefined();
   });
 
   it("should render reset button when filters are active", () => {
-    const wrapper = mount(TaskFilters, {
-      props: { ...defaultProps, hasActiveFilters: true },
-    });
+    const wrapper = mountFilters({ ...defaultProps, hasActiveFilters: true });
     const resetBtn = wrapper.findAll("button").find((b) => b.text().includes("Réinitialiser"));
 
     expect(resetBtn?.exists()).toBe(true);
@@ -44,9 +47,7 @@ describe("TaskFilters", () => {
     const activeFilters: ActiveFilter[] = [
       { field: "priority", operator: "eq", value: "HIGH" },
     ];
-    const wrapper = mount(TaskFilters, {
-      props: { ...defaultProps, hasActiveFilters: true, activeFilters },
-    });
+    const wrapper = mountFilters({ ...defaultProps, hasActiveFilters: true, activeFilters });
 
     expect(wrapper.text()).toContain("Priorité");
     expect(wrapper.text()).toContain("est");
@@ -58,9 +59,7 @@ describe("TaskFilters", () => {
       { field: "completed", operator: "eq", value: false },
       { field: "priority", operator: "neq", value: "LOW" },
     ];
-    const wrapper = mount(TaskFilters, {
-      props: { ...defaultProps, hasActiveFilters: true, activeFilters },
-    });
+    const wrapper = mountFilters({ ...defaultProps, hasActiveFilters: true, activeFilters });
 
     expect(wrapper.text()).toContain("Statut");
     expect(wrapper.text()).toContain("À faire");
@@ -70,9 +69,7 @@ describe("TaskFilters", () => {
   });
 
   it("should initialize search input when titleSearch prop is provided", () => {
-    const wrapper = mount(TaskFilters, {
-      props: { ...defaultProps, titleSearch: "rapport" },
-    });
+    const wrapper = mountFilters({ ...defaultProps, titleSearch: "rapport" });
 
     expect((wrapper.find("input").element as HTMLInputElement).value).toBe("rapport");
   });

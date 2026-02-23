@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 
 import { deleteTask } from "../api/task.api";
@@ -7,6 +8,7 @@ import { applyOptimisticUpdate, rollbackOptimisticUpdate } from "./taskCacheUtil
 
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   return useMutation({
     mutationFn: deleteTask,
@@ -27,7 +29,7 @@ export const useDeleteTask = () => {
       }
     },
     onSuccess: () => {
-      toast.success("Tâche supprimée avec succès");
+      toast.success(t("toast.taskDeleted"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });

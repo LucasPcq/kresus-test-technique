@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { createRouter, createMemoryHistory } from "vue-router";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
+import i18n from "@/lib/i18n";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 
 import AppSidebar from "../AppSidebar.vue";
@@ -31,7 +32,7 @@ function mountSidebar() {
   });
 
   return mount(SidebarWithProvider, {
-    global: { plugins: [pinia, router, [VueQueryPlugin, { queryClient }]] },
+    global: { plugins: [pinia, router, i18n, [VueQueryPlugin, { queryClient }]] },
   });
 }
 

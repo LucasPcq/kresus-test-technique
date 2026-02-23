@@ -11,13 +11,13 @@ const emit = defineEmits<{ "reset-filters": [] }>();
   <div class="flex flex-col items-center justify-center gap-4 text-center">
     <AlertTriangle class="size-12 text-destructive" />
     <div>
-      <p class="text-lg font-medium">Erreur de chargement</p>
+      <p class="text-lg font-medium">{{ $t("error.loadingTitle") }}</p>
       <p class="text-sm text-muted-foreground">
-        Impossible de récupérer les tâches. Vérifiez vos filtres ou réessayez.
+        {{ $t("error.loadingDescription") }}
       </p>
     </div>
     <Button v-if="hasFilters" variant="outline" @click="emit('reset-filters')">
-      Réinitialiser les filtres
+      {{ $t("common.resetFilters") }}
     </Button>
   </div>
 </template>

@@ -40,7 +40,7 @@ const isAlertOpen = ref(false);
         variant="ghost"
         size="icon"
         class="size-7"
-        aria-label="Actions"
+        :aria-label="$t('task.actions')"
       >
         <EllipsisVertical class="size-4" />
       </Button>
@@ -48,11 +48,11 @@ const isAlertOpen = ref(false);
     <DropdownMenuContent align="end">
       <DropdownMenuItem @click="emit('edit')">
         <Pencil class="size-4" />
-        Modifier
+        {{ $t("task.edit") }}
       </DropdownMenuItem>
       <DropdownMenuItem class="text-destructive" @click="isAlertOpen = true">
         <Trash2 class="size-4" />
-        Supprimer
+        {{ $t("common.delete") }}
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
@@ -60,19 +60,19 @@ const isAlertOpen = ref(false);
   <AlertDialog v-if="isAlertOpen" v-model:open="isAlertOpen">
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Supprimer la tâche</AlertDialogTitle>
+        <AlertDialogTitle>{{ $t("taskDelete.title") }}</AlertDialogTitle>
         <AlertDialogDescription>
-          Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action est irréversible.
+          {{ $t("taskDelete.description") }}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Annuler</AlertDialogCancel>
+        <AlertDialogCancel>{{ $t("common.cancel") }}</AlertDialogCancel>
         <AlertDialogAction
           :class="buttonVariants({ variant: 'destructive' })"
           :disabled="isDeleting"
           @click="emit('delete')"
         >
-          {{ isDeleting ? "Suppression…" : "Supprimer" }}
+          {{ isDeleting ? $t("common.deleting") : $t("common.delete") }}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

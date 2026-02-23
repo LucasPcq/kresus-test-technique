@@ -13,25 +13,24 @@ export type PaginationMode = (typeof PAGINATION_MODE)[keyof typeof PAGINATION_MO
 
 export const SEARCH_DEBOUNCE_MS = 300;
 
-export type SelectOption<V = string> = { value: V; label: string };
+export type SelectOption<V = string> = { value: V; labelKey: string };
 
 export const PRIORITY_CONFIG: Record<
   Priority,
-  { label: string; variant: NonNullable<BadgeVariants["variant"]> }
+  { labelKey: string; variant: NonNullable<BadgeVariants["variant"]> }
 > = {
-  [PRIORITY.HIGH]: { label: "Haute", variant: "destructive" },
-  [PRIORITY.MEDIUM]: { label: "Moyenne", variant: "default" },
-  [PRIORITY.LOW]: { label: "Basse", variant: "secondary" },
+  [PRIORITY.HIGH]: { labelKey: "priority.HIGH", variant: "destructive" },
+  [PRIORITY.MEDIUM]: { labelKey: "priority.MEDIUM", variant: "default" },
+  [PRIORITY.LOW]: { labelKey: "priority.LOW", variant: "secondary" },
 };
 
-
-const SORT_LABELS: Record<(typeof SORT_FIELDS)[number], string> = {
-  createdAt: "Date de création",
-  executionDate: "Date d'exécution",
-  priority: "Priorité",
+const SORT_LABEL_KEYS: Record<(typeof SORT_FIELDS)[number], string> = {
+  createdAt: "sort.createdAt",
+  executionDate: "sort.executionDate",
+  priority: "sort.priority",
 };
 
 export const SORT_OPTIONS = SORT_FIELDS.flatMap((field) => [
-  { value: `-${field}` as const, label: `${SORT_LABELS[field]} ↓` },
-  { value: field, label: `${SORT_LABELS[field]} ↑` },
-]) satisfies SelectOption<SortValue>[];
+  { value: `-${field}` as const, labelKey: SORT_LABEL_KEYS[field], direction: "↓" as const },
+  { value: field, labelKey: SORT_LABEL_KEYS[field], direction: "↑" as const },
+]) satisfies Array<SelectOption<SortValue> & { direction: string }>;

@@ -7,6 +7,8 @@ import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises, mount } from "@vue/test-utils";
 
+import i18n from "@/lib/i18n";
+
 export function buildWrapper(
   component: Component,
   props?: Record<string, unknown>,
@@ -32,7 +34,7 @@ export function buildWrapper(
     wrapper: mount(component, {
       props,
       attachTo: options?.attachTo,
-      global: { plugins: [pinia, router, [VueQueryPlugin, { queryClient }]] },
+      global: { plugins: [pinia, router, i18n, [VueQueryPlugin, { queryClient }]] },
     }),
     router,
   };

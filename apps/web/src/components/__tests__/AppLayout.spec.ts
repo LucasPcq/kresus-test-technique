@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { createRouter, createMemoryHistory } from "vue-router";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
+import i18n from "@/lib/i18n";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 
 import AppLayout from "../AppLayout.vue";
@@ -25,7 +26,7 @@ function mountLayout() {
   });
 
   return mount(AppLayout, {
-    global: { plugins: [pinia, router, [VueQueryPlugin, { queryClient }]] },
+    global: { plugins: [pinia, router, i18n, [VueQueryPlugin, { queryClient }]] },
   });
 }
 

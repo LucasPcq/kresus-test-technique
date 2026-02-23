@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 
 import type { UpdateTaskInput } from "@kresus/contract";
@@ -9,6 +10,7 @@ import { applyOptimisticUpdate, rollbackOptimisticUpdate } from "./taskCacheUtil
 
 export const useEditTask = () => {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   return useMutation({
     mutationFn: (variables: UpdateTaskInput & { id: string }) => updateTask(variables),
@@ -41,7 +43,7 @@ export const useEditTask = () => {
       }
     },
     onSuccess: () => {
-      toast.success("Tâche modifiée avec succès");
+      toast.success(t("toast.taskUpdated"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });

@@ -110,7 +110,7 @@ const onDateRangeChange = (range: DateRange) => {
 <template>
   <div class="flex items-center gap-1 border-b px-2 py-1.5">
     <slot name="header-prefix" />
-    <span class="text-xs font-medium text-muted-foreground">{{ config.label }}</span>
+    <span class="text-xs font-medium text-muted-foreground">{{ $t(config.labelKey) }}</span>
     <NativeSelect
       v-if="hasMultipleOperators"
       :model-value="selectedOperator"
@@ -122,7 +122,7 @@ const onDateRangeChange = (range: DateRange) => {
         :key="op.value"
         :value="op.value"
       >
-        {{ op.label }}
+        {{ $t(op.labelKey) }}
       </NativeSelectOption>
     </NativeSelect>
   </div>
@@ -137,7 +137,7 @@ const onDateRangeChange = (range: DateRange) => {
           class="flex items-center justify-between"
           @select="(ev: ListboxItemSelectEvent<AcceptableValue>) => onSelectValue(val.value, ev)"
         >
-          {{ val.label }}
+          {{ $t(val.labelKey) }}
           <Check v-if="currentFilter && val.value === currentFilter.value" class="size-4" />
         </CommandItem>
       </CommandGroup>

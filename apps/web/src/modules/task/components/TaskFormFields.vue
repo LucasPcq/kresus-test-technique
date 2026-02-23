@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DateValue } from "reka-ui";
+import { useI18n } from "vue-i18n";
 import { CalendarDays, X } from "lucide-vue-next";
 
 import { TASK_CONTENT_MAX_LENGTH, TASK_TITLE_MAX_LENGTH } from "@kresus/contract";
@@ -31,9 +32,11 @@ const emit = defineEmits<{
   dateSelect: [date: DateValue | undefined];
 }>();
 
+const { t, locale } = useI18n();
+
 const dateLabel = (value: string | undefined) => {
-  if (!value) return "Sélectionner une date";
-  return formatDateShort(parseLocalDate(value.slice(0, 10)));
+  if (!value) return t("taskForm.selectDate");
+  return formatDateShort(parseLocalDate(value.slice(0, 10)), locale.value);
 };
 </script>
 
@@ -41,11 +44,11 @@ const dateLabel = (value: string | undefined) => {
   <FormField v-slot="{ componentField }" name="title">
     <FormItem>
       <div class="flex items-center justify-between">
-        <FormLabel>Titre <span class="text-destructive">*</span></FormLabel>
+        <FormLabel>{{ $t("taskForm.title") }} <span class="text-destructive">*</span></FormLabel>
         <span class="text-xs text-muted-foreground">{{ values.title?.length ?? 0 }}/{{ TASK_TITLE_MAX_LENGTH }}</span>
       </div>
       <FormControl>
-        <Input placeholder="Titre de la tâche" :maxlength="TASK_TITLE_MAX_LENGTH" v-bind="componentField" />
+        <Input :placeholder="$t('taskForm.titlePlaceholder')" :maxlength="TASK_TITLE_MAX_LENGTH" v-bind="componentField" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -54,11 +57,11 @@ const dateLabel = (value: string | undefined) => {
   <FormField v-slot="{ componentField }" name="content">
     <FormItem>
       <div class="flex items-center justify-between">
-        <FormLabel>Description <span class="text-destructive">*</span></FormLabel>
+        <FormLabel>{{ $t("taskForm.description") }} <span class="text-destructive">*</span></FormLabel>
         <span class="text-xs text-muted-foreground">{{ values.content?.length ?? 0 }}/{{ TASK_CONTENT_MAX_LENGTH }}</span>
       </div>
       <FormControl>
-        <Textarea placeholder="Description de la tâche" :maxlength="TASK_CONTENT_MAX_LENGTH" v-bind="componentField" />
+        <Textarea :placeholder="$t('taskForm.descriptionPlaceholder')" :maxlength="TASK_CONTENT_MAX_LENGTH" v-bind="componentField" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -66,11 +69,11 @@ const dateLabel = (value: string | undefined) => {
 
   <FormField v-slot="{ componentField }" name="priority">
     <FormItem>
-      <FormLabel>Priorité <span class="text-destructive">*</span></FormLabel>
+      <FormLabel>{{ $t("taskForm.priority") }} <span class="text-destructive">*</span></FormLabel>
       <Select v-bind="componentField">
         <FormControl>
           <SelectTrigger>
-            <SelectValue placeholder="Priorité" />
+            <SelectValue :placeholder="$t('taskForm.priority')" />
           </SelectTrigger>
         </FormControl>
         <SelectContent>
@@ -79,7 +82,7 @@ const dateLabel = (value: string | undefined) => {
             :key="key"
             :value="key"
           >
-            {{ config.label }}
+            {{ $t(config.labelKey) }}
           </SelectItem>
         </SelectContent>
       </Select>
@@ -89,7 +92,7 @@ const dateLabel = (value: string | undefined) => {
 
   <FormField v-slot="{ value }" name="executionDate">
     <FormItem>
-      <FormLabel>Date d'exécution</FormLabel>
+      <FormLabel>{{ $t("taskForm.executionDate") }}</FormLabel>
       <Popover>
         <div class="flex items-center gap-1.5">
           <PopoverTrigger as-child>
@@ -128,7 +131,7 @@ const dateLabel = (value: string | undefined) => {
       <FormControl>
         <Checkbox :model-value="value" @update:model-value="handleChange" />
       </FormControl>
-      <FormLabel class="font-normal">Tâche complétée</FormLabel>
+      <FormLabel class="font-normal">{{ $t("taskForm.completed") }}</FormLabel>
     </FormItem>
   </FormField>
 </template>

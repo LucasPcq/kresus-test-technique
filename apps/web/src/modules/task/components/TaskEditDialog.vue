@@ -53,8 +53,8 @@ const onSubmit = handleSubmit((values) => {
   <Dialog v-model:open="open" @update:open="(v) => { if (!v) close() }">
     <DialogContent class="sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Modifier la tâche</DialogTitle>
-        <DialogDescription>Modifiez les informations de la tâche.</DialogDescription>
+        <DialogTitle>{{ $t("taskDialog.editTitle") }}</DialogTitle>
+        <DialogDescription>{{ $t("taskDialog.editDescription") }}</DialogDescription>
       </DialogHeader>
       <form class="space-y-4" @submit="onSubmit">
         <!-- @vue-ignore Volar false positive: #private fields in @internationalized/date break structural check on DateValue union -->
@@ -62,10 +62,10 @@ const onSubmit = handleSubmit((values) => {
         <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
         <DialogFooter>
           <Button type="button" variant="outline" @click="close">
-            Annuler
+            {{ $t("common.cancel") }}
           </Button>
           <Button type="submit" :disabled="isSubmitDisabled">
-            {{ isPending ? "Modification…" : "Modifier" }}
+            {{ isPending ? $t("taskDialog.editing") : $t("taskDialog.editAction") }}
           </Button>
         </DialogFooter>
       </form>

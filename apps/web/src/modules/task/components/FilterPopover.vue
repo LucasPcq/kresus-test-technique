@@ -61,20 +61,20 @@ const onValueSelect = (filter: ActiveFilter) => {
     <PopoverTrigger as-child>
       <Button variant="outline" size="sm" class="gap-1.5 border-dashed">
         <Plus class="size-4" />
-        Ajouter un filtre
+        {{ $t("filter.addFilter") }}
       </Button>
     </PopoverTrigger>
     <PopoverContent :class="[popoverWidth, 'p-0']" align="start">
       <Command v-if="step === 'field'">
         <CommandList>
-          <CommandGroup heading="Filtrer par">
+          <CommandGroup :heading="$t('filter.filterBy')">
             <CommandItem
               v-for="config in FILTER_FIELD_CONFIGS"
               :key="config.field"
               :value="config.field"
               @select="(ev: ListboxItemSelectEvent<AcceptableValue>) => onSelectField(config, ev)"
             >
-              {{ config.label }}
+              {{ $t(config.labelKey) }}
             </CommandItem>
           </CommandGroup>
         </CommandList>

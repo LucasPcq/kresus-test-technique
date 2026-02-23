@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { RouterLink } from "vue-router";
@@ -17,16 +18,18 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+const { t } = useI18n();
+
 const { handleSubmit, meta } = useForm({ validationSchema: toTypedSchema(loginSchema) });
 const { mutate, isPending, error } = useLogin();
 
 const errorMessage = computed(() => {
   if (!error.value) return null;
   if (error.value instanceof ApiError) {
-    if (error.value.status === 401) return "Identifiants incorrects";
-    if (error.value.status === 409) return "Cet email est déjà utilisé";
+    if (error.value.status === 401) return t("auth.invalidCredentials");
+    if (error.value.status === 409) return t("auth.emailAlreadyUsed");
   }
-  return "Une erreur est survenue";
+  return t("common.error");
 });
 
 const onSubmit = handleSubmit((values) => {
@@ -38,15 +41,15 @@ const onSubmit = handleSubmit((values) => {
   <AuthLayout>
     <Card>
       <CardHeader>
-        <CardTitle class="text-2xl">Connexion</CardTitle>
+        <CardTitle class="text-2xl">{{ $t("auth.login") }}</CardTitle>
       </CardHeader>
       <CardContent>
         <form class="space-y-4" @submit="onSubmit">
           <FormField v-slot="{ componentField }" name="email">
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{{ $t("auth.email") }}</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="vous@exemple.com" v-bind="componentField" />
+                <Input type="email" :placeholder="$t('auth.emailPlaceholder')" v-bind="componentField" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -54,9 +57,9 @@ const onSubmit = handleSubmit((values) => {
 
           <FormField v-slot="{ componentField }" name="password">
             <FormItem>
-              <FormLabel>Mot de passe</FormLabel>
+              <FormLabel>{{ $t("auth.password") }}</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" v-bind="componentField" />
+                <Input type="password" :placeholder="$t('auth.passwordPlaceholder')" v-bind="componentField" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -65,13 +68,13 @@ const onSubmit = handleSubmit((values) => {
           <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
 
           <Button type="submit" class="w-full" :disabled="!meta.valid || !meta.dirty || isPending">
-            {{ isPending ? "Connexion..." : "Se connecter" }}
+            {{ isPending ? $t("auth.loginPending") : $t("auth.loginAction") }}
           </Button>
         </form>
       </CardContent>
       <CardFooter class="justify-center text-sm text-muted-foreground">
-        Pas encore de compte ?&nbsp;
-        <RouterLink to="/register" class="text-primary hover:underline">S'inscrire</RouterLink>
+        {{ $t("auth.noAccountYet") }}&nbsp;
+        <RouterLink to="/register" class="text-primary hover:underline">{{ $t("auth.registerAction") }}</RouterLink>
       </CardFooter>
     </Card>
   </AuthLayout>

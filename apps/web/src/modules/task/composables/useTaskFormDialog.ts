@@ -1,4 +1,5 @@
 import { type Ref, computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
@@ -23,6 +24,7 @@ export const useTaskFormDialog = ({
   error: Ref<Error | null>;
   isPending: Ref<boolean>;
 }) => {
+  const { t } = useI18n();
   const { handleSubmit, resetForm, setFieldValue, meta, values } = useForm({
     validationSchema: formSchema,
     initialValues,
@@ -39,8 +41,8 @@ export const useTaskFormDialog = ({
   const errorMessage = computed(() => {
     if (!error.value) return null;
     if (error.value instanceof ApiError && error.value.status === 400)
-      return "Données invalides. Vérifiez les champs du formulaire.";
-    return "Une erreur est survenue. Veuillez réessayer.";
+      return t("taskDialog.invalidData");
+    return t("taskDialog.genericError");
   });
 
   const isSubmitDisabled = computed(

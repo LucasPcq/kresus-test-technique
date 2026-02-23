@@ -1,46 +1,50 @@
 import { z } from "zod";
 
-const frenchErrorMap: z.core.$ZodErrorMap = (issue) => {
-  switch (issue.code) {
-    case "too_small":
-      if (issue.origin === "string") {
-        if (issue.minimum === 1) return "Ce champ est requis";
-        return `Minimum ${issue.minimum} caractères`;
-      }
-      if (issue.origin === "number") {
-        return `La valeur doit être au moins ${issue.minimum}`;
-      }
-      if (issue.origin === "array") {
-        return `Au moins ${issue.minimum} élément${Number(issue.minimum) > 1 ? "s" : ""} requis`;
-      }
-      break;
+type TranslateFunction = (key: string, named?: Record<string, unknown>, pluralCount?: number) => string;
 
-    case "too_big":
-      if (issue.origin === "string") {
-        return `Maximum ${issue.maximum} caractères`;
-      }
-      if (issue.origin === "number") {
-        return `La valeur doit être au plus ${issue.maximum}`;
-      }
-      break;
+const buildZodErrorMap = (t: TranslateFunction): z.core.$ZodErrorMap => {
+  return (issue) => {
+    switch (issue.code) {
+      case "too_small":
+        if (issue.origin === "string") {
+          if (issue.minimum === 1) return t("zod.required");
+          return t("zod.minChars", { min: issue.minimum });
+        }
+        if (issue.origin === "number") {
+          return t("zod.minNumber", { min: issue.minimum });
+        }
+        if (issue.origin === "array") {
+          return t("zod.minArray", { min: issue.minimum }, Number(issue.minimum));
+        }
+        break;
 
-    case "invalid_type":
-      return "Ce champ est requis";
+      case "too_big":
+        if (issue.origin === "string") {
+          return t("zod.maxChars", { max: issue.maximum });
+        }
+        if (issue.origin === "number") {
+          return t("zod.maxNumber", { max: issue.maximum });
+        }
+        break;
 
-    case "invalid_format":
-      if (issue.format === "email") return "Adresse email invalide";
-      if (issue.format === "url") return "URL invalide";
-      if (issue.format === "datetime") return "Date invalide";
-      return "Format invalide";
+      case "invalid_type":
+        return t("zod.required");
 
-    case "invalid_value":
-      return "Valeur invalide";
+      case "invalid_format":
+        if (issue.format === "email") return t("zod.invalidEmail");
+        if (issue.format === "url") return t("zod.invalidUrl");
+        if (issue.format === "datetime") return t("zod.invalidDate");
+        return t("zod.invalidFormat");
 
-    case "custom":
-      return issue.message;
-  }
+      case "invalid_value":
+        return t("zod.invalidValue");
+
+      case "custom":
+        return issue.message;
+    }
+  };
 };
 
-export const setFrenchZodErrorMap = () => {
-  z.config({ customError: frenchErrorMap });
+export const setZodErrorMap = (t: TranslateFunction) => {
+  z.config({ customError: buildZodErrorMap(t) });
 };

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { CalendarDays, CheckCircle2, Circle } from "lucide-vue-next";
 
 import type { TaskResponse } from "@kresus/contract";
@@ -28,6 +29,8 @@ const emit = defineEmits<{
   "toggle-complete": [id: string, completed: boolean];
 }>();
 
+const { t, locale } = useI18n();
+
 const isEditOpen = ref(false);
 
 const priorityConfig = computed(() => PRIORITY_CONFIG[props.task.priority]);
@@ -36,7 +39,7 @@ const isCompleted = computed(() => !!props.task.completedAt);
 
 const formattedDate = computed(() => {
   if (!props.task.executionDate) return null;
-  return formatDateShort(new Date(props.task.executionDate));
+  return formatDateShort(new Date(props.task.executionDate), locale.value);
 });
 </script>
 
@@ -66,7 +69,7 @@ const formattedDate = computed(() => {
           v-else
           type="button"
           class="shrink-0 cursor-pointer"
-          :aria-label="isCompleted ? 'Marquer comme non complétée' : 'Marquer comme complétée'"
+          :aria-label="isCompleted ? t('task.markIncomplete') : t('task.markComplete')"
           @click.stop="emit('toggle-complete', task.id, !isCompleted)"
         >
           <component
@@ -79,7 +82,7 @@ const formattedDate = computed(() => {
         </button>
         <CardTitle class="text-base truncate">{{ task.title }}</CardTitle>
       </div>
-      <Badge :variant="priorityConfig.variant">{{ priorityConfig.label }}</Badge>
+      <Badge :variant="priorityConfig.variant">{{ $t(priorityConfig.labelKey) }}</Badge>
     </CardHeader>
     <CardContent>
       <p class="text-sm text-muted-foreground">{{ task.content }}</p>

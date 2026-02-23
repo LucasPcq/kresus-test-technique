@@ -3,8 +3,6 @@ import { ref } from "vue";
 
 import { Trash2 } from "lucide-vue-next";
 
-import { pluralize } from "@/lib/utils";
-
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -42,11 +40,11 @@ const isAlertOpen = ref(false);
       class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg"
     >
       <span class="text-sm font-medium">
-        {{ selectedCount }} {{ pluralize(selectedCount, "tâche") }} {{ pluralize(selectedCount, "sélectionnée") }}
+        {{ $t("taskDelete.selected", { count: selectedCount }, selectedCount) }}
       </span>
       <Button variant="destructive" size="sm" @click="isAlertOpen = true">
         <Trash2 class="size-4" />
-        Supprimer
+        {{ $t("common.delete") }}
       </Button>
     </div>
   </Transition>
@@ -54,19 +52,19 @@ const isAlertOpen = ref(false);
   <AlertDialog v-if="isAlertOpen" v-model:open="isAlertOpen">
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Supprimer les tâches</AlertDialogTitle>
+        <AlertDialogTitle>{{ $t("taskDelete.batchTitle") }}</AlertDialogTitle>
         <AlertDialogDescription>
-          Êtes-vous sûr de vouloir supprimer {{ selectedCount }} {{ pluralize(selectedCount, "tâche") }} ? Cette action est irréversible.
+          {{ $t("taskDelete.batchDescription", { count: selectedCount }, selectedCount) }}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Annuler</AlertDialogCancel>
+        <AlertDialogCancel>{{ $t("common.cancel") }}</AlertDialogCancel>
         <AlertDialogAction
           :class="buttonVariants({ variant: 'destructive' })"
           :disabled="isDeleting"
           @click="emit('delete')"
         >
-          {{ isDeleting ? "Suppression…" : "Supprimer" }}
+          {{ isDeleting ? $t("common.deleting") : $t("common.delete") }}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

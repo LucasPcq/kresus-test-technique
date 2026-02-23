@@ -1,13 +1,13 @@
 import { CalendarDate } from "@internationalized/date";
 
-const shortDateFormatter = new Intl.DateTimeFormat("fr-FR", {
+const SHORT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "numeric",
   month: "short",
   year: "numeric",
-});
+};
 
-export function formatDateShort(date: Date): string {
-  return shortDateFormatter.format(date);
+export function formatDateShort(date: Date, locale = "fr-FR"): string {
+  return new Intl.DateTimeFormat(locale, SHORT_DATE_OPTIONS).format(date);
 }
 
 export function parseLocalDate(iso: string): Date {

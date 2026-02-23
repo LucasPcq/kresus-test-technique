@@ -46,7 +46,7 @@ watchDebounced(localTitle, (v) => emit("update:titleSearch", v || undefined), {
       <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
       <Input
         v-model="localTitle"
-        placeholder="Rechercher une tâche…"
+        :placeholder="$t('task.search')"
         class="pl-9"
       />
     </div>
@@ -70,7 +70,7 @@ watchDebounced(localTitle, (v) => emit("update:titleSearch", v || undefined), {
         @click="emit('reset-filters')"
       >
         <RotateCcw class="size-4" />
-        Réinitialiser
+        {{ $t("common.reset") }}
       </Button>
     </div>
   </div>

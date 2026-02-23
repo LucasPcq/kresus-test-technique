@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { X } from "lucide-vue-next";
 
@@ -19,6 +20,8 @@ const emit = defineEmits<{
   remove: [];
   edit: [filter: ActiveFilter];
 }>();
+
+const { t, locale } = useI18n();
 
 const fieldConfig = computed(() => getFieldConfig(props.filter.field));
 
@@ -57,7 +60,7 @@ const onOperatorChange = (op: string) => {
         <button
           class="cursor-pointer rounded-md px-2.5 py-0.5 text-xs hover:bg-muted-foreground/20"
         >
-          {{ formatFilterLabel(filter) }}
+          {{ formatFilterLabel({ filter, t, locale }) }}
         </button>
       </PopoverTrigger>
       <button

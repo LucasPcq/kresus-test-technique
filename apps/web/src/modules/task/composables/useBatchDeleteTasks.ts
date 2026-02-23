@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
-
-import { pluralize } from "@/lib/utils";
 
 import { batchDeleteTasks } from "../api/task.api";
 
@@ -9,6 +8,7 @@ import { applyOptimisticUpdate, rollbackOptimisticUpdate } from "./taskCacheUtil
 
 export const useBatchDeleteTasks = () => {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   return useMutation({
     mutationFn: batchDeleteTasks,
@@ -33,9 +33,7 @@ export const useBatchDeleteTasks = () => {
       }
     },
     onSuccess: (_data, ids) => {
-      toast.success(
-        `${ids.length} ${pluralize(ids.length, "tâche")} ${pluralize(ids.length, "supprimée")}`,
-      );
+      toast.success(t("toast.batchDeleted", { count: ids.length }, ids.length));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });

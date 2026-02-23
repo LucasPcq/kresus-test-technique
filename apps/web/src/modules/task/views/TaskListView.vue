@@ -155,7 +155,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
             disabled
           >
             <Loader2 class="mr-2 size-4 animate-spin" />
-            Chargement…
+            {{ $t("common.loading") }}
           </Button>
         </div>
       </template>

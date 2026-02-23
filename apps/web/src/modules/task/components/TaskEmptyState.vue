@@ -14,22 +14,18 @@ const emit = defineEmits<{ "reset-filters": []; create: [] }>();
     />
     <div>
       <p class="text-lg font-medium">
-        {{ hasFilters ? "Aucun résultat" : "Aucune tâche" }}
+        {{ hasFilters ? $t("empty.noResults") : $t("empty.noTasks") }}
       </p>
       <p class="text-sm text-muted-foreground">
-        {{
-          hasFilters
-            ? "Aucune tâche ne correspond à vos filtres."
-            : "Vous n'avez pas encore de tâches."
-        }}
+        {{ hasFilters ? $t("empty.noResultsDescription") : $t("empty.noTasksDescription") }}
       </p>
     </div>
     <Button v-if="hasFilters" variant="outline" @click="emit('reset-filters')">
-      Réinitialiser les filtres
+      {{ $t("common.resetFilters") }}
     </Button>
     <Button v-else @click="emit('create')">
       <Plus class="size-4" />
-      Créer une tâche
+      {{ $t("task.createTask") }}
     </Button>
   </div>
 </template>

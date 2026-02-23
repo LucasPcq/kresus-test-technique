@@ -1,0 +1,143 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting\u2026",
+    "error": "An error occurred",
+    "resetFilters": "Reset filters",
+    "backToHome": "Back to home",
+    "loading": "Loading\u2026",
+    "reset": "Reset"
+  },
+  "auth": {
+    "login": "Login",
+    "loginAction": "Sign in",
+    "loginPending": "Signing in...",
+    "register": "Create an account",
+    "registerAction": "Sign up",
+    "registerPending": "Signing up...",
+    "email": "Email",
+    "emailPlaceholder": "you{'@'}example.com",
+    "password": "Password",
+    "passwordPlaceholder": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+    "noAccountYet": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "invalidCredentials": "Invalid credentials",
+    "emailAlreadyUsed": "This email is already in use",
+    "logout": "Sign out"
+  },
+  "task": {
+    "myTasks": "My tasks",
+    "createTask": "Create a task",
+    "select": "Select",
+    "sortBy": "Sort by",
+    "search": "Search for a task\u2026",
+    "count": "{count} task | {count} tasks",
+    "perPage": "{size} / page",
+    "markComplete": "Mark as complete",
+    "markIncomplete": "Mark as incomplete",
+    "actions": "Actions",
+    "edit": "Edit"
+  },
+  "taskDialog": {
+    "createTitle": "New task",
+    "createDescription": "Fill in the details to create a new task.",
+    "editTitle": "Edit task",
+    "editDescription": "Edit the task details.",
+    "create": "Create",
+    "creating": "Creating\u2026",
+    "editAction": "Save",
+    "editing": "Saving\u2026",
+    "invalidData": "Invalid data. Please check the form fields.",
+    "genericError": "An error occurred. Please try again."
+  },
+  "taskForm": {
+    "title": "Title",
+    "titlePlaceholder": "Task title",
+    "description": "Description",
+    "descriptionPlaceholder": "Task description",
+    "priority": "Priority",
+    "executionDate": "Due date",
+    "selectDate": "Select a date",
+    "completed": "Task completed"
+  },
+  "taskDelete": {
+    "title": "Delete task",
+    "description": "Are you sure you want to delete this task? This action cannot be undone.",
+    "batchTitle": "Delete tasks",
+    "batchDescription": "Are you sure you want to delete {count} task? This action cannot be undone. | Are you sure you want to delete {count} tasks? This action cannot be undone.",
+    "selected": "{count} task selected | {count} tasks selected"
+  },
+  "toast": {
+    "taskCreated": "Task created successfully",
+    "taskUpdated": "Task updated successfully",
+    "taskDeleted": "Task deleted successfully",
+    "batchDeleted": "{count} task deleted | {count} tasks deleted"
+  },
+  "priority": {
+    "HIGH": "High",
+    "MEDIUM": "Medium",
+    "LOW": "Low"
+  },
+  "sort": {
+    "createdAt": "Creation date",
+    "executionDate": "Due date",
+    "priority": "Priority"
+  },
+  "filter": {
+    "addFilter": "Add a filter",
+    "filterBy": "Filter by",
+    "completed": "Status",
+    "priority": "Priority",
+    "executionDate": "Due date",
+    "eq": "is",
+    "neq": "is not",
+    "between": "between",
+    "gte": "after",
+    "lte": "before",
+    "todo": "To do",
+    "done": "Done"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "System"
+  },
+  "pagination": {
+    "first": "First",
+    "previous": "Previous",
+    "next": "Next",
+    "last": "Last"
+  },
+  "empty": {
+    "noResults": "No results",
+    "noTasks": "No tasks",
+    "noResultsDescription": "No tasks match your filters.",
+    "noTasksDescription": "You don't have any tasks yet."
+  },
+  "error": {
+    "loadingTitle": "Loading error",
+    "loadingDescription": "Unable to load tasks. Check your filters or try again."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for doesn't exist."
+  },
+  "zod": {
+    "required": "This field is required",
+    "minChars": "Minimum {min} characters",
+    "maxChars": "Maximum {max} characters",
+    "minNumber": "Value must be at least {min}",
+    "maxNumber": "Value must be at most {max}",
+    "minArray": "At least {min} item required | At least {min} items required",
+    "invalidEmail": "Invalid email address",
+    "invalidUrl": "Invalid URL",
+    "invalidDate": "Invalid date",
+    "invalidFormat": "Invalid format",
+    "invalidValue": "Invalid value"
+  },
+  "locale": {
+    "fr": "Fran\u00e7ais",
+    "en": "English"
+  }
+}

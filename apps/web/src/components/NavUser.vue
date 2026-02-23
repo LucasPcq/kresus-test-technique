@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { ChevronsUpDown, LogOut, Moon, Monitor, Sun } from "lucide-vue-next";
+import { ChevronsUpDown, Languages, LogOut, Moon, Monitor, Sun } from "lucide-vue-next";
 
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { useLogout } from "@/modules/auth/composables/useAuth";
 import { useTheme } from "@/composables/useTheme";
+import { useLocale } from "@/composables/useLocale";
 
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import {
@@ -19,14 +20,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const { authenticatedUser } = useAuthStore();
 const { mutate: logout, isPending } = useLogout();
 const { mode, next: toggleTheme } = useTheme();
+const { currentLocaleLabel, toggleLocale } = useLocale();
 
 const emailInitial = computed(() => authenticatedUser.email.charAt(0).toUpperCase());
 
 const THEME_ICON = { light: Sun, dark: Moon, auto: Monitor } as const;
-const THEME_LABEL = { light: "Clair", dark: "Sombre", auto: "Système" } as const;
+const THEME_LABEL_KEY = { light: "theme.light", dark: "theme.dark", auto: "theme.auto" } as const;
 
 const themeIcon = computed(() => THEME_ICON[mode.value]);
-const themeLabel = computed(() => THEME_LABEL[mode.value]);
+const themeLabelKey = computed(() => THEME_LABEL_KEY[mode.value]);
 </script>
 
 <template>
@@ -49,12 +51,16 @@ const themeLabel = computed(() => THEME_LABEL[mode.value]);
         <DropdownMenuContent align="end" class="w-(--reka-popper-anchor-width) min-w-56">
           <DropdownMenuItem @click="toggleTheme">
             <component :is="themeIcon" class="size-4" />
-            {{ themeLabel }}
+            {{ $t(themeLabelKey) }}
+          </DropdownMenuItem>
+          <DropdownMenuItem @click="toggleLocale">
+            <Languages class="size-4" />
+            {{ currentLocaleLabel }}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem :disabled="isPending" @click="logout()">
             <LogOut class="size-4" />
-            Se déconnecter
+            {{ $t("auth.logout") }}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

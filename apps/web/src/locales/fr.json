@@ -1,0 +1,143 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "deleting": "Suppression\u2026",
+    "error": "Une erreur est survenue",
+    "resetFilters": "R\u00e9initialiser les filtres",
+    "backToHome": "Retour \u00e0 l'accueil",
+    "loading": "Chargement\u2026",
+    "reset": "R\u00e9initialiser"
+  },
+  "auth": {
+    "login": "Connexion",
+    "loginAction": "Se connecter",
+    "loginPending": "Connexion...",
+    "register": "Cr\u00e9er un compte",
+    "registerAction": "S'inscrire",
+    "registerPending": "Inscription...",
+    "email": "Email",
+    "emailPlaceholder": "vous{'@'}exemple.com",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+    "noAccountYet": "Pas encore de compte\u00a0?",
+    "alreadyHaveAccount": "D\u00e9j\u00e0 un compte\u00a0?",
+    "invalidCredentials": "Identifiants incorrects",
+    "emailAlreadyUsed": "Cet email est d\u00e9j\u00e0 utilis\u00e9",
+    "logout": "Se d\u00e9connecter"
+  },
+  "task": {
+    "myTasks": "Mes t\u00e2ches",
+    "createTask": "Cr\u00e9er une t\u00e2che",
+    "select": "S\u00e9lectionner",
+    "sortBy": "Trier par",
+    "search": "Rechercher une t\u00e2che\u2026",
+    "count": "{count} t\u00e2che | {count} t\u00e2ches",
+    "perPage": "{size} / page",
+    "markComplete": "Marquer comme compl\u00e9t\u00e9e",
+    "markIncomplete": "Marquer comme non compl\u00e9t\u00e9e",
+    "actions": "Actions",
+    "edit": "Modifier"
+  },
+  "taskDialog": {
+    "createTitle": "Nouvelle t\u00e2che",
+    "createDescription": "Remplissez les informations pour cr\u00e9er une nouvelle t\u00e2che.",
+    "editTitle": "Modifier la t\u00e2che",
+    "editDescription": "Modifiez les informations de la t\u00e2che.",
+    "create": "Cr\u00e9er",
+    "creating": "Cr\u00e9ation\u2026",
+    "editAction": "Modifier",
+    "editing": "Modification\u2026",
+    "invalidData": "Donn\u00e9es invalides. V\u00e9rifiez les champs du formulaire.",
+    "genericError": "Une erreur est survenue. Veuillez r\u00e9essayer."
+  },
+  "taskForm": {
+    "title": "Titre",
+    "titlePlaceholder": "Titre de la t\u00e2che",
+    "description": "Description",
+    "descriptionPlaceholder": "Description de la t\u00e2che",
+    "priority": "Priorit\u00e9",
+    "executionDate": "Date d'ex\u00e9cution",
+    "selectDate": "S\u00e9lectionner une date",
+    "completed": "T\u00e2che compl\u00e9t\u00e9e"
+  },
+  "taskDelete": {
+    "title": "Supprimer la t\u00e2che",
+    "description": "\u00cates-vous s\u00fbr de vouloir supprimer cette t\u00e2che\u00a0? Cette action est irr\u00e9versible.",
+    "batchTitle": "Supprimer les t\u00e2ches",
+    "batchDescription": "\u00cates-vous s\u00fbr de vouloir supprimer {count} t\u00e2che\u00a0? Cette action est irr\u00e9versible. | \u00cates-vous s\u00fbr de vouloir supprimer {count} t\u00e2ches\u00a0? Cette action est irr\u00e9versible.",
+    "selected": "{count} t\u00e2che s\u00e9lectionn\u00e9e | {count} t\u00e2ches s\u00e9lectionn\u00e9es"
+  },
+  "toast": {
+    "taskCreated": "T\u00e2che cr\u00e9\u00e9e avec succ\u00e8s",
+    "taskUpdated": "T\u00e2che modifi\u00e9e avec succ\u00e8s",
+    "taskDeleted": "T\u00e2che supprim\u00e9e avec succ\u00e8s",
+    "batchDeleted": "{count} t\u00e2che supprim\u00e9e | {count} t\u00e2ches supprim\u00e9es"
+  },
+  "priority": {
+    "HIGH": "Haute",
+    "MEDIUM": "Moyenne",
+    "LOW": "Basse"
+  },
+  "sort": {
+    "createdAt": "Date de cr\u00e9ation",
+    "executionDate": "Date d'ex\u00e9cution",
+    "priority": "Priorit\u00e9"
+  },
+  "filter": {
+    "addFilter": "Ajouter un filtre",
+    "filterBy": "Filtrer par",
+    "completed": "Statut",
+    "priority": "Priorit\u00e9",
+    "executionDate": "Date d'ex\u00e9cution",
+    "eq": "est",
+    "neq": "n'est pas",
+    "between": "entre",
+    "gte": "apr\u00e8s le",
+    "lte": "avant le",
+    "todo": "\u00c0 faire",
+    "done": "Termin\u00e9es"
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "auto": "Syst\u00e8me"
+  },
+  "pagination": {
+    "first": "D\u00e9but",
+    "previous": "Pr\u00e9c\u00e9dent",
+    "next": "Suivant",
+    "last": "Fin"
+  },
+  "empty": {
+    "noResults": "Aucun r\u00e9sultat",
+    "noTasks": "Aucune t\u00e2che",
+    "noResultsDescription": "Aucune t\u00e2che ne correspond \u00e0 vos filtres.",
+    "noTasksDescription": "Vous n'avez pas encore de t\u00e2ches."
+  },
+  "error": {
+    "loadingTitle": "Erreur de chargement",
+    "loadingDescription": "Impossible de r\u00e9cup\u00e9rer les t\u00e2ches. V\u00e9rifiez vos filtres ou r\u00e9essayez."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous cherchez n'existe pas."
+  },
+  "zod": {
+    "required": "Ce champ est requis",
+    "minChars": "Minimum {min} caract\u00e8res",
+    "maxChars": "Maximum {max} caract\u00e8res",
+    "minNumber": "La valeur doit \u00eatre au moins {min}",
+    "maxNumber": "La valeur doit \u00eatre au plus {max}",
+    "minArray": "Au moins {min} \u00e9l\u00e9ment requis | Au moins {min} \u00e9l\u00e9ments requis",
+    "invalidEmail": "Adresse email invalide",
+    "invalidUrl": "URL invalide",
+    "invalidDate": "Date invalide",
+    "invalidFormat": "Format invalide",
+    "invalidValue": "Valeur invalide"
+  },
+  "locale": {
+    "fr": "Fran\u00e7ais",
+    "en": "English"
+  }
+}
