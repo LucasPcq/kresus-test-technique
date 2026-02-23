@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Request, Response } from "express";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
@@ -16,7 +16,7 @@ const mockCookieService = {
   clearTokens: vi.fn(),
 };
 
-const mockRes = {} as Response;
+const mockRes = {} as unknown as FastifyReply;
 
 describe("AuthController", () => {
   let controller: AuthController;
@@ -83,7 +83,7 @@ describe("AuthController", () => {
 
   describe("me", () => {
     it("returns user info from JWT payload", () => {
-      const req = { user: { sub: "1", email: "test@example.com" } } as unknown as Request;
+      const req = { user: { sub: "1", email: "test@example.com" } } as unknown as FastifyRequest;
       expect(controller.me(req)).toEqual({ id: "1", email: "test@example.com" });
     });
   });
@@ -104,7 +104,7 @@ describe("AuthController", () => {
         user: { id: "1", email: "test@example.com" },
       });
 
-      const req = { user: payload } as unknown as Request;
+      const req = { user: payload } as unknown as FastifyRequest;
       await controller.refresh(req, mockRes);
 
       expect(mockAuthService.refresh).toHaveBeenCalledWith(payload);

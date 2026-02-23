@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import type { Response } from "express";
+import type { FastifyReply } from "fastify";
 import ms from "ms";
 
 const COOKIE_NAME = "access_token";
@@ -12,32 +12,32 @@ const SESSION_COOKIE_NAME = "session";
 export class CookieService {
   constructor(private readonly configService: ConfigService) {}
 
-  setTokens(res: Response, { token, refreshToken }: { token: string; refreshToken: string }): void {
+  setTokens(res: FastifyReply, { token, refreshToken }: { token: string; refreshToken: string }): void {
     const isProduction = this.configService.get("NODE_ENV") === "production";
 
-    res.cookie(COOKIE_NAME, token, {
+    res.setCookie(COOKIE_NAME, token, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "strict",
-      maxAge: ms(this.configService.getOrThrow<string>("JWT_EXPIRES_IN") as ms.StringValue),
+      maxAge: Math.floor(ms(this.configService.getOrThrow<string>("JWT_EXPIRES_IN") as ms.StringValue) / 1000),
       path: "/",
     });
 
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
+    res.setCookie(REFRESH_COOKIE_NAME, refreshToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "strict",
-      maxAge: ms(this.configService.getOrThrow<string>("JWT_REFRESH_EXPIRES_IN") as ms.StringValue),
+      maxAge: Math.floor(ms(this.configService.getOrThrow<string>("JWT_REFRESH_EXPIRES_IN") as ms.StringValue) / 1000),
       path: "/",
     });
 
-    res.cookie(SESSION_COOKIE_NAME, "1", {
+    res.setCookie(SESSION_COOKIE_NAME, "1", {
       sameSite: "strict",
       path: "/",
     });
   }
 
-  clearTokens(res: Response): void {
+  clearTokens(res: FastifyReply): void {
     res.clearCookie(COOKIE_NAME, { path: "/" });
     res.clearCookie(REFRESH_COOKIE_NAME, { path: "/" });
     res.clearCookie(SESSION_COOKIE_NAME, { path: "/" });

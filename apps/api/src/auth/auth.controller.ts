@@ -21,7 +21,7 @@ import {
 } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
 
-import type { Request, Response } from "express";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 import {
   type AuthUserResponse,
@@ -60,7 +60,7 @@ export class AuthController {
   @ApiConflictResponse({ description: "Email déjà utilisé" })
   async register(
     @Body(new ZodValidationPipe(registerSchema)) dto: RegisterDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     const { token, refreshToken, user } = await this.authService.register(dto);
     this.cookieService.setTokens(res, { token, refreshToken });
@@ -79,7 +79,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: "Identifiants incorrects" })
   async login(
     @Body(new ZodValidationPipe(loginSchema)) dto: LoginDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     const { token, refreshToken, user } = await this.authService.login(dto);
     this.cookieService.setTokens(res, { token, refreshToken });
@@ -92,7 +92,7 @@ export class AuthController {
     schema: toSwaggerSchema(authUserResponseSchema),
   })
   @ApiUnauthorizedResponse({ description: "Non authentifié" })
-  me(@Req() req: Request): AuthUserResponse {
+  me(@Req() req: FastifyRequest): AuthUserResponse {
     const payload = req.user as JwtPayload;
     return { id: payload.sub, email: payload.email };
   }
@@ -100,7 +100,7 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: "Déconnexion réussie" })
-  logout(@Res({ passthrough: true }) res: Response): void {
+  logout(@Res({ passthrough: true }) res: FastifyReply): void {
     this.cookieService.clearTokens(res);
   }
 
@@ -110,7 +110,7 @@ export class AuthController {
   @UseGuards(AuthGuard("jwt-refresh"))
   @ApiNoContentResponse({ description: "Tokens rafraîchis" })
   @ApiUnauthorizedResponse({ description: "Refresh token invalide" })
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+  async refresh(@Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {
     const result = await this.authService.refresh(req.user as JwtPayload);
     this.cookieService.setTokens(res, { token: result.token, refreshToken: result.refreshToken });
   }

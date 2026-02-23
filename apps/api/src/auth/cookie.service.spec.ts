@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Response } from "express";
+import type { FastifyReply } from "fastify";
 import { ConfigService } from "@nestjs/config";
 
 import { CookieService } from "./cookie.service";
@@ -12,10 +12,12 @@ const mockConfigService = {
   }),
 };
 
+const mockSetCookie = vi.fn();
+const mockClearCookie = vi.fn();
 const mockRes = {
-  cookie: vi.fn(),
-  clearCookie: vi.fn(),
-} as unknown as Response;
+  setCookie: mockSetCookie,
+  clearCookie: mockClearCookie,
+} as unknown as FastifyReply;
 
 describe("CookieService", () => {
   let service: CookieService;
@@ -29,17 +31,17 @@ describe("CookieService", () => {
     it("sets access_token, refresh_token and session cookies", () => {
       service.setTokens(mockRes, { token: "jwt_token", refreshToken: "refresh_token" });
 
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(mockSetCookie).toHaveBeenCalledWith(
         "access_token",
         "jwt_token",
         expect.objectContaining({ httpOnly: true, sameSite: "strict", path: "/" }),
       );
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(mockSetCookie).toHaveBeenCalledWith(
         "refresh_token",
         "refresh_token",
         expect.objectContaining({ httpOnly: true, sameSite: "strict", path: "/" }),
       );
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(mockSetCookie).toHaveBeenCalledWith(
         "session",
         "1",
         expect.objectContaining({ sameSite: "strict", path: "/" }),
@@ -51,12 +53,12 @@ describe("CookieService", () => {
 
       service.setTokens(mockRes, { token: "jwt_token", refreshToken: "refresh_token" });
 
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(mockSetCookie).toHaveBeenCalledWith(
         "access_token",
         "jwt_token",
         expect.objectContaining({ secure: true }),
       );
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(mockSetCookie).toHaveBeenCalledWith(
         "refresh_token",
         "refresh_token",
         expect.objectContaining({ secure: true }),
@@ -68,9 +70,9 @@ describe("CookieService", () => {
     it("clears all auth cookies", () => {
       service.clearTokens(mockRes);
 
-      expect(mockRes.clearCookie).toHaveBeenCalledWith("access_token", { path: "/" });
-      expect(mockRes.clearCookie).toHaveBeenCalledWith("refresh_token", { path: "/" });
-      expect(mockRes.clearCookie).toHaveBeenCalledWith("session", { path: "/" });
+      expect(mockClearCookie).toHaveBeenCalledWith("access_token", { path: "/" });
+      expect(mockClearCookie).toHaveBeenCalledWith("refresh_token", { path: "/" });
+      expect(mockClearCookie).toHaveBeenCalledWith("session", { path: "/" });
     });
   });
 });
