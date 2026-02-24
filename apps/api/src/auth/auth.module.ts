@@ -15,6 +15,7 @@ import { RefreshTokenRepository } from "./refresh-token.repository";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { JwtStrategy } from "./jwt.strategy";
 import { RefreshJwtStrategy } from "./refresh-jwt.strategy";
+import { TokenCleanupService } from "./token-cleanup.service";
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { RefreshJwtStrategy } from "./refresh-jwt.strategy";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, CookieService, RefreshTokenRepository, JwtStrategy, RefreshJwtStrategy, JwtAuthGuard],
+  providers: [AuthService, CookieService, RefreshTokenRepository, JwtStrategy, RefreshJwtStrategy, JwtAuthGuard, TokenCleanupService],
   exports: [JwtAuthGuard],
 })
 export class AuthModule {}

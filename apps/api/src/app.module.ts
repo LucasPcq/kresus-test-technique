@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
+import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule } from "@nestjs/throttler";
 
 import { PrismaModule } from "./prisma/prisma.module";
@@ -19,6 +20,7 @@ import { TaskModule } from "./task/task.module";
   imports: [
     ConfigModule,
     PrismaModule,
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     UserModule,
     AuthModule,
