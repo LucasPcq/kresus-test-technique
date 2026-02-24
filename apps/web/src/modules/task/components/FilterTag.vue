@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
+import { priorityFilterOps } from "@kresus/contract";
+
 import { X } from "lucide-vue-next";
 
 import type { ActiveFilter } from "../task.filter-config";
@@ -27,31 +29,22 @@ const popoverWidth = computed(() => (showsCalendar.value ? "w-auto" : "w-56"));
 
 const isOpen = ref(false);
 
-const onOpenChange = (open: boolean) => {
-  isOpen.value = open;
-};
-
 const onValueSelect = (filter: ActiveFilter) => {
   emit("edit", filter);
   isOpen.value = false;
 };
 
-const onOperatorChange = (op: string) => {
-  if (fieldConfig.value?.valueType !== "select") return;
+const isPriorityOperator = (value: string): value is (typeof priorityFilterOps)[number] =>
+  (priorityFilterOps as readonly string[]).includes(value);
 
-  switch (props.filter.field) {
-    case "completed":
-      emit("edit", { ...props.filter });
-      break;
-    case "priority":
-      emit("edit", { ...props.filter, operator: op as "eq" | "neq" });
-      break;
-  }
+const onOperatorChange = (op: string) => {
+  if (props.filter.field !== "priority" || !isPriorityOperator(op)) return;
+  emit("edit", { ...props.filter, operator: op });
 };
 </script>
 
 <template>
-  <Popover :open="isOpen" @update:open="onOpenChange">
+  <Popover v-model:open="isOpen">
     <Badge variant="secondary" class="gap-1.5 rounded-md py-1 pl-0 pr-1">
       <PopoverTrigger as-child>
         <button
