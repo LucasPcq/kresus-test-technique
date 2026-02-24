@@ -378,4 +378,58 @@ describe("TaskService", () => {
       expect(result).toEqual({ count: 2 });
     });
   });
+
+  describe("cross-user authorization", () => {
+    const ownerUserId = "550e8400-e29b-41d4-a716-446655440001";
+    const otherUserId = "550e8400-e29b-41d4-a716-446655440002";
+    const taskId = "550e8400-e29b-41d4-a716-446655440101";
+    const prismaNotFound = new Prisma.PrismaClientKnownRequestError("Record not found", {
+      code: "P2025",
+      clientVersion: "5.0.0",
+    });
+
+    it("should throw NotFoundException when updating another user's task", async () => {
+      mockTaskRepository.update.mockRejectedValue(prismaNotFound);
+
+      await expect(service.update(taskId, { title: "Hacked" }, otherUserId)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockTaskRepository.update).toHaveBeenCalledWith(
+        { id: taskId, userId: otherUserId },
+        { title: "Hacked" },
+      );
+    });
+
+    it("should throw NotFoundException when deleting another user's task", async () => {
+      mockTaskRepository.delete.mockRejectedValue(prismaNotFound);
+
+      await expect(service.delete(taskId, otherUserId)).rejects.toThrow(NotFoundException);
+      expect(mockTaskRepository.delete).toHaveBeenCalledWith({ id: taskId, userId: otherUserId });
+    });
+
+    it("should throw NotFoundException when batch deleting another user's tasks", async () => {
+      mockTaskRepository.transaction.mockImplementation((fn: (tx: unknown) => unknown) =>
+        fn("mock-tx"),
+      );
+      mockTaskRepository.deleteMany.mockResolvedValue({ count: 0 });
+
+      await expect(
+        service.batchDelete([taskId, "550e8400-e29b-41d4-a716-446655440102"], otherUserId),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("should scope findAll to the requesting user's userId", async () => {
+      await service.findAll(
+        { page: 1, pageSize: 10 as const, sort: "-createdAt" as const },
+        ownerUserId,
+      );
+
+      expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ userId: ownerUserId }) }),
+      );
+      expect(mockTaskRepository.count).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: ownerUserId }),
+      );
+    });
+  });
 });
