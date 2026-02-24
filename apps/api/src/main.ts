@@ -34,16 +34,18 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ZodExceptionFilter());
 
-  const config = new DocumentBuilder()
-    .setTitle("Kresus API")
-    .setDescription(
-      "Authentification par cookies httpOnly. Appelez POST /auth/login pour vous authentifier, les cookies seront envoyés automatiquement sur les requêtes suivantes.",
-    )
-    .setVersion("1.0")
-    .build();
+  if (process.env.NODE_ENV !== "production") {
+    const config = new DocumentBuilder()
+      .setTitle("Kresus API")
+      .setDescription(
+        "Authentification par cookies httpOnly. Appelez POST /auth/login pour vous authentifier, les cookies seront envoyés automatiquement sur les requêtes suivantes.",
+      )
+      .setVersion("1.0")
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("api", app, document);
+  }
 
   await app.listen(env.PORT ?? 3000, "0.0.0.0");
 }
