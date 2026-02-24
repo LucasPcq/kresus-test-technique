@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { Loader2 } from "lucide-vue-next";
 
@@ -53,6 +53,7 @@ const {
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
+  refetch,
 } = useTaskList({ queryParams, paginationMode });
 
 const {
@@ -73,6 +74,10 @@ const {
   toggleSelect,
   resetSelection,
 } = useTaskSelection();
+
+watch(queryParams, () => {
+  resetSelection();
+});
 
 const onBatchDelete = () => {
   batchDeleteMutation([...selectedIds], { onSuccess: resetSelection });
@@ -116,6 +121,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         v-else-if="isError"
         class="h-full"
         :has-filters="hasActiveFilters"
+        @retry="refetch"
         @reset-filters="resetFilters"
       />
 

@@ -65,6 +65,11 @@ export const useTaskList = ({
     isClassic.value ? classicQuery.isError.value : infiniteQuery.isError.value,
   );
 
+  const refetch = () => {
+    if (isClassic.value) return classicQuery.refetch();
+    return infiniteQuery.refetch();
+  };
+
   return {
     tasks,
     total,
@@ -77,5 +82,6 @@ export const useTaskList = ({
     hasNextPage: infiniteQuery.hasNextPage,
     isFetchingNextPage: infiniteQuery.isFetchingNextPage,
     fetchNextPage: infiniteQuery.fetchNextPage,
+    refetch,
   };
 };

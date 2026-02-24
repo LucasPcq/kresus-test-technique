@@ -74,7 +74,7 @@ describe("TaskListView", () => {
     });
   });
 
-  it("should show error state when API returns 400", async () => {
+  it("should show error state with retry button when API returns 400", async () => {
     server.use(
       http.get(apiUrl("/tasks"), () => HttpResponse.json({ message: "Bad Request" }, { status: 400 })),
     );
@@ -83,6 +83,7 @@ describe("TaskListView", () => {
 
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("Erreur de chargement");
+      expect(wrapper.text()).toContain("Réessayer");
       expect(wrapper.text()).not.toContain("Aucune tâche");
     });
   });

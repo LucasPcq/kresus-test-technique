@@ -4,7 +4,7 @@ import { AlertTriangle } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 
 defineProps<{ hasFilters: boolean }>();
-const emit = defineEmits<{ "reset-filters": [] }>();
+const emit = defineEmits<{ "reset-filters": []; retry: [] }>();
 </script>
 
 <template>
@@ -16,8 +16,13 @@ const emit = defineEmits<{ "reset-filters": [] }>();
         Impossible de récupérer les tâches. Vérifiez vos filtres ou réessayez.
       </p>
     </div>
-    <Button v-if="hasFilters" variant="outline" @click="emit('reset-filters')">
-      Réinitialiser les filtres
-    </Button>
+    <div class="flex gap-2">
+      <Button variant="outline" @click="emit('retry')">
+        Réessayer
+      </Button>
+      <Button v-if="hasFilters" variant="outline" @click="emit('reset-filters')">
+        Réinitialiser les filtres
+      </Button>
+    </div>
   </div>
 </template>
