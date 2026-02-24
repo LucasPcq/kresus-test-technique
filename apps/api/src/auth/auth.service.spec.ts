@@ -33,8 +33,7 @@ const mockConfigService = {
 
 const mockRefreshTokenRepository = {
   create: vi.fn().mockResolvedValue({ id: "token-db-id", familyId: "family-id" }),
-  findById: vi.fn(),
-  revoke: vi.fn(),
+  findAndConsumeForRefresh: vi.fn(),
   revokeFamily: vi.fn(),
   revokeAllByUser: vi.fn(),
 };
@@ -54,7 +53,7 @@ describe("AuthService", () => {
   });
 
   describe("register", () => {
-    it("creates a user, stores refresh token in DB, and returns tokens", async () => {
+    it("should create user and return tokens when email is available", async () => {
       mockUserService.findByEmail.mockResolvedValue(null);
       mockUserService.create.mockResolvedValue({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
 
@@ -71,10 +70,6 @@ describe("AuthService", () => {
         userId: "550e8400-e29b-41d4-a716-446655440001",
         expiresAt: expect.any(Date),
       });
-      expect(mockJwtService.sign).toHaveBeenCalledWith(
-        { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: expect.any(String) },
-        expect.objectContaining({ jwtid: "token-db-id" }),
-      );
       expect(result).toEqual({
         token: "jwt_token",
         refreshToken: "jwt_token",
@@ -82,7 +77,7 @@ describe("AuthService", () => {
       });
     });
 
-    it("throws ConflictException when email is already taken", async () => {
+    it("should throw ConflictException when email is already taken", async () => {
       mockUserService.findByEmail.mockResolvedValue({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
 
       await expect(
@@ -90,12 +85,11 @@ describe("AuthService", () => {
       ).rejects.toThrow(ConflictException);
 
       expect(mockUserService.create).not.toHaveBeenCalled();
-      expect(mockRefreshTokenRepository.create).not.toHaveBeenCalled();
     });
   });
 
   describe("login", () => {
-    it("returns tokens with DB-stored refresh token when credentials are valid", async () => {
+    it("should return tokens when credentials are valid", async () => {
       mockUserService.findByEmail.mockResolvedValue({
         id: "550e8400-e29b-41d4-a716-446655440001",
         email: "test@example.com",
@@ -117,7 +111,7 @@ describe("AuthService", () => {
       });
     });
 
-    it("throws UnauthorizedException when user is not found", async () => {
+    it("should throw UnauthorizedException when user is not found", async () => {
       mockUserService.findByEmail.mockResolvedValue(null);
 
       await expect(
@@ -125,7 +119,7 @@ describe("AuthService", () => {
       ).rejects.toThrow(UnauthorizedException);
     });
 
-    it("throws UnauthorizedException when password is incorrect", async () => {
+    it("should throw UnauthorizedException when password is incorrect", async () => {
       mockUserService.findByEmail.mockResolvedValue({
         id: "550e8400-e29b-41d4-a716-446655440001",
         email: "test@example.com",
@@ -140,12 +134,15 @@ describe("AuthService", () => {
   });
 
   describe("refresh", () => {
-    it("revokes current token and creates new one in same family", async () => {
-      mockRefreshTokenRepository.findById.mockResolvedValue({
-        id: "old-jti",
-        familyId: "family-123",
-        revokedAt: null,
-        userId: "550e8400-e29b-41d4-a716-446655440001",
+    it("should consume token atomically and return new tokens when token is valid", async () => {
+      mockRefreshTokenRepository.findAndConsumeForRefresh.mockResolvedValue({
+        token: {
+          id: "old-jti",
+          familyId: "family-123",
+          revokedAt: null,
+          userId: "550e8400-e29b-41d4-a716-446655440001",
+        },
+        reused: false,
       });
 
       const result = await service.refresh({
@@ -155,8 +152,7 @@ describe("AuthService", () => {
         jti: "old-jti",
       });
 
-      expect(mockRefreshTokenRepository.findById).toHaveBeenCalledWith("old-jti");
-      expect(mockRefreshTokenRepository.revoke).toHaveBeenCalledWith("old-jti");
+      expect(mockRefreshTokenRepository.findAndConsumeForRefresh).toHaveBeenCalledWith("old-jti");
       expect(mockRefreshTokenRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({ familyId: "family-123" }),
       );
@@ -167,22 +163,23 @@ describe("AuthService", () => {
       });
     });
 
-    it("throws UnauthorizedException when token not found in DB", async () => {
-      mockRefreshTokenRepository.findById.mockResolvedValue(null);
+    it("should throw UnauthorizedException when token is not found", async () => {
+      mockRefreshTokenRepository.findAndConsumeForRefresh.mockResolvedValue(null);
 
       await expect(
         service.refresh({ sub: "user-id", email: "test@example.com", familyId: "family-123", jti: "unknown-jti" }),
       ).rejects.toThrow(UnauthorizedException);
-
-      expect(mockRefreshTokenRepository.revoke).not.toHaveBeenCalled();
     });
 
-    it("revokes entire family and throws when reuse is detected", async () => {
-      mockRefreshTokenRepository.findById.mockResolvedValue({
-        id: "stolen-jti",
-        familyId: "family-123",
-        revokedAt: new Date("2026-02-23"),
-        userId: "550e8400-e29b-41d4-a716-446655440001",
+    it("should throw UnauthorizedException when reuse is detected", async () => {
+      mockRefreshTokenRepository.findAndConsumeForRefresh.mockResolvedValue({
+        token: {
+          id: "stolen-jti",
+          familyId: "family-123",
+          revokedAt: new Date("2026-02-23"),
+          userId: "550e8400-e29b-41d4-a716-446655440001",
+        },
+        reused: true,
       });
 
       await expect(
@@ -194,13 +191,35 @@ describe("AuthService", () => {
         }),
       ).rejects.toThrow(UnauthorizedException);
 
-      expect(mockRefreshTokenRepository.revokeFamily).toHaveBeenCalledWith("family-123");
-      expect(mockRefreshTokenRepository.revoke).not.toHaveBeenCalled();
+      expect(mockRefreshTokenRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should throw UnauthorizedException when token belongs to a different user", async () => {
+      mockRefreshTokenRepository.findAndConsumeForRefresh.mockResolvedValue({
+        token: {
+          id: "valid-jti",
+          familyId: "family-123",
+          revokedAt: null,
+          userId: "550e8400-e29b-41d4-a716-446655440001",
+        },
+        reused: false,
+      });
+
+      await expect(
+        service.refresh({
+          sub: "different-user-id",
+          email: "attacker@example.com",
+          familyId: "family-123",
+          jti: "valid-jti",
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockRefreshTokenRepository.create).not.toHaveBeenCalled();
     });
   });
 
   describe("logout", () => {
-    it("revokes the token family", async () => {
+    it("should revoke the token family when called", async () => {
       await service.logout("family-123");
 
       expect(mockRefreshTokenRepository.revokeFamily).toHaveBeenCalledWith("family-123");

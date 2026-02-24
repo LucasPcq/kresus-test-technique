@@ -47,21 +47,16 @@ export class AuthService {
   }
 
   async refresh({ sub, email, jti }: RefreshJwtPayload): Promise<AuthResult> {
-    const storedToken = await this.refreshTokenRepository.findById(jti);
+    const result = await this.refreshTokenRepository.findAndConsumeForRefresh(jti);
 
-    if (!storedToken) throw new UnauthorizedException("Invalid refresh token");
-
-    if (storedToken.revokedAt) {
-      await this.refreshTokenRepository.revokeFamily(storedToken.familyId);
-      throw new UnauthorizedException("Refresh token reuse detected");
-    }
-
-    await this.refreshTokenRepository.revoke(jti);
+    if (!result) throw new UnauthorizedException("Invalid refresh token");
+    if (result.token.userId !== sub) throw new UnauthorizedException("Invalid refresh token");
+    if (result.reused) throw new UnauthorizedException("Refresh token reuse detected");
 
     const { token, refreshToken } = await this.generateTokens({
       sub,
       email,
-      familyId: storedToken.familyId,
+      familyId: result.token.familyId,
     });
 
     return { token, refreshToken, user: { id: sub, email } };

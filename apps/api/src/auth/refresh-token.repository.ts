@@ -37,6 +37,28 @@ export class RefreshTokenRepository {
     });
   }
 
+  findAndConsumeForRefresh(id: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const token = await tx.refreshToken.findUnique({ where: { id } });
+
+      if (!token) return null;
+
+      if (token.revokedAt) {
+        await tx.refreshToken.updateMany({
+          where: { familyId: token.familyId },
+          data: { revokedAt: new Date() },
+        });
+        return { token, reused: true } as const;
+      }
+
+      await tx.refreshToken.update({
+        where: { id },
+        data: { revokedAt: new Date() },
+      });
+      return { token, reused: false } as const;
+    });
+  }
+
   deleteExpired() {
     return this.prisma.refreshToken.deleteMany({
       where: { expiresAt: { lt: new Date() } },
