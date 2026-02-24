@@ -26,9 +26,11 @@ export const useDeleteTask = () => {
         rollbackOptimisticUpdate({ queryClient, snapshot: context.snapshot });
       }
     },
+    onSuccess: () => {
+      toast.success("Tâche supprimée avec succès");
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast.success("Tâche supprimée avec succès");
     },
   });
 };

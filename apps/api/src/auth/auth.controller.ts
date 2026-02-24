@@ -5,25 +5,26 @@ import {
 	HttpCode,
 	HttpStatus,
 	Post,
-	Req,
 	Res,
 	UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags } from "@nestjs/swagger";
 
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyReply } from "fastify";
 
 import {
 	type AuthUserResponse,
 	type JwtPayload,
 	type LoginDto,
+	type RefreshJwtPayload,
 	type RegisterDto,
 	loginSchema,
 	registerSchema,
 } from "@kresus/contract";
 
 import { Public } from "./public.decorator";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
 
 import { AuthService } from "./auth.service";
 import { CookieService } from "./cookie.service";
@@ -67,15 +68,15 @@ export class AuthController {
 
 	@Get("me")
 	@ApiMe()
-	me(@Req() req: FastifyRequest): AuthUserResponse {
-		const payload = req.user as JwtPayload;
-		return { id: payload.sub, email: payload.email };
+	me(@CurrentUser() user: JwtPayload): AuthUserResponse {
+		return { id: user.sub, email: user.email };
 	}
 
 	@Post("logout")
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiLogout()
-	logout(@Res({ passthrough: true }) res: FastifyReply): void {
+	async logout(@CurrentUser() user: JwtPayload, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {
+		await this.authService.logout(user.familyId);
 		this.cookieService.clearTokens(res);
 	}
 
@@ -84,8 +85,8 @@ export class AuthController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@UseGuards(AuthGuard("jwt-refresh"))
 	@ApiRefresh()
-	async refresh(@Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {
-		const result = await this.authService.refresh(req.user as JwtPayload);
+	async refresh(@CurrentUser() user: RefreshJwtPayload, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {
+		const result = await this.authService.refresh(user);
 		this.cookieService.setTokens(res, { token: result.token, refreshToken: result.refreshToken });
 	}
 }

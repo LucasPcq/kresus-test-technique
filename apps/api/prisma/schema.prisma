@@ -19,7 +19,8 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tasks     Task[]
+  tasks         Task[]
+  refreshTokens RefreshToken[]
 }
 
 model Task {
@@ -39,4 +40,18 @@ model Task {
   @@index([priority])
   @@index([executionDate])
   @@index([completedAt])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  familyId  String   @db.Uuid
+  revokedAt DateTime?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
 }

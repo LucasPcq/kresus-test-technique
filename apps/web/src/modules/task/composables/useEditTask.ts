@@ -40,9 +40,11 @@ export const useEditTask = () => {
         rollbackOptimisticUpdate({ queryClient, snapshot: context.snapshot });
       }
     },
+    onSuccess: () => {
+      toast.success("Tâche modifiée avec succès");
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast.success("Tâche modifiée avec succès");
     },
   });
 };

@@ -1,11 +1,14 @@
 import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { randomUUID } from "node:crypto";
+import ms from "ms";
 
-import { AuthResult, JwtPayload, type LoginDto, type RegisterDto } from "@kresus/contract";
+import { AuthResult, JwtPayload, type LoginDto, type RefreshJwtPayload, type RegisterDto } from "@kresus/contract";
 
 import { UserService } from "../user/user.service";
 import { comparePassword, hashPassword } from "../common/utils/bcrypt.utils";
+import { RefreshTokenRepository } from "./refresh-token.repository";
 
 @Injectable()
 export class AuthService {
@@ -13,6 +16,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
   async register({ email, password }: RegisterDto): Promise<AuthResult> {
@@ -23,8 +27,7 @@ export class AuthService {
     const hashedPassword = await hashPassword(password);
     const user = await this.userService.create({ email, password: hashedPassword });
 
-    const payload: JwtPayload = { sub: user.id, email: user.email };
-    const { token, refreshToken } = this.generateTokens(payload);
+    const { token, refreshToken } = await this.generateTokens({ sub: user.id, email: user.email });
 
     return { token, refreshToken, user: { id: user.id, email: user.email } };
   }
@@ -38,24 +41,62 @@ export class AuthService {
 
     if (!isPasswordValid) throw new UnauthorizedException("Invalid credentials");
 
-    const payload: JwtPayload = { sub: user.id, email: user.email };
-    const { token, refreshToken } = this.generateTokens(payload);
+    const { token, refreshToken } = await this.generateTokens({ sub: user.id, email: user.email });
 
     return { token, refreshToken, user: { id: user.id, email: user.email } };
   }
 
-  async refresh({ sub, email }: JwtPayload): Promise<AuthResult> {
-    const { token, refreshToken } = this.generateTokens({ sub, email });
+  async refresh({ sub, email, jti }: RefreshJwtPayload): Promise<AuthResult> {
+    const storedToken = await this.refreshTokenRepository.findById(jti);
+
+    if (!storedToken) throw new UnauthorizedException("Invalid refresh token");
+
+    if (storedToken.revokedAt) {
+      await this.refreshTokenRepository.revokeFamily(storedToken.familyId);
+      throw new UnauthorizedException("Refresh token reuse detected");
+    }
+
+    await this.refreshTokenRepository.revoke(jti);
+
+    const { token, refreshToken } = await this.generateTokens({
+      sub,
+      email,
+      familyId: storedToken.familyId,
+    });
+
     return { token, refreshToken, user: { id: sub, email } };
   }
 
-  private generateTokens(tokenPayload: JwtPayload): Pick<AuthResult, "token" | "refreshToken"> {
+  async logout(familyId: string): Promise<void> {
+    await this.refreshTokenRepository.revokeFamily(familyId);
+  }
+
+  private async generateTokens({
+    sub,
+    email,
+    familyId,
+  }: {
+    sub: string;
+    email: string;
+    familyId?: string;
+  }): Promise<Pick<AuthResult, "token" | "refreshToken">> {
     const refreshExpiresIn = this.configService.getOrThrow<string>("JWT_REFRESH_EXPIRES_IN");
+    const resolvedFamilyId = familyId ?? randomUUID();
+
+    const dbToken = await this.refreshTokenRepository.create({
+      familyId: resolvedFamilyId,
+      userId: sub,
+      expiresAt: new Date(Date.now() + ms(refreshExpiresIn as ms.StringValue)),
+    });
+
+    const tokenPayload: JwtPayload = { sub, email, familyId: resolvedFamilyId };
+
     return {
       token: this.jwtService.sign(tokenPayload),
       refreshToken: this.jwtService.sign(tokenPayload, {
         secret: this.configService.getOrThrow<string>("JWT_REFRESH_SECRET"),
         expiresIn: refreshExpiresIn as never,
+        jwtid: dbToken.id,
       }),
     };
   }

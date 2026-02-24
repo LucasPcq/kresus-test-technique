@@ -26,6 +26,8 @@ async function bootstrap() {
   app.enableCors({
     origin: configService.getOrThrow("CORS_ORIGIN"),
     credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    allowedHeaders: ["Content-Type"],
   });
 
   app.useGlobalFilters(new ZodExceptionFilter());

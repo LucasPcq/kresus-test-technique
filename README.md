@@ -75,3 +75,51 @@ apps/
 packages/
   contract/    Types, DTOs et schemas Zod partages
 ```
+
+## Architecture d'authentification
+
+L'authentification repose sur un systeme de **dual-token en cookies httpOnly** avec rotation des refresh tokens et detection de vol.
+
+### Flux d'authentification
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant API as API
+    participant DB as RefreshToken (DB)
+
+    Note over B,DB: Login
+    B->>API: POST /auth/login {email, password}
+    API->>DB: Creer RefreshToken (nouvelle famille)
+    API-->>B: Set-Cookie: access_token + refresh_token + session<br/>Body : {id, email}
+
+    Note over B,DB: Requete authentifiee
+    B->>API: GET /tasks (cookie access_token)
+    API->>API: JwtAuthGuard valide le token
+    API-->>B: 200 OK
+
+    Note over B,DB: Access token expire
+    B->>API: GET /tasks (cookie access_token expire)
+    API-->>B: 401 Unauthorized
+    B->>API: POST /auth/refresh (cookie refresh_token)
+    API->>DB: Lookup par jti — token valide ?
+    DB-->>API: OK, non revoque
+    API->>DB: Revoquer ancien token (revokedAt = now)
+    API->>DB: Creer nouveau token (meme familyId)
+    API-->>B: Set-Cookie: nouveaux access_token + refresh_token
+    B->>API: Retry GET /tasks (nouveau access_token)
+    API-->>B: 200 OK
+
+    Note over B,DB: Detection de vol (reuse)
+    B->>API: POST /auth/refresh (ancien token deja revoque)
+    API->>DB: Lookup par jti — token revoque !
+    API->>DB: Revoquer toute la famille
+    API-->>B: 401 Unauthorized
+```
+
+### Token families
+
+Chaque login cree une **famille de tokens** independante. Cela permet :
+- **Multi-appareils** : chaque appareil a sa propre famille, un logout sur l'un n'affecte pas l'autre
+- **Detection de vol** : si un token revoque est rejoue, toute la famille est invalidee
+- **Logout cible** : seule la famille de la session courante est revoquee
