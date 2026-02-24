@@ -6,6 +6,7 @@ import {
 	ApiCreatedResponse,
 	ApiNoContentResponse,
 	ApiOkResponse,
+	ApiTooManyRequestsResponse,
 	ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
@@ -22,6 +23,7 @@ export const ApiRegister = () =>
 		}),
 		ApiBadRequestResponse({ description: "Données invalides" }),
 		ApiConflictResponse({ description: "Email déjà utilisé" }),
+		ApiTooManyRequestsResponse({ description: "Trop de tentatives" }),
 	);
 
 export const ApiLogin = () =>
@@ -33,6 +35,7 @@ export const ApiLogin = () =>
 		}),
 		ApiBadRequestResponse({ description: "Données invalides" }),
 		ApiUnauthorizedResponse({ description: "Identifiants incorrects" }),
+		ApiTooManyRequestsResponse({ description: "Trop de tentatives" }),
 	);
 
 export const ApiMe = () =>
@@ -42,12 +45,18 @@ export const ApiMe = () =>
 			schema: toSwaggerSchema(authUserResponseSchema),
 		}),
 		ApiUnauthorizedResponse({ description: "Non authentifié" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
 	);
 
-export const ApiLogout = () => applyDecorators(ApiNoContentResponse({ description: "Déconnexion réussie" }));
+export const ApiLogout = () =>
+	applyDecorators(
+		ApiNoContentResponse({ description: "Déconnexion réussie" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
+	);
 
 export const ApiRefresh = () =>
 	applyDecorators(
 		ApiNoContentResponse({ description: "Tokens rafraîchis" }),
 		ApiUnauthorizedResponse({ description: "Refresh token invalide" }),
+		ApiTooManyRequestsResponse({ description: "Trop de tentatives" }),
 	);

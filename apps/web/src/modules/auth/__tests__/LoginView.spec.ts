@@ -98,6 +98,21 @@ describe("LoginView", () => {
       await vi.waitFor(() => expect(wrapper.text()).toContain("Identifiants incorrects"));
     });
 
+    it("should display rate limit message when the API returns 429", async () => {
+      server.use(
+        http.post(apiUrl("/auth/login"), () =>
+          HttpResponse.json({ message: "Too Many Requests" }, { status: 429 }),
+        ),
+      );
+
+      const { wrapper } = buildWrapper(LoginView);
+      await fillAndSubmitAuthForm(wrapper, { email: "test@example.com", password: "password123" });
+
+      await vi.waitFor(() =>
+        expect(wrapper.text()).toContain("Trop de tentatives. Veuillez réessayer dans quelques instants."),
+      );
+    });
+
     it("should display 'Une erreur est survenue' when the API returns an unexpected error", async () => {
       server.use(
         http.post(apiUrl("/auth/login"), () =>

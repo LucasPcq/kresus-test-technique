@@ -134,6 +134,22 @@ describe("TaskEditDialog", () => {
     });
   });
 
+  it("should show rate limit message when API returns 429", async () => {
+    server.use(
+      http.patch(apiUrl(`/tasks/${task.id}`), () =>
+        HttpResponse.json({ message: "Too Many Requests" }, { status: 429 }),
+      ),
+    );
+
+    await mountDialog();
+    await changeTitle("Titre modifié");
+    await submitForm();
+
+    await vi.waitFor(() => {
+      expect(document.body.textContent).toContain("Trop de requêtes");
+    });
+  });
+
   it("should enable submit button when checkbox is toggled", async () => {
     await mountDialog();
 

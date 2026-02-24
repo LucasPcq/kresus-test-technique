@@ -108,6 +108,21 @@ describe("RegisterView", () => {
       await vi.waitFor(() => expect(wrapper.text()).toContain("Cet email est déjà utilisé"));
     });
 
+    it("should display rate limit message when the API returns 429", async () => {
+      server.use(
+        http.post(apiUrl("/auth/register"), () =>
+          HttpResponse.json({ message: "Too Many Requests" }, { status: 429 }),
+        ),
+      );
+
+      const { wrapper } = buildWrapper(RegisterView);
+      await fillAndSubmitAuthForm(wrapper, { email: "new@example.com", password: "password123" });
+
+      await vi.waitFor(() =>
+        expect(wrapper.text()).toContain("Trop de tentatives. Veuillez réessayer dans quelques instants."),
+      );
+    });
+
     it("should display 'Une erreur est survenue' when the API returns an unexpected error", async () => {
       server.use(
         http.post(apiUrl("/auth/register"), () =>

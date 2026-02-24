@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import type { FastifyReply } from "fastify";
 
@@ -43,6 +44,7 @@ export class AuthController {
 
 	@Public()
 	@Post("register")
+	@Throttle({ default: { ttl: 60_000, limit: 5 } })
 	@ApiRegister()
 	async register(
 		@Body(new ZodValidationPipe(registerSchema)) dto: RegisterDto,
@@ -56,6 +58,7 @@ export class AuthController {
 	@Public()
 	@Post("login")
 	@HttpCode(HttpStatus.OK)
+	@Throttle({ default: { ttl: 60_000, limit: 5 } })
 	@ApiLogin()
 	async login(
 		@Body(new ZodValidationPipe(loginSchema)) dto: LoginDto,
@@ -83,6 +86,7 @@ export class AuthController {
 	@Public()
 	@Post("refresh")
 	@HttpCode(HttpStatus.NO_CONTENT)
+	@Throttle({ default: { ttl: 60_000, limit: 10 } })
 	@UseGuards(AuthGuard("jwt-refresh"))
 	@ApiRefresh()
 	async refresh(@CurrentUser() user: RefreshJwtPayload, @Res({ passthrough: true }) res: FastifyReply): Promise<void> {

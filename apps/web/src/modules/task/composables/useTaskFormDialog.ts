@@ -38,8 +38,12 @@ export const useTaskFormDialog = ({
 
   const errorMessage = computed(() => {
     if (!error.value) return null;
-    if (error.value instanceof ApiError && error.value.status === 400)
-      return "Données invalides. Vérifiez les champs du formulaire.";
+    if (error.value instanceof ApiError) {
+      if (error.value.status === 400)
+        return "Données invalides. Vérifiez les champs du formulaire.";
+      if (error.value.status === 429)
+        return "Trop de requêtes. Veuillez réessayer dans quelques instants.";
+    }
     return "Une erreur est survenue. Veuillez réessayer.";
   });
 

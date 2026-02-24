@@ -25,6 +25,7 @@ const errorMessage = computed(() => {
   if (error.value instanceof ApiError) {
     if (error.value.status === 401) return "Identifiants incorrects";
     if (error.value.status === 409) return "Cet email est déjà utilisé";
+    if (error.value.status === 429) return "Trop de tentatives. Veuillez réessayer dans quelques instants.";
   }
   return "Une erreur est survenue";
 });

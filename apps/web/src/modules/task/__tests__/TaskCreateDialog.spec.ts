@@ -159,6 +159,22 @@ describe("TaskCreateDialog", () => {
     });
   });
 
+  it("should show rate limit message when API returns 429", async () => {
+    server.use(
+      http.post(apiUrl("/tasks"), () =>
+        HttpResponse.json({ message: "Too Many Requests" }, { status: 429 }),
+      ),
+    );
+
+    await mountDialog();
+    await fillForm();
+    await submitForm();
+
+    await vi.waitFor(() => {
+      expect(document.body.textContent).toContain("Trop de requêtes");
+    });
+  });
+
   it("should show asterisks on required field labels when dialog is open", async () => {
     await mountDialog();
 

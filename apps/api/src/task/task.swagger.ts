@@ -8,6 +8,7 @@ import {
 	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiQuery,
+	ApiTooManyRequestsResponse,
 	ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
@@ -35,6 +36,7 @@ export const ApiFindAllTasks = () =>
 		ApiQuery({ name: "filter[executionDate][lte]", required: false, type: String, description: "Date d'exécution <= (ISO 8601)" }),
 		ApiOkResponse({ description: "Liste paginée des tâches" }),
 		ApiUnauthorizedResponse({ description: "Non authentifié" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
 	);
 
 export const ApiCreateTask = () =>
@@ -43,6 +45,7 @@ export const ApiCreateTask = () =>
 		ApiCreatedResponse({ description: "Tâche créée" }),
 		ApiBadRequestResponse({ description: "Données invalides" }),
 		ApiUnauthorizedResponse({ description: "Non authentifié" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
 	);
 
 export const ApiBatchDeleteTasks = () =>
@@ -53,6 +56,7 @@ export const ApiBatchDeleteTasks = () =>
 		ApiNotFoundResponse({ description: "Tâche(s) non trouvée(s)" }),
 		ApiForbiddenResponse({ description: "Accès interdit" }),
 		ApiUnauthorizedResponse({ description: "Non authentifié" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
 	);
 
 export const ApiUpdateTask = () =>
@@ -63,6 +67,7 @@ export const ApiUpdateTask = () =>
 		ApiNotFoundResponse({ description: "Tâche non trouvée" }),
 		ApiForbiddenResponse({ description: "Accès interdit" }),
 		ApiUnauthorizedResponse({ description: "Non authentifié" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
 	);
 
 export const ApiDeleteTask = () =>
@@ -71,4 +76,5 @@ export const ApiDeleteTask = () =>
 		ApiNotFoundResponse({ description: "Tâche non trouvée" }),
 		ApiForbiddenResponse({ description: "Accès interdit" }),
 		ApiUnauthorizedResponse({ description: "Non authentifié" }),
+		ApiTooManyRequestsResponse({ description: "Trop de requêtes" }),
 	);
