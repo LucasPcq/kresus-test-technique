@@ -19,21 +19,21 @@ export class RefreshTokenRepository {
   revoke(id: string) {
     return this.prisma.refreshToken.update({
       where: { id },
-      data: { revoked: true },
+      data: { revokedAt: new Date() },
     });
   }
 
   revokeFamily(familyId: string) {
     return this.prisma.refreshToken.updateMany({
       where: { familyId },
-      data: { revoked: true },
+      data: { revokedAt: new Date() },
     });
   }
 
   revokeAllByUser(userId: string) {
     return this.prisma.refreshToken.updateMany({
       where: { userId },
-      data: { revoked: true },
+      data: { revokedAt: new Date() },
     });
   }
 

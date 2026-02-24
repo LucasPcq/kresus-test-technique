@@ -144,7 +144,7 @@ describe("AuthService", () => {
       mockRefreshTokenRepository.findById.mockResolvedValue({
         id: "old-jti",
         familyId: "family-123",
-        revoked: false,
+        revokedAt: null,
         userId: "550e8400-e29b-41d4-a716-446655440001",
       });
 
@@ -180,7 +180,7 @@ describe("AuthService", () => {
       mockRefreshTokenRepository.findById.mockResolvedValue({
         id: "stolen-jti",
         familyId: "family-123",
-        revoked: true,
+        revokedAt: new Date("2026-02-23"),
         userId: "550e8400-e29b-41d4-a716-446655440001",
       });
 

@@ -51,7 +51,7 @@ export class AuthService {
 
     if (!storedToken) throw new UnauthorizedException("Invalid refresh token");
 
-    if (storedToken.revoked) {
+    if (storedToken.revokedAt) {
       await this.refreshTokenRepository.revokeFamily(storedToken.familyId);
       throw new UnauthorizedException("Refresh token reuse detected");
     }

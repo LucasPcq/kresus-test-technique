@@ -45,7 +45,7 @@ model Task {
 model RefreshToken {
   id        String   @id @default(uuid()) @db.Uuid
   familyId  String   @db.Uuid
-  revoked   Boolean  @default(false)
+  revokedAt DateTime?
   expiresAt DateTime
   createdAt DateTime @default(now())
 

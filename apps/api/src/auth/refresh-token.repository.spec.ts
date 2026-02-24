@@ -28,7 +28,7 @@ describe("RefreshTokenRepository", () => {
         userId: "550e8400-e29b-41d4-a716-446655440001",
         expiresAt: new Date("2026-03-01"),
       };
-      const created = { id: "550e8400-e29b-41d4-a716-446655440020", ...input, revoked: false, createdAt: new Date() };
+      const created = { id: "550e8400-e29b-41d4-a716-446655440020", ...input, revokedAt: null, createdAt: new Date() };
       mockPrisma.refreshToken.create.mockResolvedValue(created);
 
       const result = await repository.create(input);
@@ -46,7 +46,7 @@ describe("RefreshTokenRepository", () => {
 
   describe("findById", () => {
     it("returns the token when found", async () => {
-      const token = { id: "550e8400-e29b-41d4-a716-446655440020", revoked: false };
+      const token = { id: "550e8400-e29b-41d4-a716-446655440020", revokedAt: null };
       mockPrisma.refreshToken.findUnique.mockResolvedValue(token);
 
       const result = await repository.findById("550e8400-e29b-41d4-a716-446655440020");
@@ -67,14 +67,14 @@ describe("RefreshTokenRepository", () => {
   });
 
   describe("revoke", () => {
-    it("sets revoked to true for a single token", async () => {
-      mockPrisma.refreshToken.update.mockResolvedValue({ id: "token-id", revoked: true });
+    it("sets revokedAt for a single token", async () => {
+      mockPrisma.refreshToken.update.mockResolvedValue({ id: "token-id", revokedAt: new Date() });
 
       await repository.revoke("token-id");
 
       expect(mockPrisma.refreshToken.update).toHaveBeenCalledWith({
         where: { id: "token-id" },
-        data: { revoked: true },
+        data: { revokedAt: expect.any(Date) },
       });
     });
   });
@@ -87,7 +87,7 @@ describe("RefreshTokenRepository", () => {
 
       expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
         where: { familyId: "family-id" },
-        data: { revoked: true },
+        data: { revokedAt: expect.any(Date) },
       });
     });
   });
@@ -100,7 +100,7 @@ describe("RefreshTokenRepository", () => {
 
       expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
         where: { userId: "user-id" },
-        data: { revoked: true },
+        data: { revokedAt: expect.any(Date) },
       });
     });
   });
