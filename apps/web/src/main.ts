@@ -1,19 +1,32 @@
-import { VueQueryPlugin } from "@tanstack/vue-query";
+import { MutationCache, QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
+import { toast } from "vue-sonner";
+
+import { getApiErrorMessage } from "./api/error";
+import { setFrenchZodErrorMap } from "./lib/zod-error-map";
+
+import router from "./router";
 
 import App from "./App.vue";
-import router from "./router";
-import { setFrenchZodErrorMap } from "./lib/zod-error-map";
 
 import "./assets/index.css";
 
 setFrenchZodErrorMap();
 
+const queryClient = new QueryClient({
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      if (mutation.meta?.suppressErrorToast) return;
+      toast.error(getApiErrorMessage(error));
+    },
+  }),
+});
+
 const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VueQueryPlugin, { enableDevtoolsV6Plugin: true });
+app.use(VueQueryPlugin, { queryClient, enableDevtoolsV6Plugin: true });
 
 app.mount("#app");

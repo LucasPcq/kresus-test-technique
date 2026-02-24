@@ -11,6 +11,7 @@ export const useEditTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { suppressErrorToast: true },
     mutationFn: (variables: UpdateTaskInput & { id: string }) => updateTask(variables),
     onMutate: async ({ id, completed, executionDate, ...fields }) => {
       const snapshot = await applyOptimisticUpdate({

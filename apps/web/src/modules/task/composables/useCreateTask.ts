@@ -7,6 +7,7 @@ export const useCreateTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { suppressErrorToast: true },
     mutationFn: createTask,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });

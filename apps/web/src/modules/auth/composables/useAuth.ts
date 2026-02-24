@@ -1,6 +1,8 @@
 import { useRouter } from "vue-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 
+import { useApiErrorMessage } from "@/api/error";
+
 import { getMe, login, logout, register } from "../api/auth.api";
 import { useAuthStore } from "../store/auth.store";
 
@@ -10,26 +12,40 @@ export const useLogin = () => {
   const authStore = useAuthStore();
   const router = useRouter();
 
-  return useMutation({
+  const mutation = useMutation({
+    meta: { suppressErrorToast: true },
     mutationFn: login,
     onSuccess: (user) => {
       authStore.setUser(user);
       router.push("/");
     },
   });
+
+  const errorMessage = useApiErrorMessage(mutation.error, {
+    401: "Identifiants incorrects",
+  });
+
+  return { ...mutation, errorMessage };
 };
 
 export const useRegister = () => {
   const authStore = useAuthStore();
   const router = useRouter();
 
-  return useMutation({
+  const mutation = useMutation({
+    meta: { suppressErrorToast: true },
     mutationFn: register,
     onSuccess: (user) => {
       authStore.setUser(user);
       router.push("/");
     },
   });
+
+  const errorMessage = useApiErrorMessage(mutation.error, {
+    409: "Cet email est déjà utilisé",
+  });
+
+  return { ...mutation, errorMessage };
 };
 
 export const useMe = () => {

@@ -2,7 +2,10 @@ import type { Component } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 import { createRouter, createMemoryHistory } from "vue-router";
 
-import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
+import { MutationCache, QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
+import { toast } from "vue-sonner";
+
+import { getApiErrorMessage } from "@/api/error";
 
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises, mount } from "@vue/test-utils";
@@ -26,6 +29,12 @@ export function buildWrapper(
 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    mutationCache: new MutationCache({
+      onError: (error, _variables, _context, mutation) => {
+        if (mutation.meta?.suppressErrorToast) return;
+        toast.error(getApiErrorMessage(error));
+      },
+    }),
   });
 
   return {

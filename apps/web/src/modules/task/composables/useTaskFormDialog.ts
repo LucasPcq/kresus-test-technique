@@ -9,7 +9,7 @@ import { taskBaseSchema } from "@kresus/contract";
 
 import { parseIsoToCalendarDate } from "@/lib/date";
 
-import { ApiError } from "@/api/client";
+import { useApiErrorMessage } from "@/api/error";
 
 // Override completed to strip .default(false) — @vee-validate/zod can't handle Zod 4's default() internals
 const formSchema = toTypedSchema(taskBaseSchema.extend({ completed: z.boolean().optional() }));
@@ -36,16 +36,7 @@ export const useTaskFormDialog = ({
       : undefined,
   );
 
-  const errorMessage = computed(() => {
-    if (!error.value) return null;
-    if (error.value instanceof ApiError) {
-      if (error.value.status === 400)
-        return "Données invalides. Vérifiez les champs du formulaire.";
-      if (error.value.status === 429)
-        return "Trop de requêtes. Veuillez réessayer dans quelques instants.";
-    }
-    return "Une erreur est survenue. Veuillez réessayer.";
-  });
+  const errorMessage = useApiErrorMessage(error);
 
   const isSubmitDisabled = computed(
     () => isPending.value || !meta.value.valid || !meta.value.dirty,

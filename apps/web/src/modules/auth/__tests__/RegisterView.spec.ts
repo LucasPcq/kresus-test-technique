@@ -119,7 +119,7 @@ describe("RegisterView", () => {
       await fillAndSubmitAuthForm(wrapper, { email: "new@example.com", password: "password123" });
 
       await vi.waitFor(() =>
-        expect(wrapper.text()).toContain("Trop de tentatives. Veuillez réessayer dans quelques instants."),
+        expect(wrapper.text()).toContain("Trop de requêtes. Veuillez réessayer dans quelques instants."),
       );
     });
 

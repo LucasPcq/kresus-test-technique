@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { RouterLink } from "vue-router";
 
 import { loginSchema } from "@kresus/contract";
-
-import { ApiError } from "@/api/client";
 
 import { useLogin } from "../composables/useAuth";
 
@@ -18,17 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const { handleSubmit, meta } = useForm({ validationSchema: toTypedSchema(loginSchema) });
-const { mutate, isPending, error } = useLogin();
-
-const errorMessage = computed(() => {
-  if (!error.value) return null;
-  if (error.value instanceof ApiError) {
-    if (error.value.status === 401) return "Identifiants incorrects";
-    if (error.value.status === 409) return "Cet email est déjà utilisé";
-    if (error.value.status === 429) return "Trop de tentatives. Veuillez réessayer dans quelques instants.";
-  }
-  return "Une erreur est survenue";
-});
+const { mutate, isPending, errorMessage } = useLogin();
 
 const onSubmit = handleSubmit((values) => {
   mutate(values);
