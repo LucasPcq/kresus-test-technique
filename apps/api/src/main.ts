@@ -3,6 +3,7 @@ import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import fastifyCookie from "@fastify/cookie";
+import helmet from "@fastify/helmet";
 import qs from "qs";
 
 import { AppModule } from "./app.module";
@@ -22,6 +23,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   await app.register(fastifyCookie);
+  await app.register(helmet);
 
   app.enableCors({
     origin: configService.getOrThrow("CORS_ORIGIN"),
