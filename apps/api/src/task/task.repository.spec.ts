@@ -7,7 +7,6 @@ const mockPrisma = {
   task: {
     create: vi.fn(),
     findMany: vi.fn(),
-    findUnique: vi.fn(),
     count: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
@@ -77,18 +76,6 @@ describe("TaskRepository", () => {
 
       expect(mockPrisma.task.count).toHaveBeenCalledWith({ where });
       expect(result).toBe(5);
-    });
-  });
-
-  describe("findById", () => {
-    it("should call prisma.task.findUnique with id when called", async () => {
-      const task = { id: "550e8400-e29b-41d4-a716-446655440101", title: "My task" };
-      mockPrisma.task.findUnique.mockResolvedValue(task);
-
-      const result = await repository.findById("550e8400-e29b-41d4-a716-446655440101");
-
-      expect(mockPrisma.task.findUnique).toHaveBeenCalledWith({ where: { id: "550e8400-e29b-41d4-a716-446655440101" } });
-      expect(result).toEqual(task);
     });
   });
 

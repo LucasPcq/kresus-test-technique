@@ -31,10 +31,6 @@ export class TaskRepository {
     return this.prisma.task.count({ where });
   }
 
-  findById(id: string) {
-    return this.prisma.task.findUnique({ where: { id } });
-  }
-
   update({ id, userId }: { id: string; userId: string }, data: Prisma.TaskUpdateInput) {
     return this.prisma.task.update({ where: { id, userId }, data });
   }

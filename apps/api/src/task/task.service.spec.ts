@@ -9,7 +9,6 @@ const mockTaskRepository = {
   create: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
-  findById: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
   deleteMany: vi.fn(),
