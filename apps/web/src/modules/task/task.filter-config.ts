@@ -1,5 +1,5 @@
 import type { Priority } from "@kresus/contract";
-import { dateFilterOps, priorityFilterOps } from "@kresus/contract";
+import { priorityFilterOps } from "@kresus/contract";
 
 import { formatDateShort, parseLocalDate } from "@/lib/date";
 
@@ -23,7 +23,6 @@ export type FilterField = (typeof FILTER_FIELDS)[keyof typeof FILTER_FIELDS];
 // ---------------------------------------------------------------------------
 
 type PriorityOperator = (typeof priorityFilterOps)[number];
-type DateOperator = (typeof dateFilterOps)[number];
 
 export const isPriorityOperator = (value: string): value is PriorityOperator =>
   (priorityFilterOps as readonly string[]).includes(value);
@@ -123,6 +122,18 @@ export const FILTER_FIELD_CONFIGS: ReadonlyArray<FilterFieldConfig> = [
 
 export const getFieldConfig = (field: FilterField): FilterFieldConfig | undefined =>
   FILTER_FIELD_CONFIGS.find((c) => c.field === field);
+
+// ---------------------------------------------------------------------------
+// URL keys per filter field
+// ---------------------------------------------------------------------------
+
+export const FILTER_URL_KEYS: Record<FilterField, readonly string[]> = {
+  completed: ["completed"],
+  priority: ["priority", "priorityOp"],
+  executionDate: ["dateFrom", "dateTo", "dateOp"],
+};
+
+export const TASK_QUERY_URL_KEYS = [...Object.values(FILTER_URL_KEYS).flat(), "title"] as const;
 
 // ---------------------------------------------------------------------------
 // Label formatting

@@ -21,16 +21,6 @@ export const taskQueryURLSchema = taskQuerySchema.omit({ filter: true }).extend(
 
 export type TaskQueryURL = z.infer<typeof taskQueryURLSchema>;
 
-export const TASK_QUERY_URL_KEYS = [
-  "completed",
-  "priority",
-  "priorityOp",
-  "title",
-  "dateFrom",
-  "dateTo",
-  "dateOp",
-] as const satisfies Array<keyof TaskQueryURL>;
-
 export const parseTaskQueryURL = (query: Record<string, unknown>) => {
   const result = taskQueryURLSchema.safeParse(query);
   if (result.success) return result.data;
