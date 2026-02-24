@@ -151,6 +151,7 @@ describe("AuthService", () => {
       const result = await service.refresh({
         sub: "550e8400-e29b-41d4-a716-446655440001",
         email: "test@example.com",
+        familyId: "family-123",
         jti: "old-jti",
       });
 
@@ -170,7 +171,7 @@ describe("AuthService", () => {
       mockRefreshTokenRepository.findById.mockResolvedValue(null);
 
       await expect(
-        service.refresh({ sub: "user-id", email: "test@example.com", jti: "unknown-jti" }),
+        service.refresh({ sub: "user-id", email: "test@example.com", familyId: "family-123", jti: "unknown-jti" }),
       ).rejects.toThrow(UnauthorizedException);
 
       expect(mockRefreshTokenRepository.revoke).not.toHaveBeenCalled();
@@ -188,6 +189,7 @@ describe("AuthService", () => {
         service.refresh({
           sub: "550e8400-e29b-41d4-a716-446655440001",
           email: "test@example.com",
+          familyId: "family-123",
           jti: "stolen-jti",
         }),
       ).rejects.toThrow(UnauthorizedException);

@@ -27,7 +27,7 @@ describe("TaskController", () => {
         priority: "HIGH" as const,
         completed: false,
       };
-      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
       const created = { id: "550e8400-e29b-41d4-a716-446655440101", ...dto };
       mockTaskService.create.mockResolvedValue(created);
 
@@ -40,8 +40,8 @@ describe("TaskController", () => {
 
   describe("findAll", () => {
     it("should delegate to taskService.findAll when called with query and user", async () => {
-      const query = { page: 1, pageSize: 10 as const };
-      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const query = { page: 1, pageSize: 10 as const, sort: "-createdAt" as const };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
       const paginated = { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
       mockTaskService.findAll.mockResolvedValue(paginated);
 
@@ -55,10 +55,10 @@ describe("TaskController", () => {
       const query = {
         page: 1,
         pageSize: 10 as const,
-        sort: "-priority",
+        sort: "-priority" as const,
         filter: { completed: true, priority: { eq: "HIGH" as const } },
       };
-      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
       mockTaskService.findAll.mockResolvedValue({
         items: [],
         total: 0,
@@ -76,7 +76,7 @@ describe("TaskController", () => {
   describe("update", () => {
     it("should delegate to taskService.update when called with id, dto and user", async () => {
       const dto = { title: "Updated task" };
-      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
       const updated = { id: "550e8400-e29b-41d4-a716-446655440101", ...dto };
       mockTaskService.update.mockResolvedValue(updated);
 
@@ -89,7 +89,7 @@ describe("TaskController", () => {
 
   describe("remove", () => {
     it("should delegate to taskService.delete when called with id and user", async () => {
-      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
       mockTaskService.delete.mockResolvedValue({ id: "550e8400-e29b-41d4-a716-446655440101" });
 
       const result = await controller.remove("550e8400-e29b-41d4-a716-446655440101", user);
@@ -101,7 +101,7 @@ describe("TaskController", () => {
 
   describe("batchDelete", () => {
     it("should delegate to taskService.batchDelete when called with ids and user", async () => {
-      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
       mockTaskService.batchDelete.mockResolvedValue({ count: 2 });
 
       const result = await controller.batchDelete({ ids: ["550e8400-e29b-41d4-a716-446655440101", "550e8400-e29b-41d4-a716-446655440102"] }, user);

@@ -52,7 +52,7 @@ describe("TaskRepository", () => {
   describe("findMany", () => {
     it("should pass where, skip, take and orderBy to prisma when called", async () => {
       const tasks = [{ id: "550e8400-e29b-41d4-a716-446655440101" }];
-      const where = { userId: "550e8400-e29b-41d4-a716-446655440001", priority: { equals: "HIGH" } };
+      const where = { userId: "550e8400-e29b-41d4-a716-446655440001", priority: { equals: "HIGH" as const } };
       const orderBy = { createdAt: "desc" as const };
       mockPrisma.task.findMany.mockResolvedValue(tasks);
 
