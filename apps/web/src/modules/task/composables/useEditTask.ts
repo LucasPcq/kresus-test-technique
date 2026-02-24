@@ -4,6 +4,7 @@ import { toast } from "vue-sonner";
 import type { UpdateTaskInput } from "@kresus/contract";
 
 import { updateTask } from "../api/task.api";
+import { TASK_QUERY_KEYS } from "../queryKeys";
 
 import { applyOptimisticUpdate, rollbackOptimisticUpdate } from "./taskCacheUtils";
 
@@ -45,7 +46,7 @@ export const useEditTask = () => {
       toast.success("Tâche modifiée avec succès");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.all });
     },
   });
 };

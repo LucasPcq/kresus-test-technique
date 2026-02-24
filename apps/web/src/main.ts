@@ -15,6 +15,11 @@ import "./assets/index.css";
 setFrenchZodErrorMap();
 
 const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+    },
+  },
   mutationCache: new MutationCache({
     onError: (error, _variables, _context, mutation) => {
       if (mutation.meta?.suppressErrorToast) return;

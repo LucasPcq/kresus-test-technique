@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { toast } from "vue-sonner";
 
 import { deleteTask } from "../api/task.api";
+import { TASK_QUERY_KEYS } from "../queryKeys";
 
 import { applyOptimisticUpdate, rollbackOptimisticUpdate } from "./taskCacheUtils";
 
@@ -30,7 +31,7 @@ export const useDeleteTask = () => {
       toast.success("Tâche supprimée avec succès");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.all });
     },
   });
 };

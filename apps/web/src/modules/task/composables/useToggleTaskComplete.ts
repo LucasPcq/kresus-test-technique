@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 
 import { updateTask } from "../api/task.api";
+import { TASK_QUERY_KEYS } from "../queryKeys";
 
 import { applyOptimisticUpdate, rollbackOptimisticUpdate } from "./taskCacheUtils";
 
@@ -29,7 +30,7 @@ export const useToggleTaskComplete = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.all });
     },
   });
 };
