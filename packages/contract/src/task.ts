@@ -22,6 +22,15 @@ export const TASK_TITLE_MAX_LENGTH = 50;
 export const TASK_CONTENT_MAX_LENGTH = 256;
 
 // ---------------------------------------------------------------------------
+// Shared fields
+// ---------------------------------------------------------------------------
+
+const executionDateTransform = z.iso
+  .datetime()
+  .transform((val) => new Date(val))
+  .optional();
+
+// ---------------------------------------------------------------------------
 // Create
 // ---------------------------------------------------------------------------
 
@@ -36,10 +45,7 @@ export const taskBaseSchema = z.object({
 export const createTaskSwaggerSchema = taskBaseSchema;
 
 export const createTaskSchema = taskBaseSchema.extend({
-  executionDate: z.iso
-    .datetime()
-    .transform((val) => new Date(val))
-    .optional(),
+  executionDate: executionDateTransform,
 });
 
 export type CreateTaskDto = z.infer<typeof createTaskSchema>;
@@ -49,11 +55,7 @@ export type CreateTaskInput = z.input<typeof createTaskSchema>;
 // Update
 // ---------------------------------------------------------------------------
 
-const updateTaskBaseSchema = z.object({
-  title: z.string().min(1).max(TASK_TITLE_MAX_LENGTH),
-  content: z.string().min(1).max(TASK_CONTENT_MAX_LENGTH),
-  priority: z.enum(priorityValues),
-  executionDate: z.iso.datetime().optional(),
+const updateTaskBaseSchema = taskBaseSchema.extend({
   completed: z.boolean(),
 });
 
@@ -61,12 +63,7 @@ export const updateTaskSwaggerSchema = updateTaskBaseSchema.partial();
 
 export const updateTaskSchema = updateTaskBaseSchema
   .partial()
-  .extend({
-    executionDate: z.iso
-      .datetime()
-      .transform((val) => new Date(val))
-      .optional(),
-  })
+  .extend({ executionDate: executionDateTransform })
   .refine((data) => Object.values(data).some((v) => v !== undefined), {
     message: "Au moins un champ doit être renseigné",
   });
@@ -120,7 +117,12 @@ const executionDateFilterSchema = singleOperator({
   gte: z.coerce.date().optional(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
-  between: z.tuple([z.coerce.date(), z.coerce.date()]).optional(),
+  between: z
+    .tuple([z.coerce.date(), z.coerce.date()])
+    .refine(([from, to]) => from <= to, {
+      message: "La date de début doit être antérieure ou égale à la date de fin",
+    })
+    .optional(),
 });
 
 const titleFilterSchema = singleOperator({
