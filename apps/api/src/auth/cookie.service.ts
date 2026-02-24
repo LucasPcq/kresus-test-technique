@@ -4,9 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import type { FastifyReply } from "fastify";
 import ms from "ms";
 
-const COOKIE_NAME = "access_token";
-const REFRESH_COOKIE_NAME = "refresh_token";
-const SESSION_COOKIE_NAME = "session";
+import { AUTH_COOKIES } from "./auth.constants";
 
 @Injectable()
 export class CookieService {
@@ -15,7 +13,7 @@ export class CookieService {
   setTokens(res: FastifyReply, { token, refreshToken }: { token: string; refreshToken: string }): void {
     const isProduction = this.configService.get("NODE_ENV") === "production";
 
-    res.setCookie(COOKIE_NAME, token, {
+    res.setCookie(AUTH_COOKIES.ACCESS_TOKEN, token, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "strict",
@@ -23,7 +21,7 @@ export class CookieService {
       path: "/",
     });
 
-    res.setCookie(REFRESH_COOKIE_NAME, refreshToken, {
+    res.setCookie(AUTH_COOKIES.REFRESH_TOKEN, refreshToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "strict",
@@ -31,15 +29,15 @@ export class CookieService {
       path: "/",
     });
 
-    res.setCookie(SESSION_COOKIE_NAME, "1", {
+    res.setCookie(AUTH_COOKIES.SESSION, "1", {
       sameSite: "strict",
       path: "/",
     });
   }
 
   clearTokens(res: FastifyReply): void {
-    res.clearCookie(COOKIE_NAME, { path: "/" });
-    res.clearCookie(REFRESH_COOKIE_NAME, { path: "/" });
-    res.clearCookie(SESSION_COOKIE_NAME, { path: "/" });
+    res.clearCookie(AUTH_COOKIES.ACCESS_TOKEN, { path: "/" });
+    res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN, { path: "/" });
+    res.clearCookie(AUTH_COOKIES.SESSION, { path: "/" });
   }
 }

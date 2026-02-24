@@ -3,6 +3,7 @@ import type { FastifyReply } from "fastify";
 import { ConfigService } from "@nestjs/config";
 
 import { CookieService } from "./cookie.service";
+import { AUTH_COOKIES } from "./auth.constants";
 
 const mockConfigService = {
   get: vi.fn().mockReturnValue(undefined),
@@ -28,38 +29,38 @@ describe("CookieService", () => {
   });
 
   describe("setTokens", () => {
-    it("sets access_token, refresh_token and session cookies", () => {
+    it("should set access_token, refresh_token and session cookies when called", () => {
       service.setTokens(mockRes, { token: "jwt_token", refreshToken: "refresh_token" });
 
       expect(mockSetCookie).toHaveBeenCalledWith(
-        "access_token",
+        AUTH_COOKIES.ACCESS_TOKEN,
         "jwt_token",
         expect.objectContaining({ httpOnly: true, sameSite: "strict", path: "/" }),
       );
       expect(mockSetCookie).toHaveBeenCalledWith(
-        "refresh_token",
+        AUTH_COOKIES.REFRESH_TOKEN,
         "refresh_token",
         expect.objectContaining({ httpOnly: true, sameSite: "strict", path: "/" }),
       );
       expect(mockSetCookie).toHaveBeenCalledWith(
-        "session",
+        AUTH_COOKIES.SESSION,
         "1",
         expect.objectContaining({ sameSite: "strict", path: "/" }),
       );
     });
 
-    it("sets secure flag in production", () => {
+    it("should set secure flag when environment is production", () => {
       mockConfigService.get.mockReturnValue("production");
 
       service.setTokens(mockRes, { token: "jwt_token", refreshToken: "refresh_token" });
 
       expect(mockSetCookie).toHaveBeenCalledWith(
-        "access_token",
+        AUTH_COOKIES.ACCESS_TOKEN,
         "jwt_token",
         expect.objectContaining({ secure: true }),
       );
       expect(mockSetCookie).toHaveBeenCalledWith(
-        "refresh_token",
+        AUTH_COOKIES.REFRESH_TOKEN,
         "refresh_token",
         expect.objectContaining({ secure: true }),
       );
@@ -67,12 +68,12 @@ describe("CookieService", () => {
   });
 
   describe("clearTokens", () => {
-    it("clears all auth cookies", () => {
+    it("should clear all auth cookies when called", () => {
       service.clearTokens(mockRes);
 
-      expect(mockClearCookie).toHaveBeenCalledWith("access_token", { path: "/" });
-      expect(mockClearCookie).toHaveBeenCalledWith("refresh_token", { path: "/" });
-      expect(mockClearCookie).toHaveBeenCalledWith("session", { path: "/" });
+      expect(mockClearCookie).toHaveBeenCalledWith(AUTH_COOKIES.ACCESS_TOKEN, { path: "/" });
+      expect(mockClearCookie).toHaveBeenCalledWith(AUTH_COOKIES.REFRESH_TOKEN, { path: "/" });
+      expect(mockClearCookie).toHaveBeenCalledWith(AUTH_COOKIES.SESSION, { path: "/" });
     });
   });
 });

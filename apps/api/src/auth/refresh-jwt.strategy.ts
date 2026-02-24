@@ -7,11 +7,13 @@ import type { FastifyRequest } from "fastify";
 
 import { RefreshJwtPayload } from "@kresus/contract";
 
+import { AUTH_COOKIES } from "./auth.constants";
+
 @Injectable()
 export class RefreshJwtStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
   constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: (req: FastifyRequest) => req.cookies?.refresh_token ?? null,
+      jwtFromRequest: (req: FastifyRequest) => req.cookies?.[AUTH_COOKIES.REFRESH_TOKEN] ?? null,
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>("JWT_REFRESH_SECRET"),
     });
