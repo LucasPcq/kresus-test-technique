@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-import { priorityFilterOps } from "@kresus/contract";
-
 import { X } from "lucide-vue-next";
 
 import type { ActiveFilter } from "../task.filter-config";
-import { formatFilterLabel, getFieldConfig } from "../task.filter-config";
+import { formatFilterLabel, getFieldConfig, isPriorityOperator } from "../task.filter-config";
 
 import FilterValuePicker from "./FilterValuePicker.vue";
 
@@ -33,9 +31,6 @@ const onValueSelect = (filter: ActiveFilter) => {
   emit("edit", filter);
   isOpen.value = false;
 };
-
-const isPriorityOperator = (value: string): value is (typeof priorityFilterOps)[number] =>
-  (priorityFilterOps as readonly string[]).includes(value);
 
 const onOperatorChange = (op: string) => {
   if (props.filter.field !== "priority" || !isPriorityOperator(op)) return;

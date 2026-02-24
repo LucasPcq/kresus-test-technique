@@ -8,6 +8,7 @@ import { Check } from "lucide-vue-next";
 import { parseIsoToCalendarDate } from "@/lib/date";
 
 import type { ActiveFilter, FilterFieldConfig } from "../task.filter-config";
+import { isPriorityOperator } from "../task.filter-config";
 
 import { Calendar } from "@/components/ui/calendar";
 import { RangeCalendar } from "@/components/ui/range-calendar";
@@ -30,60 +31,39 @@ const selectedDate = ref<DateValue>();
 const calendarRange = ref<DateRange>({ start: undefined, end: undefined });
 
 const hasMultipleOperators = computed(() => props.config.operators.length > 1);
+const isBetweenMode = computed(() => selectedOperator.value === "between");
 
-if (props.currentFilter?.field === "executionDate") {
-  const f = props.currentFilter;
-  switch (f.operator) {
-    case "between":
-      calendarRange.value = {
-        start: parseIsoToCalendarDate(f.value.from),
-        end: parseIsoToCalendarDate(f.value.to),
-      };
-      break;
-    case "gte":
-      selectedDate.value = parseIsoToCalendarDate(f.value.from);
-      break;
-    case "lte":
-      selectedDate.value = parseIsoToCalendarDate(f.value.to);
-      break;
+const initDateState = () => {
+  if (props.currentFilter?.field !== "executionDate") return;
+  const filter = props.currentFilter;
+
+  if (filter.operator === "between") {
+    calendarRange.value = {
+      start: parseIsoToCalendarDate(filter.value.from),
+      end: parseIsoToCalendarDate(filter.value.to),
+    };
+  } else {
+    const iso = filter.operator === "gte" ? filter.value.from : filter.value.to;
+    selectedDate.value = parseIsoToCalendarDate(iso);
   }
-}
+};
 
-const onOperatorChange = (value: AcceptableValue) => {
-  const op = String(value);
-  const previousOp = selectedOperator.value;
-  selectedOperator.value = op;
+initDateState();
 
-  if (op === "between" && previousOp !== "between") {
+const migrateCalendarState = (previousOp: string, newOp: string) => {
+  const wasRange = previousOp === "between";
+  const isRange = newOp === "between";
+
+  if (wasRange === isRange) return;
+
+  if (isRange) {
     selectedDate.value = undefined;
-  } else if (op !== "between" && previousOp === "between") {
-    const source = op === "gte" ? calendarRange.value.start : calendarRange.value.end;
-    selectedDate.value = source ? parseIsoToCalendarDate(source.toString()) : undefined;
-    calendarRange.value = { start: undefined, end: undefined };
-  }
-
-  if (selectedDate.value && op !== "between") {
-    onSingleDateSelect(selectedDate.value);
     return;
   }
 
-  emit("update:operator", op);
-};
-
-const buildSelectFilter = (value: unknown): ActiveFilter | undefined => {
-  const op = selectedOperator.value;
-  switch (props.config.field) {
-    case "completed":
-      return { field: "completed", operator: "eq", value: value as boolean };
-    case "priority":
-      return { field: "priority", operator: op as "eq" | "neq", value: value as Priority };
-  }
-};
-
-const onSelectValue = (value: unknown, ev: ListboxItemSelectEvent<AcceptableValue>) => {
-  ev.preventDefault();
-  const filter = buildSelectFilter(value);
-  if (filter) emit("select", filter);
+  const source = newOp === "gte" ? calendarRange.value.start : calendarRange.value.end;
+  selectedDate.value = source ? parseIsoToCalendarDate(source.toString()) : undefined;
+  calendarRange.value = { start: undefined, end: undefined };
 };
 
 const onSingleDateSelect = (date: DateValue) => {
@@ -94,6 +74,40 @@ const onSingleDateSelect = (date: DateValue) => {
   } else if (op === "lte") {
     emit("select", { field: "executionDate", operator: "lte", value: { to: iso } });
   }
+};
+
+const onOperatorChange = (value: AcceptableValue) => {
+  const op = String(value);
+  const previousOp = selectedOperator.value;
+  selectedOperator.value = op;
+
+  migrateCalendarState(previousOp, op);
+
+  if (selectedDate.value && !isBetweenMode.value) {
+    onSingleDateSelect(selectedDate.value);
+    return;
+  }
+
+  emit("update:operator", op);
+};
+
+const buildSelectFilter = (value: unknown): ActiveFilter | undefined => {
+  const { field } = props.config;
+  const op = selectedOperator.value;
+
+  if (field === "completed") {
+    return { field: "completed", operator: "eq", value: value as boolean };
+  }
+
+  if (field === "priority" && isPriorityOperator(op)) {
+    return { field: "priority", operator: op, value: value as Priority };
+  }
+};
+
+const onSelectValue = (value: unknown, ev: ListboxItemSelectEvent<AcceptableValue>) => {
+  ev.preventDefault();
+  const filter = buildSelectFilter(value);
+  if (filter) emit("select", filter);
 };
 
 const onDateRangeChange = (range: DateRange) => {
@@ -144,12 +158,12 @@ const onDateRangeChange = (range: DateRange) => {
     </CommandList>
   </Command>
 
-  <div v-else-if="config.valueType === 'calendar' && selectedOperator !== 'between'" class="p-0">
+  <div v-else-if="!isBetweenMode" class="p-0">
     <!-- @vue-ignore — CalendarDate has #private fields that Volar cannot structurally match against DateValue -->
     <Calendar :model-value="selectedDate" @update:model-value="onSingleDateSelect" />
   </div>
 
-  <div v-else-if="config.valueType === 'calendar' && selectedOperator === 'between'" class="p-0">
+  <div v-else class="p-0">
     <!-- @vue-ignore — CalendarDate has #private fields that Volar cannot structurally match against DateValue -->
     <RangeCalendar
       :model-value="calendarRange"

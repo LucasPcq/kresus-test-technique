@@ -25,6 +25,9 @@ export type FilterField = (typeof FILTER_FIELDS)[keyof typeof FILTER_FIELDS];
 type PriorityOperator = (typeof priorityFilterOps)[number];
 type DateOperator = (typeof dateFilterOps)[number];
 
+export const isPriorityOperator = (value: string): value is PriorityOperator =>
+  (priorityFilterOps as readonly string[]).includes(value);
+
 // ---------------------------------------------------------------------------
 // Active filter (discriminated union)
 // ---------------------------------------------------------------------------
