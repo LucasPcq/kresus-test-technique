@@ -37,9 +37,10 @@ model Task {
   user   User   @relation(fields: [userId], references: [id])
 
   @@index([userId])
-  @@index([priority])
-  @@index([executionDate])
-  @@index([completedAt])
+  @@index([userId, createdAt])
+  @@index([userId, priority])
+  @@index([userId, executionDate])
+  @@index([userId, completedAt])
 }
 
 model RefreshToken {
