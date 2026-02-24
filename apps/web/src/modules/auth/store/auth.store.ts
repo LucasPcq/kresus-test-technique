@@ -35,7 +35,8 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const userData = await getMe();
       setUser(userData);
-    } catch {
+    } catch (error) {
+      console.error("Failed to initialize auth:", error);
       clearUser();
     }
   };
