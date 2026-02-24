@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyReply } from "fastify";
 
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
@@ -84,16 +84,16 @@ describe("AuthController", () => {
 
   describe("me", () => {
     it("returns user info from JWT payload", () => {
-      const req = { user: { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" } } as unknown as FastifyRequest;
-      expect(controller.me(req)).toEqual({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
+      expect(controller.me(user)).toEqual({ id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" });
     });
   });
 
   describe("logout", () => {
     it("revokes the token family and clears cookies", async () => {
-      const req = { user: { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" } } as unknown as FastifyRequest;
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123" };
 
-      await controller.logout(req, mockRes);
+      await controller.logout(user, mockRes);
 
       expect(mockAuthService.logout).toHaveBeenCalledWith("family-123");
       expect(mockCookieService.clearTokens).toHaveBeenCalledWith(mockRes);
@@ -102,17 +102,16 @@ describe("AuthController", () => {
 
   describe("refresh", () => {
     it("sets new tokens from refresh token payload", async () => {
-      const payload = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123", jti: "token-jti" };
+      const user = { sub: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com", familyId: "family-123", jti: "token-jti" };
       mockAuthService.refresh.mockResolvedValue({
         token: "new_jwt",
         refreshToken: "new_refresh",
         user: { id: "550e8400-e29b-41d4-a716-446655440001", email: "test@example.com" },
       });
 
-      const req = { user: payload } as unknown as FastifyRequest;
-      await controller.refresh(req, mockRes);
+      await controller.refresh(user, mockRes);
 
-      expect(mockAuthService.refresh).toHaveBeenCalledWith(payload);
+      expect(mockAuthService.refresh).toHaveBeenCalledWith(user);
       expect(mockCookieService.setTokens).toHaveBeenCalledWith(mockRes, {
         token: "new_jwt",
         refreshToken: "new_refresh",
