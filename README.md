@@ -76,6 +76,24 @@ packages/
   contract/    Types, DTOs et schemas Zod partages
 ```
 
+## Apercu
+
+### Login
+
+![Login](docs/screenshots/login.png)
+
+### Page des taches (empty state)
+
+![Taches - empty state](docs/screenshots/tasks-empty.png)
+
+### Page des taches
+
+![Taches](docs/screenshots/tasks.png)
+
+### Creation de tache
+
+![Creation de tache](docs/screenshots/task-create.png)
+
 ## Architecture d'authentification
 
 L'authentification repose sur un systeme de **dual-token en cookies httpOnly** avec rotation des refresh tokens et detection de vol.
