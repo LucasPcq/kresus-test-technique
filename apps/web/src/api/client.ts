@@ -19,6 +19,11 @@ type RequestOptions = RequestInit & {
 
 const createApiClient = () => {
   let refreshPromise: Promise<boolean> | null = null;
+  let onAuthExpired: (() => void) | null = null;
+
+  const setOnAuthExpired = (callback: () => void) => {
+    onAuthExpired = callback;
+  };
 
   const doRequest = async <T>(path: string, options: RequestInit): Promise<T> => {
     const response = await fetch(`${env.VITE_API_URL}${path}`, {
@@ -57,12 +62,14 @@ const createApiClient = () => {
         }
         const refreshed = await refreshPromise;
         if (refreshed) return doRequest<T>(url, fetchOptions);
+
+        onAuthExpired?.();
       }
       throw error;
     }
   };
 
-  return { request };
+  return { request, setOnAuthExpired };
 };
 
 export const apiClient = createApiClient();
