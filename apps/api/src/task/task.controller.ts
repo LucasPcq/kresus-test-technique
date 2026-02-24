@@ -6,6 +6,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	ParseUUIDPipe,
 	Patch,
 	Post,
 	Query,
@@ -67,7 +68,7 @@ export class TaskController {
 	@Patch(":id")
 	@ApiUpdateTask()
 	update(
-		@Param("id") id: string,
+		@Param("id", ParseUUIDPipe) id: string,
 		@Body(new ZodValidationPipe(updateTaskSchema)) dto: UpdateTaskDto,
 		@CurrentUser() user: JwtPayload,
 	) {
@@ -77,7 +78,7 @@ export class TaskController {
 	@Delete(":id")
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiDeleteTask()
-	remove(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+	remove(@Param("id", ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
 		return this.taskService.delete(id, user.sub);
 	}
 }
