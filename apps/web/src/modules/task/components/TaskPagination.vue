@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 import { PAGE_SIZES } from "@kresus/contract";
 
 import type { AcceptableValue } from "reka-ui";
@@ -11,6 +13,8 @@ import {
   ChevronRight,
   Infinity as InfinityIcon,
 } from "lucide-vue-next";
+
+import { pluralize } from "@/lib/utils";
 
 import { type PaginationMode, PAGINATION_MODE, PAGINATION_MODES } from "../task.constants";
 
@@ -33,7 +37,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-defineProps<{
+const props = defineProps<{
   page: number;
   totalPages: number;
   pageSize: number;
@@ -47,16 +51,17 @@ const emit = defineEmits<{
   "update:paginationMode": [value: PaginationMode];
 }>();
 
-const isPaginationMode = (value: string): value is PaginationMode =>
-  (PAGINATION_MODES as readonly string[]).includes(value);
+const isClassicMode = computed(() => props.paginationMode === PAGINATION_MODE.CLASSIC);
+
+const isPaginationMode = (value: unknown): value is PaginationMode =>
+  typeof value === "string" && (PAGINATION_MODES as readonly string[]).includes(value);
 
 const onPaginationModeChange = (value: AcceptableValue | AcceptableValue[]) => {
-  if (typeof value !== "string" || !isPaginationMode(value)) return;
+  if (!isPaginationMode(value)) return;
   emit("update:paginationMode", value);
 };
 
-const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
-  if (typeof val !== "string") return;
+const onPageSizeChange = (val: string) => {
   const size = Number(val);
   if (!(PAGE_SIZES as readonly number[]).includes(size)) return;
   emit("update:pageSize", size);
@@ -67,7 +72,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
   <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
     <div class="flex items-center justify-between">
       <p class="text-sm text-muted-foreground shrink-0">
-        {{ total }} tâche{{ total > 1 ? "s" : "" }}
+        {{ total }} {{ pluralize(total, 'tâche') }}
       </p>
 
       <ToggleGroup
@@ -88,7 +93,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
     </div>
 
     <Pagination
-      v-if="paginationMode === PAGINATION_MODE.CLASSIC"
+      v-if="isClassicMode"
       v-slot="{ page: currentPage }"
       :page="page"
       :items-per-page="pageSize"
@@ -129,7 +134,7 @@ const onPageSizeChange = (val: AcceptableValue | AcceptableValue[]) => {
     </Pagination>
 
     <div class="hidden md:flex items-center gap-3">
-      <Select v-if="paginationMode === PAGINATION_MODE.CLASSIC" :model-value="String(pageSize)" @update:model-value="onPageSizeChange">
+      <Select v-if="isClassicMode" :model-value="String(pageSize)" @update:model-value="onPageSizeChange">
         <SelectTrigger class="w-32">
           <SelectValue />
         </SelectTrigger>
