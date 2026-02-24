@@ -2,8 +2,10 @@ import { z } from "zod";
 
 const authBaseSchema = z.object({ email: z.email() });
 
-export const registerSchema = authBaseSchema.extend({ password: z.string().min(8) });
-export const loginSchema = authBaseSchema.extend({ password: z.string().min(1) });
+const passwordSchema = z.string().trim().min(8).max(32);
+
+export const registerSchema = authBaseSchema.extend({ password: passwordSchema });
+export const loginSchema = authBaseSchema.extend({ password: z.string().trim().min(1).max(32) });
 export const authUserResponseSchema = z.object({
   id: z.uuid(),
   email: z.email(),
