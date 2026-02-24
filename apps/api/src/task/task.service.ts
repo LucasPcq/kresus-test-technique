@@ -4,15 +4,22 @@ import { Prisma } from "@prisma/client";
 import {
   CreateTaskDto,
   PaginatedResponse,
-  Priority,
+  SORT_FIELDS,
   TaskQueryDto,
   TaskResponse,
   UpdateTaskDto,
 } from "@kresus/contract";
+import type { SortValue } from "@kresus/contract";
 
 import { TaskRepository } from "./task.repository";
 
 type TaskFilter = NonNullable<TaskQueryDto["filter"]>;
+
+type PriorityFilter = NonNullable<TaskFilter["priority"]>;
+type ExecutionDateFilter = NonNullable<TaskFilter["executionDate"]>;
+type TitleFilter = NonNullable<TaskFilter["title"]>;
+
+type OperatorFilter = PriorityFilter | ExecutionDateFilter | TitleFilter;
 
 @Injectable()
 export class TaskService {
@@ -86,10 +93,7 @@ export class TaskService {
   }
 
   private handlePrismaNotFound(error: unknown, id: string): never {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       throw new NotFoundException(`Task ${id} not found`);
     }
     throw error;
@@ -112,83 +116,84 @@ export class TaskService {
     return { completedAt: completed ? { not: null } : null };
   }
 
-  private buildPriorityFilter(
-    priority?: NonNullable<TaskFilter["priority"]>,
-  ): Prisma.TaskWhereInput {
+  private buildPriorityFilter(priority?: PriorityFilter): Prisma.TaskWhereInput {
     if (!priority) return {};
 
     const [operator, value] = this.extractOperator(priority);
 
     switch (operator) {
       case "eq":
-        return { priority: { equals: value as Priority } };
+        return { priority: { equals: value } };
       case "neq":
-        return { priority: { not: value as Priority } };
+        return { priority: { not: value } };
       default:
         return {};
     }
   }
 
-  private buildExecutionDateFilter(
-    executionDate?: NonNullable<TaskFilter["executionDate"]>,
-  ): Prisma.TaskWhereInput {
+  private buildExecutionDateFilter(executionDate?: ExecutionDateFilter): Prisma.TaskWhereInput {
     if (!executionDate) return {};
 
     const [operator, value] = this.extractOperator(executionDate);
 
+    if (Array.isArray(value)) {
+      return { executionDate: { gte: value[0], lte: value[1] } };
+    }
+
     switch (operator) {
       case "eq":
-        return { executionDate: { equals: value as Date } };
+        return { executionDate: { equals: value } };
       case "neq":
-        return { executionDate: { not: value as Date } };
+        return { executionDate: { not: value } };
       case "gt":
-        return { executionDate: { gt: value as Date } };
+        return { executionDate: { gt: value } };
       case "gte":
-        return { executionDate: { gte: value as Date } };
+        return { executionDate: { gte: value } };
       case "lt":
-        return { executionDate: { lt: value as Date } };
+        return { executionDate: { lt: value } };
       case "lte":
-        return { executionDate: { lte: value as Date } };
-      case "between": {
-        const [from, to] = value as [Date, Date];
-        return { executionDate: { gte: from, lte: to } };
-      }
+        return { executionDate: { lte: value } };
       default:
         return {};
     }
   }
 
-  private buildTitleFilter(title?: NonNullable<TaskFilter["title"]>): Prisma.TaskWhereInput {
+  private buildTitleFilter(title?: TitleFilter): Prisma.TaskWhereInput {
     if (!title) return {};
 
     const [operator, value] = this.extractOperator(title);
 
     switch (operator) {
       case "eq":
-        return { title: { equals: value as string, mode: "insensitive" } };
+        return { title: { equals: value, mode: "insensitive" } };
       case "neq":
-        return { title: { not: value as string, mode: "insensitive" } };
+        return { title: { not: value, mode: "insensitive" } };
       case "contains":
-        return { title: { contains: value as string, mode: "insensitive" } };
+        return { title: { contains: value, mode: "insensitive" } };
       case "notContains":
-        return { title: { not: { contains: value as string }, mode: "insensitive" } };
+        return { title: { not: { contains: value }, mode: "insensitive" } };
       case "startsWith":
-        return { title: { startsWith: value as string, mode: "insensitive" } };
+        return { title: { startsWith: value, mode: "insensitive" } };
       default:
         return {};
     }
   }
 
-  // TODO: Type return as [keyof T, T[keyof T]] to remove `as` casts in filter builders
-  private extractOperator<T extends Record<string, unknown>>(filter: T): [string, unknown] {
-    const entry = Object.entries(filter).find(([, v]) => v !== undefined);
-    return entry ?? ["", undefined];
+  private extractOperator<T extends OperatorFilter>(
+    filter: T,
+  ): [keyof T & string, NonNullable<T[keyof T]>] {
+    const entry = Object.entries(filter).find(([, value]) => value !== undefined);
+    return entry as [keyof T & string, NonNullable<T[keyof T]>];
   }
 
-  private parseSort(sort?: string): Prisma.TaskOrderByWithRelationInput {
+  private parseSort(sort?: SortValue): Prisma.TaskOrderByWithRelationInput {
     if (!sort) return { createdAt: "desc" };
-    const desc = sort.startsWith("-");
-    const field = desc ? sort.slice(1) : sort;
-    return { [field]: desc ? "desc" : "asc" };
+
+    for (const field of SORT_FIELDS) {
+      if (sort === `-${field}`) return { [field]: "desc" };
+      if (sort === field) return { [field]: "asc" };
+    }
+
+    return { createdAt: "desc" };
   }
 }

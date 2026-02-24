@@ -81,7 +81,7 @@ describe("TaskService", () => {
 
   describe("findAll", () => {
     const userId = "550e8400-e29b-41d4-a716-446655440001";
-    const baseQuery = { page: 1, pageSize: 10 as const, sort: "-createdAt" };
+    const baseQuery = { page: 1, pageSize: 10 as const, sort: "-createdAt" as const };
 
     it("should return paginated response when tasks exist", async () => {
       const tasks = [{ id: "550e8400-e29b-41d4-a716-446655440101" }, { id: "550e8400-e29b-41d4-a716-446655440102" }];
@@ -131,7 +131,7 @@ describe("TaskService", () => {
       });
 
       it("should sort ascending when sort has no prefix", async () => {
-        await service.findAll({ ...baseQuery, sort: "executionDate" }, userId);
+        await service.findAll({ ...baseQuery, sort: "executionDate" as const }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
           expect.objectContaining({ orderBy: { executionDate: "asc" } }),
@@ -139,7 +139,7 @@ describe("TaskService", () => {
       });
 
       it("should sort descending when sort has - prefix", async () => {
-        await service.findAll({ ...baseQuery, sort: "-priority" }, userId);
+        await service.findAll({ ...baseQuery, sort: "-priority" as const }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
           expect.objectContaining({ orderBy: { priority: "desc" } }),
@@ -173,7 +173,7 @@ describe("TaskService", () => {
       });
 
       it("should filter by priority eq when priority eq provided", async () => {
-        await service.findAll({ ...baseQuery, filter: { priority: { eq: "HIGH" } } }, userId);
+        await service.findAll({ ...baseQuery, filter: { priority: { eq: "HIGH" as const } } }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
           expect.objectContaining({ where: { userId, priority: { equals: "HIGH" } } }),
@@ -181,7 +181,7 @@ describe("TaskService", () => {
       });
 
       it("should filter by priority neq when priority neq provided", async () => {
-        await service.findAll({ ...baseQuery, filter: { priority: { neq: "LOW" } } }, userId);
+        await service.findAll({ ...baseQuery, filter: { priority: { neq: "LOW" as const } } }, userId);
 
         expect(mockTaskRepository.findMany).toHaveBeenCalledWith(
           expect.objectContaining({ where: { userId, priority: { not: "LOW" } } }),
@@ -201,7 +201,7 @@ describe("TaskService", () => {
         const from = new Date("2026-03-01");
         const to = new Date("2026-06-01");
         await service.findAll(
-          { ...baseQuery, filter: { executionDate: { between: [from, to] } } },
+          { ...baseQuery, filter: { executionDate: { between: [from, to] as const } } },
           userId,
         );
 
